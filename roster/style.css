@@ -1,0 +1,343 @@
+* {
+    --img-height: 280px;
+    --gaps: 10px;
+}
+
+idiv {
+    display: inline-block;
+}
+
+html {
+    background-color: #F0EDE5;
+    font-family: Open Sans, Arial;
+    color: #444;
+    font-size: 16px;
+    text-align: justify;
+    z-index: 10;
+}
+
+header {
+    display: inline-block;
+    height: 74px;
+    width: calc(100% - 2em);
+    padding: 0 1em 0 1em;
+}
+
+contents {
+    margin: 0 1em 0 1em;
+    display: block;
+}
+
+overlay {
+    position: fixed; /* Sit on top of the page content */
+    display: none; /* Hidden by default */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    z-index: 0; /* Specify a stack order in case you're using a different order for other elements */
+    cursor: pointer; /* Add a pointer on hover */
+}
+
+bannerimage {
+    display: block;
+    float: left;
+    width: 272px;
+    height: inherit;
+    background: no-repeat center/auto 90% url("header.png");
+}
+
+panelnavwrapper {
+    text-align: center;
+    float: right;
+    width: calc(100vw - 4em - 272px - 20px);
+    height: inherit;
+}
+
+table.stat {
+    width: 100%;
+}
+
+.tableFormLabel {
+    text-align: right;
+    padding-right: 0.5em;
+}
+
+.tableChartLabel {
+    text-align: right;
+    padding-right: 0.33em;
+    width: 0; /* this is a hack; the label must always contain non-breakables! (e.g. &nbsp;) */
+    border-right: 1px solid #AAA;
+}
+
+.tableDataNumber {
+    font-weight:bold;
+    padding-left: 0.33em;
+    text-align: right;
+    font-size: 90%;
+    width: 0; /* this is a hack; the label must always contain non-breakables! (e.g. &nbsp;) */
+}
+
+.stackDataNumber {
+    font-weight: bold;
+    padding-left: 0.5em;
+    display: inline;
+    font-size: 90%;
+    display: table-cell;
+    color: #888;
+}
+
+.tableBarChartArea {
+    padding-left: 0.5em;
+}
+
+.tableBarChart {
+    display: inline-block;
+    padding: 0;
+    background: #444
+}
+
+tablebarchartstack {
+    display: inline-block;
+    margin: 3px 0 3px 0;
+    padding: 0;
+    background: #f00;
+    font-size: 90%;
+    text-align: center;
+    font-weight: bold;
+    vertical-align: middle;
+}
+
+stacklabel {
+    display: table-cell;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    float: left;
+/*     font-size: ${fontSize}px; */
+/*     padding: ${padding}px 0 ${padding}px 0 */
+}
+
+a {
+    color: #888;
+}
+
+h4 {
+    text-align: center;
+    font-size: 1.1em;
+    color: #333;
+    padding: 0;
+    margin-top: 1rem;
+    margin-bottom: 0.8rem;
+}
+
+h5 {
+    text-align: center;
+    font-size: 0.9em;
+    color: #888;
+    padding: 0;
+    margin: 0.5rem;
+    font-weight: 400;
+    line-height: 1.3rem;
+}
+
+.furBox {
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.15);
+    border-radius: 0 0 16px 0;
+    float: left;
+    margin: 10px;
+    background-color: #f9f9f9;
+    position: relative;
+    box-sizing: border-box;
+    max-width: 210px;
+    height: calc(var(--img-height) + 9rem);
+    width: 33%;
+    animation: smooth 1.5s backwards;
+    animation-delay: 0.40s;
+}
+
+.infoBox {
+    padding-bottom: 0.5rem;
+}
+
+.imgBox {
+    display: block;
+    height: var(--img-height);
+    overflow: hidden;
+}
+
+.imgBox img {
+    object-fit: cover;
+    width: 100%;
+    height: var(--img-height);
+}
+
+.transparent_panel {
+    margin: 10px;
+    padding: 0 20px 10px 20px;
+    border-radius: 0 0 16px 0;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.15);
+    background-color: #f9f9f9;
+}
+
+.chart_container {
+    height: calc(100% - 20px);
+    padding: 0.1px 20px 20px 20px;
+    border-radius: 0 0 16px 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    background: rgba(251,251,252,0.94); /* will make the chartbox coloured to be #FAFAFA */
+}
+
+.chart_bgimg {
+    padding: 10px;
+    background: no-repeat center/80% url("header.png");
+}
+
+.searchresults {
+    margin: 1rem;
+    background-color: #f9f9f9;
+}
+
+.dummyCenterWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.bigFurboxOuter {
+    box-shadow: 0px 0px 64px rgba(0, 0, 0, 0.35);
+    border-radius: 0 0 16px 0;
+    background-color: #f9f9f9;
+    box-sizing: border-box;
+    width: calc(min(900px,80vw));
+    height: 600px;
+    animation: smooth 1.5s backwards;
+    animation-delay: 0.40s;
+}
+
+.bigFurboxContents {
+    margin: var(--gaps);
+    width: calc(100% - 2 * var(--gaps));
+    height: calc(100% - 1 * var(--gaps));
+}
+
+
+.imgBoxLarge {
+    display: block;
+    float: left;
+    width: calc(50% - var(--gaps)/2);
+    height: inherit;
+    min-height: inherit;
+}
+
+.imgBoxLarge img {
+    object-fit: contain;
+    height: 100%;
+    width: 100%;
+}
+
+.parBoxLarge {
+    float: right;
+    width: calc(50% - 0.5 * var(--gaps));
+    height: calc(100% - var(--gaps));
+}
+
+.refsheetFlexWrapper {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+}
+
+.refsElem1 {
+    display: flex;
+    width: 100%;
+    flex: 0 1 auto;
+    justify-content:center;
+}
+
+.refsElem1 table {
+    min-width: 330px;
+}
+
+.refsElem2 {
+    display: flex;
+    width: 100%;
+    height: inherit;
+    flex: 1 1 auto;
+    object-fit: contain;
+}
+
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li.columngap > a {
+    text-decoration: none;
+}
+
+.sub_content {
+    overflow-x: auto;
+    white-space: nowrap;
+    margin: 0 auto;
+    padding: 0 3vw;
+    scrollbar-width: thin;
+}
+
+.sub_content::-webkit-scrollbar {
+    height: 16px;
+}
+
+.sub_content::-webkit-scrollbar-thumb {
+    background-color: #d1d1d1;
+    border-radius: 16px;
+    background-clip: padding-box;
+    border: 4px solid transparent;
+}
+
+.sub_content::-webkit-scrollbar-track {
+    background-color: #f0f0f0;
+    border-radius: 16px;
+    background-clip: padding-box;
+    border: 4px solid transparent;
+}
+
+.sub_menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    column-count: 7;
+    margin: 0;
+    height: 75px;
+    padding: 0;
+}
+
+.columngap {
+    margin: 0 24px;
+}
+
+.sub_link {
+    display: inline-block;
+    font-size: 1rem;
+    height: 24px;
+    color: #111111;
+    transition: all 200ms;
+    border-bottom: 1px solid rgba(0,0,0,0);
+}
+
+.sub_link:hover {
+    transition: all 100ms;
+    border-bottom: 1px solid #111111
+}
+
+.selected {
+    border-bottom: 1px solid #111111;
+}
+

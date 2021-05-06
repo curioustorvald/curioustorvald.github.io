@@ -1,0 +1,79 @@
+<meta charset = "UTF-8" />
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>퍼슈트검색체계</title>
+    <script src="panelnav.js"></script>
+    <script src="stats.js"></script>
+</head>
+<body onload="panelnavinit(), statsinit();">
+    <header><bannerimage></bannerimage><panelnavwrapper></panelnavwrapper></header>
+    <contents>
+        <h3>프론트엔드 업데이트 내역</h3>
+        <table>
+        <tr>
+            <td class="tableFormLabel">20210506</td>
+            <td>최초 릴리스</td>
+        </tr>
+        </table>
+        
+        <hr />
+        
+        <h3>DB정보</h3>
+        
+        <table>
+        <tr>
+            <td class="tableFormLabel">업데이트 일자: </td>
+            <td id="lastupdate_text">&hellip;</td>
+        </tr>
+        <tr>
+            <td class="tableFormLabel">레코드 개수: </td>
+            <td id="recordcount_text">&hellip;</td>
+        </tr>
+        </table>
+        <hr />
+        
+        <h3>간단 그래프</h3>
+        
+        <div id="flex_container" style="display:flex">
+            <div class="chart_bgimg" style="flex: 1 1 23vw"><div id="birthday_stats" class="chart_container">
+                <h3 style="padding-left:0.5em">활동개시일</h3>
+                <table class="stat" id="birthday_stat_table">
+                    <!-- TO BE FILLED BY THE COMPUTER LORD -->
+                </table>
+            </div></div>
+            <div class="chart_bgimg" style="flex: 1 1 37vw"><div id="style_stats" class="chart_container">
+                <h3 style="padding-left:0.5em">스타일</h3>
+                <table class="stat" id="style_stat_table">
+                    <!-- TO BE FILLED BY THE COMPUTER LORD -->
+                </table>
+            </div></div>
+            <div class="chart_bgimg" style="flex: 1 1 40vw"><div id="diy_stats" class="chart_container">
+                <h3 style="padding-left:0.5em">자작 vs 수주</h3>
+                <table class="stat" id="diy_stat_table">
+                    <!-- TO BE FILLED BY THE COMPUTER LORD -->
+                </table>
+            </div></div>
+        </div>
+            
+        <div id="flex_container" style="display:flex">
+            <div class="chart_bgimg" style="flex: 1 0"><div id="market_share_selected" class="chart_container">
+                <h3 style="padding-left:0.5em">시장 점유율 (연도별, 선택)</h3>
+                <table class="stat" id="market_share_stat_table">
+                    <!-- TO BE FILLED BY THE COMPUTER LORD -->
+                </table>
+                <legend id="market_share_stat_table_legend">
+                    <!-- TO BE FILLED BY THE COMPUTER LORD -->
+                </legend>
+            </div></div>
+        </div>
+        
+    </contents>
+    <overlay>
+        
+    </overlay>
+    <script>
+    </script>
+</body>
+</html>
