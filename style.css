@@ -1,343 +1,209 @@
-* {
-    --img-height: 280px;
-    --gaps: 10px;
-}
-
-idiv {
-    display: inline-block;
-}
-
 html {
-    background-color: #F0EDE5;
-    font-family: Open Sans, Arial;
-    color: #444;
-    font-size: 16px;
-    text-align: justify;
-    z-index: 10;
+ background-color:#fefefe
 }
-
-header {
-    display: inline-block;
-    height: 74px;
-    width: calc(100% - 2em);
-    padding: 0 1em 0 1em;
+body {
+ font-family:Open Sans,Arial;
+ color:#454545;
+ font-size:16px;
+ margin:2em auto;
+ max-width:800px;
+ padding:1em;
+ line-height:1.4;
+ text-align:justify
 }
-
-contents {
-    margin: 0 1em 0 1em;
-    display: block;
+html.contrast body {
+ color:#050505
 }
-
-overlay {
-    position: fixed; /* Sit on top of the page content */
-    display: none; /* Hidden by default */
-    width: 100%; /* Full width (cover the whole page) */
-    height: 100%; /* Full height (cover the whole page) */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
-    z-index: 0; /* Specify a stack order in case you're using a different order for other elements */
-    cursor: pointer; /* Add a pointer on hover */
+html.contrast blockquote {
+ color:#11151a
 }
-
-bannerimage {
-    display: block;
-    float: left;
-    width: 272px;
-    height: inherit;
-    background: no-repeat center/auto 90% url("header.png");
+html.contrast blockquote:before {
+ color:#262626
 }
-
-panelnavwrapper {
-    text-align: center;
-    float: right;
-    width: calc(100vw - 4em - 272px - 20px);
-    height: inherit;
+html.contrast a {
+ color:#0051c9
 }
-
-table.stat {
-    width: 100%;
+html.contrast a:visited {
+ color:#7d013e
 }
-
-.tableFormLabel {
-    text-align: right;
-    padding-right: 0.5em;
+html.contrast span.wr {
+ color:#800
 }
-
-.tableChartLabel {
-    text-align: right;
-    padding-right: 0.33em;
-    width: 1px; /* this is a hack; the label must always contain non-breakables! (e.g. &nbsp;) */
-    border-right: 1px solid #AAA;
+html.contrast span.mfw {
+ color:#4d0000
 }
-
-.tableDataNumber {
-    font-weight:bold;
-    padding-left: 0.33em;
-    text-align: right;
-    font-size: 90%;
-    width: 1px; /* this is a hack; the label must always contain non-breakables! (e.g. &nbsp;) */
+html.inverted {
+ background-color:#010101
 }
-
-.stackDataNumber {
-    font-weight: bold;
-    padding-left: 0.5em;
-    display: inline;
-    font-size: 90%;
-    display: table-cell;
-    color: #888;
+html.inverted body {
+ color:#bababa
 }
-
-.tableBarChartArea {
-    padding-left: 0.5em;
+html.inverted div#contrast,
+html.inverted div#invmode {
+ color:#fff;
+ background-color:#000
 }
-
-.tableBarChart {
-    display: inline-block;
-    padding: 0;
-    background: #444
+html.inverted blockquote {
+ color:#dad0c7
 }
-
-tablebarchartstack {
-    display: inline-block;
-    margin: 3px 0 3px 0;
-    padding: 0;
-    background: #f00;
-    font-size: 90%;
-    text-align: center;
-    font-weight: bold;
-    vertical-align: middle;
+html.inverted blockquote:before {
+ color:#bfbfbf
 }
-
-stacklabel {
-    display: table-cell;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    float: left;
-/*     font-size: ${fontSize}px; */
-/*     padding: ${padding}px 0 ${padding}px 0 */
+html.inverted a {
+ color:#07a
 }
-
+html.inverted a:visited {
+ color:#ac5a82
+}
+html.inverted span.wr {
+ color:#c0392b
+}
+html.inverted span.mfw {
+ color:#8a0000
+}
+html.inverted.contrast {
+ background-color:#010101
+}
+html.inverted.contrast body {
+ color:#fff
+}
+html.inverted.contrast div#contrast,
+html.inverted.contrast div#invmode {
+ color:#fff;
+ background-color:#000
+}
+html.inverted.contrast blockquote {
+ color:#f8f6f5
+}
+html.inverted.contrast blockquote:before {
+ color:#e5e5e5
+}
+html.inverted.contrast a {
+ color:#07a
+}
+html.inverted.contrast a:visited {
+ color:#ac5a82
+}
+html.inverted.contrast span.wr {
+ color:#c0392b
+}
+html.inverted.contrast span.mfw {
+ color:#a10000
+}
 a {
-    color: #888;
+ color:#07a
 }
-
-h4 {
-    text-align: center;
-    font-size: 1.1em;
-    color: #333;
-    padding: 0;
-    margin-top: 1rem;
-    margin-bottom: 0.8rem;
+a:visited {
+ color:#941352
 }
-
-h5 {
-    text-align: center;
-    font-size: 0.9em;
-    color: #888;
-    padding: 0;
-    margin: 0.5rem;
-    font-weight: 400;
-    line-height: 1.3rem;
+.noselect {
+ -webkit-touch-callout:none;
+ -webkit-user-select:none;
+ -moz-user-select:none;
+ -ms-user-select:none;
+ user-select:none
 }
-
-.furBox {
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.15);
-    border-radius: 0 0 16px 0;
-    float: left;
-    margin: 10px;
-    background-color: #f9f9f9;
-    position: relative;
-    box-sizing: border-box;
-    max-width: 210px;
-    height: calc(var(--img-height) + 9rem);
-    width: 33%;
-    animation: smooth 1.5s backwards;
-    animation-delay: 0.40s;
+span.citneed {
+ vertical-align:top;
+ font-size:.7em;
+ padding-left:.3em
 }
-
-.infoBox {
-    padding-bottom: 0.5rem;
+small {
+ font-size:.4em
 }
-
-.imgBox {
-    display: block;
-    height: var(--img-height);
-    overflow: hidden;
+p.st {
+ margin-top:-1em
 }
-
-.imgBox img {
-    object-fit: cover;
-    width: 100%;
-    height: var(--img-height);
+div.fancyPositioning div.picture-left {
+ float:left;
+ width:40%;
+ overflow:hidden;
+ margin-right:1em
 }
-
-.transparent_panel {
-    margin: 10px;
-    padding: 0 20px 10px 20px;
-    border-radius: 0 0 16px 0;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.15);
-    background-color: #f9f9f9;
+div.fancyPositioning div.picture-left img {
+ width:100%
 }
-
-.chart_container {
-    height: calc(100% - 20px);
-    padding: 0.1px 20px 20px 20px;
-    border-radius: 0 0 16px 0;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-    background: rgba(251,251,252,0.94); /* will make the chartbox coloured to be #FAFAFA */
+div.fancyPositioning div.picture-left p.caption {
+ font-size:.7em
 }
-
-.chart_bgimg {
-    padding: 10px;
-    background: no-repeat center/80% url("header.png");
+div.fancyPositioning div.tleft {
+ float:left;
+ width:55%
 }
-
-.searchresults {
-    margin: 1rem;
-    background-color: #f9f9f9;
+div.fancyPositioning div.tleft p:first-child {
+ margin-top:0
 }
-
-.dummyCenterWrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
+div.fancyPositioning:after {
+ display:block;
+ content:"";
+ clear:both
 }
-
-.bigFurboxOuter {
-    box-shadow: 0px 0px 64px rgba(0, 0, 0, 0.35);
-    border-radius: 0 0 16px 0;
-    background-color: #f9f9f9;
-    box-sizing: border-box;
-    width: calc(min(900px,80vw));
-    height: 600px;
-    animation: smooth 1.5s backwards;
-    animation-delay: 0.40s;
+ul li img {
+ height:1em
 }
-
-.bigFurboxContents {
-    margin: var(--gaps);
-    width: calc(100% - 2 * var(--gaps));
-    height: calc(100% - 1 * var(--gaps));
+blockquote {
+ color:#456;
+ margin-left:0;
+ margin-top:2em;
+ margin-bottom:2em
 }
-
-
-.imgBoxLarge {
-    display: block;
-    float: left;
-    width: calc(50% - var(--gaps)/2);
-    height: inherit;
-    min-height: inherit;
+blockquote span {
+ float:left;
+ margin-left:1rem;
+ padding-top:1rem
 }
-
-.imgBoxLarge img {
-    object-fit: contain;
-    height: 100%;
-    width: 100%;
+blockquote author {
+ display:block;
+ clear:both;
+ font-size:.6em;
+ margin-left:2.4rem;
+ font-style:oblique
 }
-
-.parBoxLarge {
-    float: right;
-    width: calc(50% - 0.5 * var(--gaps));
-    height: calc(100% - var(--gaps));
+blockquote author:before {
+ content:"- ";
+ margin-right:1em
 }
-
-.refsheetFlexWrapper {
-    display: flex;
-    flex-flow: column;
-    height: 100%;
+blockquote:before {
+ font-family:Times New Roman,Times,Arial;
+ color:#666;
+ content:open-quote;
+ font-size:2.2em;
+ font-weight:600;
+ float:left;
+ margin-top:0;
+ margin-right:.2rem;
+ width:1.2rem
 }
-
-.refsElem1 {
-    display: flex;
-    width: 100%;
-    flex: 0 1 auto;
-    justify-content:center;
+blockquote:after {
+ content:"";
+ display:block;
+ clear:both
 }
-
-.refsElem1 table {
-    min-width: 330px;
+@media screen and (max-width:500px) {
+ body {
+  text-align:left
+ }
+ div.fancyPositioning div.picture-left,
+ div.fancyPositioning div.tleft {
+  float:none;
+  width:inherit
+ }
+ blockquote span {
+  width:80%
+ }
+ blockquote author {
+  padding-top:1em;
+  width:80%;
+  margin-left:15%
+ }
+ blockquote author:before {
+  content:"";
+  margin-right:inherit
+ }
 }
-
-.refsElem2 {
-    display: flex;
-    width: 100%;
-    height: inherit;
-    flex: 1 1 auto;
-    object-fit: contain;
+span.visited {
+ color:#941352
 }
-
-
-ul {
-    list-style-type: none;
-    padding: 0;
+span.visited-maroon {
+ color:#85144b
 }
-
-li.columngap > a {
-    text-decoration: none;
-}
-
-.sub_content {
-    overflow-x: auto;
-    white-space: nowrap;
-    margin: 0 auto;
-    padding: 0 3vw;
-    scrollbar-width: thin;
-}
-
-.sub_content::-webkit-scrollbar {
-    height: 16px;
-}
-
-.sub_content::-webkit-scrollbar-thumb {
-    background-color: #d1d1d1;
-    border-radius: 16px;
-    background-clip: padding-box;
-    border: 4px solid transparent;
-}
-
-.sub_content::-webkit-scrollbar-track {
-    background-color: #f0f0f0;
-    border-radius: 16px;
-    background-clip: padding-box;
-    border: 4px solid transparent;
-}
-
-.sub_menu {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    column-count: 7;
-    margin: 0;
-    height: 75px;
-    padding: 0;
-}
-
-.columngap {
-    margin: 0 24px;
-}
-
-.sub_link {
-    display: inline-block;
-    font-size: 1rem;
-    height: 24px;
-    color: #111111;
-    transition: all 200ms;
-    border-bottom: 1px solid rgba(0,0,0,0);
-}
-
-.sub_link:hover {
-    transition: all 100ms;
-    border-bottom: 1px solid #111111
-}
-
-.selected {
-    border-bottom: 1px solid #111111;
-}
-
