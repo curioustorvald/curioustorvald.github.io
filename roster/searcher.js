@@ -5,7 +5,7 @@ const dropdownIdToDBname = {
     "group_felidae":["고양이과","고양잇과","사자","호랑이","표범","카라칼","퓨마","쿠거","마운틴라이언"],
     "literal_fox":["여우"],
     "literal_rabbit":["토끼"],
-    "group_aves":["새","조류","앵무","수리","올빼미","부엉이"],
+    "group_aves":["조류","새","앵무","수리","올빼미","부엉이"],
     "group_pisces":["어류","물고기","잉어"],
     "literal_dragon":["드래곤"],
     "literal_deer":["사슴","노루"],
@@ -14,7 +14,7 @@ const dropdownIdToDBname = {
     "group_rodentia":["설치류","다람쥐","청설모","날다람쥐","쥐"],
     "group_mustelidae":["족제비과","오소리","족제비"],
     "group_bovidae":["소","염소","양","젖소"],
-    "group_camelidae":["낙타","알파카","라마"],
+    "group_camelidae":["낙타/알파카/라마","낙타","알파카","라마"],
     "literal_bat":["박쥐"],
     "literal_fantasy_sergal":["세르갈"],
     "literal_fantasy_protogen":["프로토겐"],
@@ -39,6 +39,19 @@ function loadJSON(jsonPath, isAsync, callback) {
 }
 
 var furdb = {}
+
+
+function forEachFur(action) {
+    Object.keys(furdb).filter(i => !isNaN(i)).forEach(v => action(furdb[v]))
+}
+
+function mapFurs(transformation) {
+    return Object.keys(furdb).filter(i => !isNaN(i)).map(v => transformation(furdb[v]))
+}
+
+function filterFurs(predicate) {
+    return Object.keys(furdb).filter(i => !isNaN(i)).filter(v => predicate(furdb[v]))
+}
 
 function template(strings, ...keys) {
     return (function(...values) {
@@ -129,8 +142,19 @@ const i18n = {
         "SimpleSearchSpecies": "종: ",
         "SimpleSearchStyle": "스타일: ",
         "SimpleSearchIsPartial": "파셜 여부: ",
+        "SimpleSearchColourCombi": "색상 조합: ",
+        "SimpleSearchColourCombi0": "바탕색",
+        "SimpleSearchColourCombi1": template`염색${0}`,
+        "SimpleSearchEyesSclera": "역안?",
+        "SimpleSearchEyesColour": "홍채",
+        "SimpleSearchHairColour": "염색",
+        "SimpleSearchHairStreak": "브릿지",
+        "SimpleSearchEyes": "눈 색: ",
+        "SimpleSearchHair": "머리카락:",
         "MadeBy": "제작: ",
-        "ThisManySearchResults": template`${0}개의 검색 결과:`
+        "ThisManySearchResults": template`${0}개의 검색 결과:`,
+        "None": "없음",
+        "Any": "아무거나"
     },
     "en": {
         "TagSyntaxError": "Entered tag is malformed: ",
@@ -150,9 +174,42 @@ const i18n = {
         "SimpleSearchSpecies": "Species: ",
         "SimpleSearchStyle": "Style: ",
         "SimpleSearchIsPartial": "Partial? ",
+        "SimpleSearchColourCombi": "Colour Schemes: ",
+        "SimpleSearchColourCombi0": "Background",
+        "SimpleSearchColourCombi1": template`Foreground #${0}`,
+        "SimpleSearchEyesSclera": "Sclera",
+        "SimpleSearchEyesColour": "Iris",
+        "SimpleSearchHairColour": "Dye",
+        "SimpleSearchHairStreak": "Streak",
+        "SimpleSearchEyes": "Eye Colour: ",
+        "SimpleSearchHair": "Hair Colour: ",
         "MadeBy": "Made by ",
-        "ThisManySearchResults": template`Showing ${0} search results:`
+        "ThisManySearchResults": template`Showing ${0} search results:`,
+        "None": "None",
+        "Any": "Any"
     }
+}
+
+const nulsel = `<option value="dont_care">&mdash;</option>`
+function nonesel() {
+    return `<option value="none">${i18n[lang].None}</option>`
+}
+function anysel() {
+    return `<option value="any">${i18n[lang].Any}</option>`
+}
+
+// haskell-inspired array functions
+Array.prototype.head = function() {
+    return this[0]
+}
+Array.prototype.last = function() {
+    return this[this.length - 1]
+}
+Array.prototype.tail = function() {
+    return this.slice(1)
+}
+Array.prototype.init = function() {
+    return this.slice(0, this.length - 1)
 }
 
 var lang = "ko"
@@ -161,15 +218,20 @@ function pageinit() {
     // DB 로드
     loadJSON("furdb.json", true, response => {
         furdb = JSON.parse(response)
+        // jobs that need DB to be there
+        populateColourSelection()
+        populateEyesSelection()
+        populateHairSelection()
+        // these are here to just make them pop up in sync with more heavy tasks
+        populateSpeciesSelection()
+        populateStyleSelection()
     })
     // 선택된 언어로 문서 출력
     reloadI18n()
-    populateSpeciesSelection()
-    populateStyleSelection()
 }
 
 function populateSpeciesSelection() {
-    let output = `<option value="dont_care">&mdash;</option>`
+    let output = `${nulsel}`
     Object.keys(dropdownIdToDBname).forEach(key => {
         output += `<option value="${key}">`
         output += dropdownIdToDBname[key][0]//.join('/')
@@ -179,13 +241,88 @@ function populateSpeciesSelection() {
 }
 
 function populateStyleSelection() {
-    let output = `<option value="dont_care">&mdash;</option>`
+    let output = `${nulsel}`
     dropdownStyle.forEach(value => {
         output += `<option value="${value}">`
         output += value
         output += `</option>`
     })
     document.getElementById("simplesearch_input_style").innerHTML = output
+}
+
+function populateColourSelection() {
+    let bgCols = {}
+    let fgCols = {}
+    
+    forEachFur(prop => {
+        let colours = prop.colours
+        if (colours.length > 0) {
+            if (!bgCols[colours[0]])
+                bgCols[colours[0]] = 1
+            for (let i = 1; i < colours.length; i++) {
+                if (!fgCols[colours[i]])
+                    fgCols[colours[i]] = 1
+            }
+        }
+    })
+        
+    let bgColList = Object.keys(bgCols).sort()
+    let fgColList = Object.keys(fgCols).sort()
+    
+    let bgSel = nulsel + bgColList.map(s => `<option value="${s}">${s}</option>`).join('')
+    let fgSel = nulsel + fgColList.map(s => `<option value="${s}">${s}</option>`).join('')
+    
+    document.getElementById("simplesearch_colour_background").innerHTML = bgSel
+    document.getElementById("simplesearch_colour1").innerHTML = fgSel
+    document.getElementById("simplesearch_colour2").innerHTML = fgSel
+    document.getElementById("simplesearch_colour3").innerHTML = fgSel
+}
+
+function populateEyesSelection() {
+    let cols = {}
+    
+    forEachFur(prop => {
+        let colours = prop.eyes
+        colours.forEach(col => {
+            if (!cols[col] && col != "역안")
+                cols[col] = 1
+        })
+    })
+        
+    let colList = Object.keys(cols).sort()
+    let scleraList = ["역안"]
+    
+    let colSel = nulsel + colList.map(s => `<option value="${s}">${s}</option>`).join('')
+    let sclearSel = nulsel + scleraList.map(s => `<option value="${s}">${s}</option>`).join('')
+    
+    document.getElementById("simplesearch_eyes").innerHTML = colSel
+    document.getElementById("simplesearch_eyes_sclera").innerHTML = sclearSel
+}
+
+function populateHairSelection() {
+    let bgCols = {}
+    let fgCols = {}
+    
+    forEachFur(prop => {
+        let colours = prop.hairs
+        if (colours.length > 0) {
+            if (!bgCols[colours[0]])
+                bgCols[colours[0]] = 1
+            for (let i = 1; i < colours.length; i++) {
+                if (!fgCols[colours[i]])
+                    fgCols[colours[i]] = 1
+            }
+        }
+    })
+        
+    let bgColList = Object.keys(bgCols).sort()
+    let fgColList = Object.keys(fgCols).sort()
+    
+    let bgSel = nulsel + nonesel() + anysel() + bgColList.map(s => `<option value="${s}">${s}</option>`).join('')
+    let fgSel = nulsel + nonesel() + anysel() + fgColList.map(s => `<option value="${s}">${s}</option>`).join('')
+    
+    document.getElementById("simplesearch_hair_dye").innerHTML = bgSel
+    document.getElementById("simplesearch_hair_streak").innerHTML = fgSel
 }
 
 function reloadI18n() {    
@@ -209,10 +346,26 @@ function reloadI18n() {
     document.getElementById("simplesearch_input_style_string").innerText = i18n[lang].SimpleSearchStyle
     document.getElementById("simple_submit_button").setAttribute("value", i18n[lang].Submit)
     
+    document.getElementById("simplesearch_colour_string").innerText = i18n[lang].SimpleSearchColourCombi
+    document.getElementById("simplesearch_colourcombi0").innerText = i18n[lang].SimpleSearchColourCombi0
+    document.getElementById("simplesearch_colourcombi1").innerText = i18n[lang].SimpleSearchColourCombi1(1)
+    document.getElementById("simplesearch_colourcombi2").innerText = i18n[lang].SimpleSearchColourCombi1(2)
+    document.getElementById("simplesearch_colourcombi3").innerText = i18n[lang].SimpleSearchColourCombi1(3)
+    
+    document.getElementById("simplesearch_input_eyes_string").innerText = i18n[lang].SimpleSearchEyes
+    document.getElementById("simplesearch_eyes_sclera_string").innerText = i18n[lang].SimpleSearchEyesSclera
+    document.getElementById("simplesearch_eyes_string").innerText = i18n[lang].SimpleSearchEyesColour
+    
+    document.getElementById("simplesearch_input_hair_string").innerText = i18n[lang].SimpleSearchHair
+    document.getElementById("simplesearch_hair_dye_string").innerText = i18n[lang].SimpleSearchHairColour
+    document.getElementById("simplesearch_hair_streak_string").innerText = i18n[lang].SimpleSearchHairStreak
+
+    
     document.getElementById("searchform_header").innerText = i18n[lang].AdvancedSearch
     document.getElementById("searchtags_string").innerText = i18n[lang].SearchTags
     document.getElementById("exactmatch_string").innerText = i18n[lang].IsExactMatch
     document.getElementById("includewip_string").innerText = i18n[lang].IsIncludeWip
+    document.getElementById("includewip_string2").innerText = i18n[lang].IsIncludeWip
     document.getElementById("submit_button").setAttribute("value", i18n[lang].Submit)
 }
 
@@ -354,7 +507,7 @@ function simplequery() {
     let creatorName = document.getElementById("simplesearch_input_creatorname").value
     if (creatorName == "") creatorName = undefined
     let furName = document.getElementById("simplesearch_input_furname").value
-    if (furName == "") furNameKo = undefined
+    if (furName == "") furName = undefined
     let birthdayFrom = document.getElementById("simplesearch_input_bday_from").value
     if (birthdayFrom == "") birthdayFrom = undefined
     let birthdayTo = document.getElementById("simplesearch_input_bday_to").value
@@ -368,6 +521,22 @@ function simplequery() {
     
     let searchFilter = {}
     
+    let colourCombi = ["_background","1","2","3"].map(s => {
+        let t = document.getElementById(`simplesearch_colour${s}`).value
+        return (t == "dont_care") ? undefined : t
+    })
+    // special treatment for colourCombi because 0th elem must be nullable
+    colourCombi = [colourCombi[0]].concat(colourCombi.tail().filter(it => it != undefined))
+    
+    let eyeCols = ["_sclera",""].map(s => {
+        let t = document.getElementById(`simplesearch_eyes${s}`).value
+        return (t == "dont_care") ? undefined : t
+    }).filter(it => it !== undefined)
+    let hairCols = ["_dye","_streak"].map(s => {
+        let t = document.getElementById(`simplesearch_hair${s}`).value
+        return (t == "dont_care") ? undefined : t
+    }).filter(it => it !== undefined)
+        
     if (creatorName !== undefined) searchFilter.creator_name = creatorName
     if (furName !== undefined) searchFilter.name = furName
     if (birthdayFrom !== undefined) searchFilter.birthday_from = birthdayFrom
@@ -375,10 +544,14 @@ function simplequery() {
     if (isPartial !== undefined) searchFilter.is_partial = isPartial
     if (species !== undefined) searchFilter.species_ko = dropdownIdToDBname[species]
     if (style !== undefined) searchFilter.style = style
+
+    if (colourCombi.length > 0) searchFilter.colours = colourCombi
+    if (eyeCols.length > 0) searchFilter.eyes = eyeCols
+    if (hairCols.length > 0) searchFilter.hairs = hairCols
+        
+    let includeWIP = document.getElementById("includewip_simple").checked
     
-    let includeWIP = document.getElementById("includewip").checked
-    
-    makeOutput(performSearch(searchFilter, false, includeWIP))
+    makeOutput(performSearch(searchFilter, "simple", false, includeWIP))
 }
 
 function query() {
@@ -386,7 +559,7 @@ function query() {
     let exactMatch = document.getElementById("exactmatch").checked
     let includeWIP = document.getElementById("includewip").checked
     
-    makeOutput(performSearch(parseSearchTags(query), exactMatch, includeWIP))
+    makeOutput(performSearch(parseSearchTags(query), "tags", exactMatch, includeWIP))
 }
 
 /*
@@ -446,9 +619,11 @@ exactMatch가 참일 경우 문자열이 정확히 일치하는지를 검사, �
 
  */
 const nameSearchAliases = ["name_ko", "name_en", "name_ja", "aliases"]
-const pseudoCriteria = ["name"]
-const specialSearchTags = ["birthday_from", "birthday_to"]
-function performSearch(searchFilter, exactMatch, includeWIP) {
+const pseudoCriteria = {"name":1}
+const specialSearchTags = {"birthday_from":1, "birthday_to":1}
+const arrayOfTagsAndMatch = {"colours":1, "hairs":1, "eyes":1}
+const alwaysExactMatch = {"species_ko":1}
+function performSearch(searchFilter, referrer, exactMatch, includeWIP) {
     let isSearchTagEmpty = searchFilter === undefined
     let foundFurs = [] // contains object in {id: (int), prop: (object)}
 
@@ -476,16 +651,16 @@ function performSearch(searchFilter, exactMatch, includeWIP) {
                     //console.log(`searchCriterion = ${searchCriterion}`)
                     // check if the tag is valid
                     // 태그가 올바른지 검사
-                    if (searchCriterion in furdb[furid] || pseudoCriteria.find(it => it == searchCriterion) !== undefined) {
+                    if (searchCriterion in furdb[furid] || searchCriterion in pseudoCriteria || searchCriterion in specialSearchTags) {
                         const arraySearchMode = Array.isArray(searchFilter[searchCriterion])
                         
                         //console.log(`arraySearchMode = ${arraySearchMode}`)
-    
+                        //console.log(searchFilter[searchCriterion])
                         
                         // 검색어 sanitise
                         let searchTerm = undefined
                         if (arraySearchMode) {
-                            searchTerm = searchFilter[searchCriterion].map(it => it.babostr())
+                            searchTerm = searchFilter[searchCriterion].map(it => (it === undefined) ? it : it.babostr())
                         }
                         else {
                             searchTerm = searchFilter[searchCriterion].babostr()
@@ -503,13 +678,47 @@ function performSearch(searchFilter, exactMatch, includeWIP) {
                                 }
                             }
                         }
-                                                
+                                                                        
                         if (arraySearchMode) {
-                            let partialMatch = false
-                            searchTerm.forEach(it => {
-                                partialMatch |= (exactMatch) ? (furdb[furid][searchCriterion].babostr() == it) : furdb[furid][searchCriterion].babostr().includes(it)
-                            })
-                            searchMatches &= partialMatch
+                            // some tags want AND match, not OR
+                            if (searchCriterion in arrayOfTagsAndMatch) {
+                                if (searchCriterion == "colours") {
+                                    // index 0 must match the 0th search term; anything goes for 1st or more
+                                    let baseColMatches = (searchTerm[0] === undefined) ? true : furdb[furid][searchCriterion][0] === searchTerm[0]
+                                    
+                                    let partialMatch = (searchTerm[1] === undefined)
+                                    searchTerm.tail().forEach(it => {
+                                        partialMatch |= furdb[furid][searchCriterion].tail().includes(it)
+                                    })
+                                    searchMatches &= baseColMatches & partialMatch
+                                }
+                                else if (searchCriterion == "hairs") {                                    
+                                    // "none" and "any" are special keywords
+                                    // second index is streak colour; anything goes for others
+                                    if (searchTerm[0] === "none") {
+                                        searchMatches &= furdb[furid][searchCriterion].length == 0
+                                    }
+                                    else {
+                                        let streakColMatches = (searchTerm.length < 2) ? true : ((searchTerm.last() == "none") ? (furdb[furid][searchCriterion].length < 2) : ((searchTerm.last() == "any") ? (furdb[furid][searchCriterion].length > 1 && furdb[furid][searchCriterion].last().length > 0) : furdb[furid][searchCriterion].last() === searchTerm.last()))
+                                        let partialMatch = (searchTerm[0] == "any") ? (furdb[furid][searchCriterion].length > 0) : (furdb[furid][searchCriterion][0] == searchTerm[0])
+                                        searchMatches &= streakColMatches & partialMatch
+                                    }
+                                }
+                                else {
+                                    let partialMatch = true
+                                    searchTerm.forEach(it => {
+                                        partialMatch &= furdb[furid][searchCriterion].includes(it)
+                                    })
+                                    searchMatches &= partialMatch
+                                }
+                            }
+                            else {
+                                let partialMatch = false
+                                searchTerm.forEach(it => {
+                                    partialMatch |= (searchCriterion in alwaysExactMatch || exactMatch) ? (furdb[furid][searchCriterion].babostr() == it) : furdb[furid][searchCriterion].babostr().includes(it)
+                                })
+                                searchMatches &= partialMatch
+                            }
                         }
                         else {
                             // 이름은 한/영/일/이명에 대해서도 검색해야 함
@@ -521,7 +730,7 @@ function performSearch(searchFilter, exactMatch, includeWIP) {
                                 searchMatches &= partialMatch
                             }
                             else {
-                                searchMatches &= (exactMatch) ? (furdb[furid][searchCriterion].babostr() == searchTerm) : furdb[furid][searchCriterion].babostr().includes(searchTerm)
+                                searchMatches &= (searchCriterion in alwaysExactMatch || exactMatch) ? (furdb[furid][searchCriterion].babostr() == searchTerm) : furdb[furid][searchCriterion].babostr().includes(searchTerm)
                             }
                         }
                         
@@ -537,8 +746,8 @@ function performSearch(searchFilter, exactMatch, includeWIP) {
                     }
                 }
                 catch (e) {
-                    //console.log(e)
-                    //console.log(e.stack)
+                    console.log(e)
+                    console.log(e.stack)
                 }
             }
             
