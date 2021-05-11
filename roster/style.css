@@ -8,7 +8,7 @@ idiv {
 }
 
 html {
-    background-color: #F0EDE5;
+    background-color: #E5EDF4;
     font-family: Open Sans, Arial;
     color: #444;
     font-size: 16px;
@@ -101,14 +101,28 @@ table.stat {
 }
 
 tablebarchartstack {
-    display: inline-block;
+    display: block;
     margin: 3px 0 3px 0;
     padding: 0;
     background: #f00;
     font-size: 90%;
     text-align: center;
     font-weight: bold;
-    vertical-align: middle;
+    box-sizing: border-box;
+    float: left;
+}
+
+tablebarchartstack.light {
+    color: #F9F9F9;
+}
+
+tablebarchartstack.dark {
+    color: #444;
+}
+
+tablebarchartstack:hover {
+    text-decoration: underline;
+    text-decoration-width: 2px;
 }
 
 stacklabel {
