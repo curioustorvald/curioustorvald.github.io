@@ -10,12 +10,12 @@ const dropdownIdToDBname = {
     "group_aves":["조류","새","앵무","수리","올빼미","부엉이"],
     "group_pisces":["어류","물고기","잉어"],
     "literal_dragon":["드래곤"],
-    "literal_deer":["사슴","노루"],
-    "group_raccoons":["레서판다","라쿤","너구리"],
+    "literal_deer":["노루/사슴","사슴","노루"],
+    "group_raccoons":["레서판다/라쿤/너구리","레서판다","라쿤","너구리"],
     "literal_bear":["곰"],
     "group_rodentia":["설치류","다람쥐","청설모","날다람쥐","쥐"],
     "group_mustelidae":["족제비과","오소리","족제비"],
-    "group_bovidae":["소","염소","양","젖소"],
+    "group_bovidae":["소/양","소","염소","양","젖소"],
     "group_camelidae":["낙타/알파카/라마","낙타","알파카","라마"],
     "literal_bat":["박쥐"],
     "literal_fantasy_sergal":["세르갈"],
@@ -90,7 +90,7 @@ const i18n = {
         "Reset": "초기화",
         "WillShowAllOnEmptySearch": "입력 칸을 비우고 검색하면 모든 퍼슈트를 보여줍니다",
         "AdvancedSearch": "태그 검색",
-        "SimpleSearch": "",
+        "SimpleSearch": "쉬운 검색",
         "SimpleSearchActor": "소유자: ",
         "SimpleSearchCreator": "제작자: ",
         "SimpleSearchName": "이름 (한/영): ",
@@ -380,10 +380,15 @@ function showOverlay(id) {
     let creatorLinkFull = (prop.creator_name == "자작") ? actorLinkFull : `<a href="${displayCreatorLinkHref}" target="_blank" rel="noopener noreferrer">${displayCreatorLinkName}</a>`
     
     output += `<imgbox>`
+    
     if (prop.photo)
         output += `<img src="${prop.photo}" />`
     else
         output += `<img src="no-image-available.png" />`
+    
+    if (prop.photo_copying)
+        output += `<copying>&#169; ${prop.photo_copying}</copying>`
+    
     output += `</imgbox>`
     
     output += `<parbox>`
@@ -405,8 +410,11 @@ function showOverlay(id) {
         
         output += `</refselem1>`
         
-        if (prop.ref_sheet)
-            output += `<img class="refsElem2" src="${prop.ref_sheet}" />` // refsElem2
+        if (prop.ref_sheet) {
+            output += `<img class="refsElem2" src="${prop.ref_sheet}" />`
+            if (prop.ref_sheet_copying)
+                output += `<copying>&#169; ${prop.ref_sheet_copying}</copying>`
+        }
         else
             output += `<p style="color:#AAA; text-align:center">(레퍼런스 시트가 없어요)</p>`
         
