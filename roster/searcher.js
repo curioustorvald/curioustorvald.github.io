@@ -90,7 +90,7 @@ const i18n = {
         "Reset": "초기화",
         "WillShowAllOnEmptySearch": "입력 칸을 비우고 검색하면 모든 퍼슈트를 보여줍니다",
         "AdvancedSearch": "태그 검색",
-        "SimpleSearch": "쉬운 검색",
+        "SimpleSearch": "",
         "SimpleSearchActor": "소유자: ",
         "SimpleSearchCreator": "제작자: ",
         "SimpleSearchName": "이름 (한/영): ",
