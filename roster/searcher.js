@@ -4,7 +4,7 @@ const dropdownIdToDBname = {
     "literal_dog":["개"],
     "literal_wolf":["늑대"],
     "literal_cat":["고양이"],
-    "group_felidae":["고양이과","고양잇과","사자","호랑이","표범","카라칼","퓨마","쿠거","마운틴라이언"],
+    "group_felidae":["고양이과","고양잇과","사자","호랑이","표범","카라칼","퓨마","쿠거","마운틴라이언","치타"],
     "literal_fox":["여우"],
     "literal_rabbit":["토끼"],
     "group_aves":["조류","새","앵무","수리","올빼미","부엉이"],
@@ -42,6 +42,7 @@ function loadJSON(jsonPath, isAsync, callback) {
 
 var furdb = {}
 var creatorThesaurus = {}
+var colourPalette = {}
 
 function forEachFur(action) {
     Object.keys(furdb).filter(i => !isNaN(i)).forEach(v => action(furdb[v]))
@@ -111,7 +112,8 @@ const i18n = {
         "MadeBy": "제작: ",
         "ThisManySearchResults": template`${0}개의 검색 결과:`,
         "None": "없음",
-        "Any": "아무거나"
+        "Any": "아무거나",
+        "SimpleSearchColourTable": "색도표"
     },
     "en": {
         "TagSyntaxError": "Entered tag is malformed: ",
@@ -144,7 +146,8 @@ const i18n = {
         "MadeBy": "Made by ",
         "ThisManySearchResults": template`Showing ${0} search results:`,
         "None": "None",
-        "Any": "Any"
+        "Any": "Any",
+        "SimpleSearchColourTable": "Colour Table"
     }
 }
 
@@ -177,21 +180,61 @@ function pageinit() {
     loadJSON("workshopaliases.json", true, response => {
         creatorThesaurus = JSON.parse(response)
         
-        loadJSON("furdb.json", true, response => {
-            furdb = JSON.parse(response)
-            // jobs that need DB to be there
-            populateColourSelection()
-            populateEyesSelection()
-            populateHairSelection()
-            // these are here to just make them pop up in sync with more heavy tasks
-            populateSpeciesSelection()
-            populateStyleSelection()
+        loadJSON("colourpalette.json", true, response => {
+            colourPalette = JSON.parse(response)
+            
+            loadJSON("furdb.json", true, response => {
+                furdb = JSON.parse(response)
+                // jobs that need DB to be there
+                populateColourSelection()
+                populateEyesSelection()
+                populateHairSelection()
+                // these are here to just make them pop up in sync with more heavy tasks
+                populateColourPalette()
+                populateSpeciesSelection()
+                populateStyleSelection()
+            })
         })
+        
     })
     // 선택된 언어로 문서 출력
     reloadI18n()
     
     clearResults()
+}
+
+function populateColourPalette() {
+    let maxSwatchCount = Object.values(colourPalette).reduce((acc,arr) => (arr.length > acc) ? arr.length : acc, 0)
+    
+    let out = `<table><thead style="text-align:center"><tr><td style=" border-bottom: 1px solid #AAA" colspan="${maxSwatchCount + 2}" >${i18n[lang].SimpleSearchColourTable}</td></tr></thead><tbody>`
+ 
+    Object.entries(colourPalette).forEach(kv => {
+        out += `<tr>`
+        out += `<td class="tableFormLabel">${kv[0]}</td>`
+        
+        /*out += `<td>`
+        kv[1].forEach(c => {
+            if (c.startsWith("#"))
+                out += `<span style="font-size:120%; color:${c}">&#x2588;&nbsp;</span>`
+            else
+                out += `<${c}></${c}>`
+        })
+        out += `</td>`*/
+        kv[1].forEach(c => {
+            if (c.startsWith("#")) {
+                out += `<td class="colour_swatch" style="background:${c}">&nbsp;</td>`
+            }
+            else {
+                out += `<td colspan="${maxSwatchCount}" class="${c}">&nbsp;</td>`
+            }
+        })
+        
+        out += `</tr>`
+    })
+ 
+    out += `</tbody></table>`
+ 
+    document.getElementById("colour_palette_showoff").innerHTML = out
 }
 
 function populateSpeciesSelection() {
@@ -215,8 +258,8 @@ function populateStyleSelection() {
 }
 
 function populateColourSelection() {
-    let bgCols = {}
-    let fgCols = {}
+    let bgCols = {} // for colours that appear on the sheet but not in the colour palette
+    let fgCols = {} // for colours that appear on the sheet but not in the colour palette
     
     forEachFur(prop => {
         let colours = prop.colours
@@ -230,11 +273,16 @@ function populateColourSelection() {
         }
     })
         
-    let bgColList = Object.keys(bgCols).sort()
-    let fgColList = Object.keys(fgCols).sort()
+    let bgColList = Object.keys(bgCols).sort().filter(it => !(it in colourPalette))
+    let fgColList = Object.keys(fgCols).sort().filter(it => !(it in colourPalette))
     
-    let bgSel = nulsel + bgColList.map(s => `<option value="${s}">${s}</option>`).join('')
-    let fgSel = nulsel + fgColList.map(s => `<option value="${s}">${s}</option>`).join('')
+    let commonSel = nulsel + Object.keys(colourPalette).map(s => `<option value="${s}">${s}</option>`).join('')
+    
+    let bgSel = `${commonSel}`
+    if (bgColList.length > 0) bgSel += nulsel + bgColList.map(s => `<option value="${s}">${s}</option>`).join('')
+        
+    let fgSel = `${commonSel}`
+    if (fgColList.length > 0) fgSel += nulsel + fgColList.map(s => `<option value="${s}">${s}</option>`).join('')
     
     document.getElementById("simplesearch_colour_background").innerHTML = bgSel
     document.getElementById("simplesearch_colour1").innerHTML = fgSel
@@ -307,6 +355,7 @@ function reloadI18n() {
     document.getElementById("simplesearch_header").innerText = i18n[lang].SimpleSearch
     document.getElementById("simplesearch_input_creatorname_string").innerText = i18n[lang].SimpleSearchCreator
     document.getElementById("simplesearch_input_furname_string").innerText = i18n[lang].SimpleSearchName
+    document.getElementById("simplesearch_input_actorname_string").innerText = i18n[lang].SimpleSearchActor
     document.getElementById("simplesearch_input_bday_title_string").innerText = i18n[lang].SimpleSearchBirthday
     document.getElementById("simplesearch_dropdown_species_string").innerText = i18n[lang].SimpleSearchSpecies
     document.getElementById("simplesearch_input_is_partial_string").innerText = i18n[lang].SimpleSearchIsPartial
