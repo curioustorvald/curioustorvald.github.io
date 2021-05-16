@@ -463,11 +463,11 @@ function reloadI18n() {
     
     let tagdocOutput = ""
     
-    tagdocOutput += "<ul>"
+    tagdocOutput += `<ul>`
     Object.keys(tagDocumentation).forEach(it => {
-        tagdocOutput += "<li>"+it+" &ndash; "+tagDocumentation[it][lang]+"</li>"
+        tagdocOutput += `<li><span class="tagdoc1">${it} </span><span class="tagdoc2"> ${tagDocumentation[it][lang]}</span></li>`
     })
-    tagdocOutput += "</ul><p>"+i18n[lang].ReplaceSpaceWithUnderscore+"</p>"
+    tagdocOutput += `</ul><p>${i18n[lang].ReplaceSpaceWithUnderscore}</p>`
     
     document.getElementById("tagdoc").innerHTML = tagdocOutput
     document.getElementById("tagdoc_header").innerHTML = i18n[lang].TagGuide
