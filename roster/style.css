@@ -1,7 +1,8 @@
 * {
     --site-background: #E5EDF4;
     --furbox-background: #F9F9F9;
-    --site-text-colour: #3A3A3A;
+    --site-text-colour: #333;
+    --site-subtext-colour: #888;
     --site-font-size: 16px;
     --img-height: 280px;
     --shopbannerimg-height: 50px;
@@ -9,6 +10,8 @@
     --textborder: rgba(0,0,0,0.5);
     --rainbowbox: linear-gradient(to right, #EC6A69,#F0994F,#CCAB13,#9ABA28,#59C36A,#00C6B7,#00BFE6,#96AAF6,#C89CE4,#DF6D9D,#EC6A69);
     --whitegraph-bordercol: #CCC;
+    --colour-swatch-size-outer: 36px;
+    --colour-swatch-size-inner: 32px;
 }
 
 /*form table {
@@ -75,6 +78,11 @@ overlay {
     cursor: pointer; /* Add a pointer on hover */
 }
 
+.underline_on_hover:hover {
+    text-decoration: underline;
+}
+
+
 table.stat {
     width: 100%;
 }
@@ -105,7 +113,7 @@ table.stat {
     display: inline;
     font-size: 90%;
     display: table-cell;
-    color: #888;
+    color: var(--site-subtext-colour);
 }
 
 .tableBarChartArea {
@@ -153,11 +161,6 @@ tablebarchartstack.superlight {
     border-bottom: 1px solid var(--whitegraph-bordercol);
 }
 
-tablebarchartstack:hover {
-    text-decoration: underline;
-    text-decoration-width: 2px;
-}
-
 stacklabel {
     display: table-cell;
     width: 100%;
@@ -169,10 +172,10 @@ stacklabel {
 }
 
 a {
-    color: #888;
+    color: var(--site-subtext-colour);
 }
 
-h4 {
+infobox h4, parbox h4 {
     text-align: center;
     font-size: 1.1em;
     color: #333;
@@ -181,10 +184,10 @@ h4 {
     margin-bottom: 0.8rem;
 }
 
-h5 {
+infobox h5, parbox h5 {
     text-align: center;
     font-size: 0.9em;
-    color: #888;
+    color: var(--site-subtext-colour);
     padding: 0;
     margin: 0.5rem;
     font-weight: 400;
@@ -201,18 +204,6 @@ floatbox {
     box-sizing: border-box;
 }
 
-floatbox#colour_palette_showoff {
-    min-width: max-content;
-}
-
-floatbox#colour_palette_showoff thead h4 {
-    margin: 2pt;
-}
-
-td .colour_swatch {
-    width: 1.3em;
-}
-
 .rainbowbox {
     background-image: var(--rainbowbox);
 }
@@ -222,21 +213,35 @@ td .colour_swatch {
 
 colourchooser {
     display: block;
-    margin-top: 5px;
-    margin-bottom: 5px;
+    line-height: var(--colour-swatch-size-outer);
 }
 
 /* The container */
 colourchooser .container {
     display: inline-block;
     position: relative;
-    padding-left: 35px;
+    padding-left: var(--colour-swatch-size-outer);
     margin-bottom: 12px;
     cursor: pointer;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.swatch {
+    height: var(--colour-swatch-size-inner);
+    width: var(--colour-swatch-size-inner);
+    border: 1px solid rgba(0,0,0,0.5);
+    border-radius: 0 0 8px 0;
+}
+
+.swatch_black_sclera {
+    background: no-repeat center/66% url(swatch_black_sclera.png) #333;
+}
+
+.swatch_shaped_pupil {
+    background: no-repeat center/55% url(swatch_shaped_pupil.png) #F9F9F9;
 }
 
 /* Hide the browser's default checkbox */
@@ -254,11 +259,6 @@ colourchooser .checkmark {
     position: absolute;
     top: 0;
     left: 0;
-    height: 32px;
-    width: 32px;
-    background-color: #FF0000;
-    border: 1px solid rgba(0,0,0,0.5);
-    border-radius: 4px;
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
@@ -328,6 +328,19 @@ furbox imgbox img {
     object-fit: cover;
     width: 100%;
     height: var(--img-height);
+}
+
+infobox h4[class=name_en] { 
+    display:inline; margin: 0 0.18em;
+}
+infobox h4[class=name_ko] {
+    display:inline; margin: 0 0.18em;
+}
+infobox h4[class=name_ja] {
+    display:inline; margin: 0 0.18em;
+}
+infobox h4[class=name_unknown] {
+    display:inline; margin: 0 0.18em;
 }
 
 /* END OF FURBOX */
@@ -419,23 +432,25 @@ dummycentre {
 }
 
 bigfurbox {
-    display: block;
+    display: flex;
+    flex-flow: row wrap;
     box-shadow: 0px 0px 64px rgba(0, 0, 0, 0.35);
     border-radius: 0 0 16px 0;
     background-color: var(--furbox-background);
     box-sizing: border-box;
-    width: calc(min(900px,80vw));
-    height: 600px;
+    height: calc(min(720px,80vh));
+    width: calc((4/3) * min(720px,80vh));
     animation: smooth 1.5s backwards;
     animation-delay: 0.40s;
     padding: var(--gaps);
+    overflow: auto;
 }
 
 bigfurbox imgbox {
-    display: block;
-    float: left;
-    width: calc(50% - var(--gaps)/2);
+    flex: 1 1 50%;
+    width: 50%;
     height: 100%;
+    min-width: 260px;
 }
 
 bigfurbox imgbox img {
@@ -445,9 +460,14 @@ bigfurbox imgbox img {
 }
 
 bigfurbox parbox {
-    float: right;
-    width: calc(50% - 0.5 * var(--gaps));
-    height: 100%
+    flex: 1 1 50%;
+    width: 50%;
+    height: 100%;
+    min-width: 260px;
+}
+
+bigfurbox h4 {
+    margin: 1ex;
 }
 
 refsheetflexwrapper {
@@ -472,6 +492,7 @@ refselem1 table {
     display: flex;
     width: 100%;
     height: inherit;
+    min-height: 200px;
     flex: 1 1 auto;
     object-fit: contain;
 }
@@ -518,6 +539,10 @@ bigfurbox copying {
 
 .flex_halfcol {
     flex: 50%;
+}
+
+.flex_thirdcol {
+    flex: 33.333%;
 }
 
 
@@ -605,29 +630,29 @@ li.columngap > a {
 .accordion>input[name=collapse] {
     display:none
 }
-.accordion label, .accordion .content {
+.accordion label, .accordion .accordion_inner {
 /*     max-width:620px; */
     margin:0 auto
 }
-.accordion .content {
+.accordion .accordion_inner {
 /*     background:#fff; */
     overflow:hidden;
     height:0;
     transition:.5s;
 }
-.accordion>input[name=collapse]:checked~.content {
+.accordion>input[name=collapse]:checked~.accordion_inner {
     height:auto;
     transition:height .5s
 }
 /*@media only screen and (min-width:620px) {
-    .accordion>input[name=collapse]:checked~.content {
+    .accordion>input[name=collapse]:checked~.accordion_inner {
         height:220px
     }
 }*/
 .accordion {
     margin-bottom:1em
 }
-.accordion>input[name=collapse]:checked~.content {
+.accordion>input[name=collapse]:checked~.accordion_inner {
     border-top:0;
     transition:.3s
 }
@@ -635,7 +660,7 @@ li.columngap > a {
     margin:10px 0 10px 0;
     font-size:16px
 }
-.accordion label {
+.accordion > h3 > label {
 /*     display:block */
     color:var(--site-text-colour);
     cursor:pointer;

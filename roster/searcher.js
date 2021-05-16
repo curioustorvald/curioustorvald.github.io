@@ -45,6 +45,7 @@ var creatorThesaurus = {}
 var colourPalette = {}
 
 function htmlColToLum(text) {
+    if (!text) return 0.5
     let r = parseInt("0x"+text.substring(1,3)) / 255.0
     let g = parseInt("0x"+text.substring(3,5)) / 255.0
     let b = parseInt("0x"+text.substring(5,7)) / 255.0
@@ -52,15 +53,15 @@ function htmlColToLum(text) {
 }
 
 function forEachFur(action) {
-    Object.keys(furdb).filter(i => !isNaN(i)).forEach(v => action(furdb[v]))
+    Object.keys(furdb).filter(i => !isNaN(i)).forEach(v => action(furdb[v], v))
 }
 
 function mapFurs(transformation) {
-    return Object.keys(furdb).filter(i => !isNaN(i)).map(v => transformation(furdb[v]))
+    return Object.keys(furdb).filter(i => !isNaN(i)).map(v => transformation(furdb[v], v))
 }
 
 function filterFurs(predicate) {
-    return Object.keys(furdb).filter(i => !isNaN(i)).filter(v => predicate(furdb[v]))
+    return Object.keys(furdb).filter(i => !isNaN(i)).filter(v => predicate(furdb[v], v))
 }
 
 function template(strings, ...keys) {
@@ -90,29 +91,31 @@ const tagDocumentation = {
 const i18n = {
     "ko": {
         "TagSyntaxError": "태그가 올바르지 않게 입력되었습니다: ",
-        "TagOptions": "태그 옵션:",
+        "TagGuide": "태그 가이드",
         "SearchTags": "검색어: ",
         "IsExactMatch": "검색어 정확히 매칭",
         "IsIncludeWip": "미완성 퍼슈트 포함",
         "Submit": "검색",
         "Reset": "초기화",
         "WillShowAllOnEmptySearch": "입력 칸을 비우고 검색하면 모든 퍼슈트를 보여줍니다",
+        "ReplaceSpaceWithUnderscore": "공백은 언더스코어( _ )를 사용해 입력해 주십시오",
         "AdvancedSearch": "태그 검색",
-        "SimpleSearch": "",
+        "SimpleSearch": "쉬운 검색",
         "SimpleSearchActor": "소유자: ",
         "SimpleSearchCreator": "제작자: ",
         "SimpleSearchName": "이름 (한/영): ",
-        "SimpleSearchBirthday": "활동개시일&nbsp;<br />(yyyymmdd): ",
+        "SimpleSearchBirthday": "활동개시일: ",
         "SimpleSearchBirthday2": "활동개시일: ",
         "SimpleSearchSpecies": "종: ",
         "SimpleSearchStyle": "스타일: ",
-        "SimpleSearchIsPartial": "파셜 여부: ",
+        "SimpleSearchIsFullSuit": "풀슈트: ",
         "SimpleSearchColourCombi": "색상 조합: ",
         "SimpleSearchEyesSclera": "역안?",
         "SimpleSearchEyesColour": "홍채",
         "SimpleSearchHairColour": "염색",
         "SimpleSearchHairStreak": "브릿지",
-        "SimpleSearchEyes": "눈 색: ",
+        "SimpleSearchEyes": "눈 색상: ",
+        "SimpleSearchEyeFeatures": "눈 특징: ",
         "SimpleSearchHair": "머리카락:",
         "MadeBy": "&#x2702;&#xFE0F;&nbsp;", // BLACK SCISSORS+VARIATION SELECTOR-16 because unicode is stupid
         "ThisManySearchResults": template`${0}개의 검색 결과:`,
@@ -122,33 +125,40 @@ const i18n = {
         "SimpleSearchFromPre": "",
         "SimpleSearchFromPost": "부터",
         "SimpleSearchToPre": "",
-        "SimpleSearchToPost": "까지"
+        "SimpleSearchToPost": "까지",
+        "ConditionYes": "예",
+        "ConditionNo": "아니오",
+        "ShareLink": "공유 주소: ",
+        "ClickToCopyLink": "(눌러서 링크 복사)",
+        "LinkCopied": "링크가 복사되었습니다"
     },
     "en": {
         "TagSyntaxError": "Entered tag is malformed: ",
-        "TagOptions": "Tag Options:",
+        "TagGuide": "Tag Guides",
         "SearchTags": "Search Tags: ",
         "IsExactMatch": "Exact Match?",
         "IsIncludeWip": "Include Not Yet Completed?",
         "Submit": "Submit",
         "Reset": "Reset",
-        "WillShowAllOnEmptySearch": "Blank search tag will show all the fursuits",
+        "WillShowAllOnEmptySearch": "Searching with no criteria will show all fursuits",
+        "ReplaceSpaceWithUnderscore": "Use underscore ( _ ) to type in spaces",
         "AdvancedSearch": "Search By Tags",
-        "SimpleSearch": "",
+        "SimpleSearch": "Easy Search",
         "SimpleSearchActor": "Owner: ",
         "SimpleSearchCreator": "Creator: ",
         "SimpleSearchName": "Name (Korean/English): ",
-        "SimpleSearchBirthday": "Day of Birth (yyyymmdd): ",
+        "SimpleSearchBirthday": "Day of Birth: ",
         "SimpleSearchBirthday2": "Day of Birth: ",
         "SimpleSearchSpecies": "Species: ",
         "SimpleSearchStyle": "Style: ",
-        "SimpleSearchIsPartial": "Partial? ",
+        "SimpleSearchIsFullSuit": "Full Suit? ",
         "SimpleSearchColourCombi": "Colour Schemes: ",
         "SimpleSearchEyesSclera": "Sclera",
         "SimpleSearchEyesColour": "Iris",
         "SimpleSearchHairColour": "Dye",
         "SimpleSearchHairStreak": "Streak",
         "SimpleSearchEyes": "Eye Colour: ",
+        "SimpleSearchEyeFeatures": "Eye Features: ",
         "SimpleSearchHair": "Hair Colour: ",
         "MadeBy": "&#x2702;&#xFE0F;&nbsp;", // BLACK SCISSORS+VARIATION SELECTOR-16 because unicode is stupid
         "ThisManySearchResults": template`Showing ${0} search results:`,
@@ -158,7 +168,12 @@ const i18n = {
         "SimpleSearchFromPre": "From",
         "SimpleSearchFromPost": "",
         "SimpleSearchToPre": "&nbsp;&nbsp;To",
-        "SimpleSearchToPost": ""
+        "SimpleSearchToPost": "",
+        "ConditionYes": "Yes",
+        "ConditionNo": "No",
+        "ShareLink": "Share Link: ",
+        "ClickToCopyLink": "(Click to Copy the Link)",
+        "LinkCopied": "Link Copied"
     }
 }
 
@@ -196,10 +211,22 @@ function pageinit() {
             
             loadJSON("furdb.json", true, response => {
                 furdb = JSON.parse(response)
+                
+                checkForDatabaseErrors()
+                
+                
+                // handle the 'show' query string
+                // qd is defined on index.html
+                if (qd.show !== undefined) {
+                    showOverlay(qd.show[0])
+                }
+                
                 // jobs that need DB to be there
-                populateEyesSelection()
+                //populateEyesSelection()
+                populateColourChooser("eye_colours")
                 populateColourChooser("body_colours")
                 populateColourChooser("hair_colours")
+                populateEyeFeaturesChooser()
                 //populateColourSelection()
                 //populateHairSelection()
                 // these are here to just make them pop up in sync with more heavy tasks
@@ -215,28 +242,74 @@ function pageinit() {
     clearResults()
 }
 
+function checkForDatabaseErrors() {
+    let msg = []
+    
+    forEachFur((prop, id) => {
+        prop.colour_combi.forEach(col => {
+            if (!(col in colourPalette)) msg.push(`Undefined colour_combi '${col}' for id ${id}`)
+        })
+        prop.hair_colours.forEach(col => {
+            if (!(col in colourPalette)) msg.push(`Undefined hair_colours '${col}' for id ${id}`)
+        })
+        prop.eye_colours.forEach(col => {
+            if (!(col in colourPalette)) msg.push(`Undefined eye_colours '${col}' for id ${id}`)
+        })
+        prop.eye_features.forEach(feature => {
+            if (!(feature in specialEyeSwatch)) msg.push(`Undefined eye_colours '${col}' for id ${id}`)
+        })
+    })
+        
+    if (msg.length > 0) {
+        let msgstr = msg.join('\n')
+        alert(`데이터베이스의 무결성 검증에 실패하였습니다:\n${msgstr}`)
+        throw Error(msgstr)
+    }
+}
+
+function createColourSwatch(name) {
+    if (name.length == 0) return ``
+            
+    let colour = colourPalette[name][1]
+    if (!colour) colour = colourPalette[name][0]
+            
+    let lum = htmlColToLum(colour)
+    let subclass = (lum >= 0.666) ? "light" : "dark"
+    return `<span class="checkmark swatch" luminosity="${subclass}" style="background:${(colour.startsWith('#') ? colour : `var(--${colour})`)}" title="${name}"></span>`
+}
+
+const specialEyeSwatch = {
+    "역안":`<span class="checkmark swatch swatch_black_sclera" luminosity="light" title="역안"></span>`,
+    "무늬":`<span class="checkmark swatch swatch_shaped_pupil" luminosity="dark" title="무늬"></span>`
+}
+
 function populateColourChooser(parentname) {
     // expected parentname: "body_colours", "hair_colours"
     let out = ``
     
-    Object.entries(colourPalette).forEach(kv => {
-        let name = kv[0]
-        let colour = kv[1][1]
-        
-        if (colour != undefined && colour.startsWith("#")) {
-            let lum = htmlColToLum(colour)
-            let subclass = (lum >= 0.666) ? "light" : "dark"
-
+    Object.keys(colourPalette).forEach(name => {
+        if (name != "무지개색") {
             out += `<label class="container">&zwj;`
-            //out += `<label class="container">tsz`
             out += `<input type="checkbox" id="${parentname}_${name}">`
-            out += `<span class="checkmark" luminosity="${subclass}" style="background-color:${colour}" title="${name}"></span>`
+            out += createColourSwatch(name)
             out += `</label>`
         }
     })
     
-    
     document.getElementById(`simplesearch_${parentname}`).innerHTML = out
+}
+
+function populateEyeFeaturesChooser() {
+    let out = ``
+    
+    Object.entries(specialEyeSwatch).forEach(kv => {        
+        out += `<label class="container">${kv[0]}`
+        out += `<input type="checkbox" id="eye_features_${kv[0]}">`
+        out += kv[1]
+        out += `</label>`
+    })
+    
+    document.getElementById(`simplesearch_eye_features`).innerHTML = out
 }
 
 function populateColourPaletteHelpMessage() {
@@ -328,6 +401,7 @@ function populateColourSelection() {
     document.getElementById("simplesearch_colour3").innerHTML = fgSel
 }
 
+// code for the old dropdown menu which is unused
 function populateEyesSelection() {
     let cols = {}
     
@@ -349,6 +423,7 @@ function populateEyesSelection() {
     document.getElementById("simplesearch_eyes_sclera").innerHTML = sclearSel
 }
 
+// code for the old dropdown menu which is unused
 function populateHairSelection() {
     let bgCols = {}
     let fgCols = {}
@@ -376,18 +451,26 @@ function populateHairSelection() {
 }
 
 function reloadI18n() {
+    // is full suit yes/no
+    document.getElementById("simplesearch_input_is_full_suit").innerHTML = nulsel +
+        `<option value="true">${i18n[lang].ConditionYes}</option>` +
+        `<option value="false">${i18n[lang].ConditionNo}</option>`
+    
+    
     document.getElementById("will_show_anything_string").innerHTML = i18n[lang].WillShowAllOnEmptySearch
+    document.getElementById("tagsearch_willshowall_string").innerHTML = i18n[lang].WillShowAllOnEmptySearch
     
     
     let tagdocOutput = ""
     
-    tagdocOutput += "<p>"+i18n[lang].TagOptions+"</p><ul>"
+    tagdocOutput += "<ul>"
     Object.keys(tagDocumentation).forEach(it => {
         tagdocOutput += "<li>"+it+" &ndash; "+tagDocumentation[it][lang]+"</li>"
     })
-    tagdocOutput += "</ul><p>"+i18n[lang].WillShowAllOnEmptySearch+"</p>"
+    tagdocOutput += "</ul><p>"+i18n[lang].ReplaceSpaceWithUnderscore+"</p>"
     
     document.getElementById("tagdoc").innerHTML = tagdocOutput
+    document.getElementById("tagdoc_header").innerHTML = i18n[lang].TagGuide
     
     // 검색폼 다국어화
     document.getElementById("simplesearch_header").innerHTML = i18n[lang].SimpleSearch
@@ -402,7 +485,7 @@ function reloadI18n() {
     document.getElementById("bday_to_post").innerHTML = i18n[lang].SimpleSearchToPost
 
     document.getElementById("simplesearch_dropdown_species_string").innerHTML = i18n[lang].SimpleSearchSpecies
-    document.getElementById("simplesearch_input_is_partial_string").innerHTML = i18n[lang].SimpleSearchIsPartial
+    document.getElementById("simplesearch_input_is_full_suit_string").innerHTML = i18n[lang].SimpleSearchIsFullSuit
     document.getElementById("simplesearch_input_style_string").innerHTML = i18n[lang].SimpleSearchStyle
     document.getElementById("simple_submit_button").setAttribute("value", i18n[lang].Submit)
     document.getElementById("simple_reset_button").setAttribute("value", i18n[lang].Reset)
@@ -410,13 +493,13 @@ function reloadI18n() {
     document.getElementById("simplesearch_colour_string").innerHTML = i18n[lang].SimpleSearchColourCombi
     
     document.getElementById("simplesearch_input_eyes_string").innerHTML = i18n[lang].SimpleSearchEyes
-    document.getElementById("simplesearch_eyes_sclera_string").innerHTML = i18n[lang].SimpleSearchEyesSclera
-    document.getElementById("simplesearch_eyes_string").innerHTML = i18n[lang].SimpleSearchEyesColour
     
     document.getElementById("simplesearch_input_hair_string").innerHTML = i18n[lang].SimpleSearchHair
 
+    document.getElementById("simplesearch_input_eye_features_string").innerHTML = i18n[lang].SimpleSearchEyeFeatures
+
     
-    document.getElementById("searchform_header").innerHTML = i18n[lang].AdvancedSearch
+    //document.getElementById("searchform_header").innerHTML = i18n[lang].AdvancedSearch
     document.getElementById("searchtags_string").innerHTML = i18n[lang].SearchTags
     document.getElementById("exactmatch_string").innerHTML = i18n[lang].IsExactMatch
     document.getElementById("includewip_string").innerHTML = i18n[lang].IsIncludeWip
@@ -435,9 +518,33 @@ function setLangEn() {
 function textOrQos(s) {
     return (s.trim().length === 0) ? "???" : s
 }
-function showOverlay(id) {
-    let prop = furdb[id]
+function obtainShareLink(id) {
+    return `${window.location.href.split('?')[0]}?show=${id}`
+}
+function copySharelink(id) {
+    let holder = document.getElementById("clipboard_dummy_container")
+    holder.style.display = "block"
+    holder.style.opacity = 0
     
+    try {
+        let temp = document.getElementById("clipboard_dummy")
+        temp.value = obtainShareLink(id)
+        temp.select()
+        temp.setSelectionRange(0,99999)
+        document.execCommand("copy")
+     
+        alert(i18n[lang].LinkCopied)
+    }
+    catch (e) {
+        // just in case...
+    }
+    finally {
+        holder.style.display = "none" // because this inputbox must be hidden
+    }
+}
+function showOverlay(id) {    
+    let prop = furdb[id]
+        
     let displayFurName = textOrQos((prop.name_ko + " " + prop.name_en).trim())
             
     let displayFurNameJa = (prop.name_ja).trim()
@@ -459,10 +566,11 @@ function showOverlay(id) {
     let displayCreatorLinkHref = prop.creator_link
     let displayCreatorLinkName = (displayCreatorLinkHref == "") ? "" : ((displayCreatorLinkHref.startsWith("https://twitter.com/")) ? `@${displayCreatorLinkHref.split("/").pop()}` : `(링크)`)
     
-    let tdtemplate = template`<tr><td class="tableFormLabel" style="color:#888">${0}</td><td style="color:#333">${1}</td></tr>`
+    let tdtemplate = template`<tr><td class="tableFormLabel" style="color:#888">${0}</td><td>${1}</td></tr>`
+    let tdtemplCol = template`<tr><td class="tableFormLabel" style="color:#888">${0}</td><td><colourchooser style="height:var(--colour-swatch-size-outer)">${1}</colourchooser></td></tr>`
     
     let output = `<dummycentre><bigfurbox>`
-    
+        
     let actorLinkFull = `<a href="${displayActorLinkHref}" target="_blank" rel="noopener noreferrer">${displayActorLinkName}</a>`
     let creatorLinkFull = (prop.creator_name == "자작") ? actorLinkFull : `<a href="${displayCreatorLinkHref}" target="_blank" rel="noopener noreferrer">${displayCreatorLinkName}</a>`
     
@@ -475,6 +583,15 @@ function showOverlay(id) {
     
     if (prop.photo_copying)
         output += `<copying>&#169; ${prop.photo_copying}</copying>`
+    
+    let colourCombiPal = prop.colour_combi.map(it => `<label class="container">&zwj;${createColourSwatch(it)}</label>`).join('')
+    
+    let hairColourPal = prop.hair_colours.map(it => `<label class="container">&zwj;${createColourSwatch(it)}</label>`).join('')
+    
+    let eyeColourPal = prop.eye_colours.map(it => `<label class="container">&zwj;${createColourSwatch(it)}</label>`).join('') +
+            prop.eye_features.map(it => `<label class="container">&zwj;${specialEyeSwatch[it]}</label>`).join('')
+    
+    let copyableLinkHtml = `<span class="underline_on_hover" onclick=copySharelink(${id})>${i18n[lang].ClickToCopyLink}</span>` 
     
     output += `</imgbox>`
     
@@ -493,6 +610,19 @@ function showOverlay(id) {
         output += tdtemplate(i18n[lang].SimpleSearchActor, displayActorName + `&nbsp; ${actorLinkFull}`)
         output += tdtemplate(i18n[lang].SimpleSearchCreator, displayCreatorName + `&nbsp; ${creatorLinkFull}`)
         output += tdtemplate(i18n[lang].SimpleSearchBirthday2, prop.birthday)
+        output += tdtemplate(i18n[lang].SimpleSearchIsFullSuit, prop.is_34partial ? "&frac34;" : !prop.is_partial ? i18n[lang].ConditionYes : i18n[lang].ConditionNo)
+        
+        if (colourCombiPal.length > 0)
+        output += tdtemplCol(i18n[lang].SimpleSearchColourCombi, colourCombiPal)
+        
+        if (hairColourPal.length > 0)
+        output += tdtemplCol(i18n[lang].SimpleSearchHair, hairColourPal)
+        
+        if (eyeColourPal.length > 0)
+        output += tdtemplCol(i18n[lang].SimpleSearchEyes, eyeColourPal)
+        
+        output += tdtemplate(i18n[lang].ShareLink, copyableLinkHtml)
+
         output += `</table>`
         
         output += `</refselem1>`
@@ -524,13 +654,11 @@ function makeOutput(searchResults) {
         let id = it.id
         let prop = it.prop
         
-        let displayFurName = textOrQos((prop.name_ko + " " + prop.name_en).trim())
-            
+        let displayFurNameKo = (prop.name_ko).trim()
+        let displayFurNameEn = (prop.name_en).trim()
         let displayFurNameJa = (prop.name_ja).trim()
-                            
-        let furAliases = (prop.aliases).trim()
-        if (furAliases == "") furAliases = String.fromCharCode(0x3000)
-                            
+        let nameUnknown = (displayFurNameKo+displayFurNameEn+displayFurNameJa).length == 0
+        
         let actorName = (prop.actor_name).trim()
                             
         let displayActorName = textOrQos(actorName.split("/").shift())
@@ -554,10 +682,21 @@ function makeOutput(searchResults) {
             output += `<img src="${prop.ref_sheet}" />`
         else
             output += `<img src="no-image-available.png" />`
-            
+                        
         output += `</imgbox>`
         output += `<infobox>`
-        output += `<h4 title="${(furAliases.length == 0) ? `${displayFurName} ${displayFurNameJa}`.trim() : `${displayFurName} ${displayFurNameJa} (${furAliases})`}">${displayFurName}</h4>`
+        
+        output += `<center>`
+        if (nameUnknown) {
+            output += `<h4 class="name_unknown">???</h4>`
+        }
+        else {
+            output += `<h4 class="name_ko">${displayFurNameKo}</h4>`
+            output += `<h4 class="name_en">${displayFurNameEn}</h4>`
+            output += `<h4 class="name_ja">${displayFurNameJa}</h4>`
+        }
+        output += `</center>`
+        
         output += `<h5 title="${actorName}">${displayActorName}<br /><a href="${displayActorLinkHref}" target="_blank" rel="noopener noreferrer">${displayActorLinkName}</a></h5>`
         output += `<h5>${i18n[lang].MadeBy + ((displayCreatorLinkHref.length == 0) ? displayCreatorName : `<a href="${displayCreatorLinkHref}" target="_blank" rel="noopener noreferrer">${displayCreatorName}</a>`)}</h5>`
         output += `</infobox></furbox>`
@@ -581,8 +720,8 @@ function simplequery() {
     if (birthdayTo == "") birthdayTo = undefined
     let species = document.getElementById("simplesearch_dropdown_species").value
     if (species == "dont_care") species = undefined
-    let isPartial = document.getElementById("simplesearch_input_is_partial").value
-    if (isPartial == "dont_care") isPartial = undefined
+    let isFullSuit = document.getElementById("simplesearch_input_is_full_suit").value
+    if (isFullSuit == "dont_care") isFullSuit = undefined
     let style = document.getElementById("simplesearch_input_style").value
     if (style == "dont_care") style = undefined
     
@@ -591,6 +730,8 @@ function simplequery() {
     
     let bodyCols = []
     let hairCols = []
+    let eyeCols = []
+    let eyeFeatures = []
     
     Object.keys(colourPalette).forEach(colour => {
         if (document.getElementById(`body_colours_${colour}`) && document.getElementById(`body_colours_${colour}`).checked)
@@ -598,27 +739,31 @@ function simplequery() {
             
         if (document.getElementById(`hair_colours_${colour}`) && document.getElementById(`hair_colours_${colour}`).checked)
             hairCols.push(colour)
+            
+        if (document.getElementById(`eye_colours_${colour}`) && document.getElementById(`eye_colours_${colour}`).checked)
+            eyeCols.push(colour)
     })
-
-    let eyeCols = ["_sclera",""].map(s => {
-        let t = document.getElementById(`simplesearch_eyes${s}`).value
-        return (t == "dont_care") ? undefined : t
-    }).filter(it => it !== undefined)
-        
+    
+    Object.keys(specialEyeSwatch).forEach(feature => {
+        if (document.getElementById(`eye_features_${feature}`) && document.getElementById(`eye_features_${feature}`).checked)
+            eyeFeatures.push(feature)
+    })
+    
     if (creatorName !== undefined) searchFilter.creator_name = creatorName
     if (furName !== undefined) searchFilter.name = furName
-    if (birthdayFrom !== undefined) searchFilter.birthday_from = birthdayFrom
-    if (birthdayTo !== undefined) searchFilter.birthday_to = birthdayTo
-    if (isPartial !== undefined) searchFilter.is_partial = isPartial
+    if (birthdayFrom !== undefined) searchFilter.birthday_from = birthdayFrom.replaceAll('-','')
+    if (birthdayTo !== undefined) searchFilter.birthday_to = birthdayTo.replaceAll('-','')
+    if (isFullSuit !== undefined) searchFilter.is_partial = (isFullSuit === 'false') // this casts string 'true'/'false' into a boolean value and then negates it
     if (species !== undefined) searchFilter.species_ko = dropdownIdToDBname[species]
     if (style !== undefined) searchFilter.style = style
 
-    if (eyeCols.length > 0) searchFilter.eyes = eyeCols
-    if (bodyCols.length > 0) searchFilter.colours = bodyCols
-    if (hairCols.length > 0) searchFilter.hairs = hairCols
+    if (eyeCols.length > 0) searchFilter.eye_colours = eyeCols
+    if (bodyCols.length > 0) searchFilter.colour_combi = bodyCols
+    if (hairCols.length > 0) searchFilter.hair_colours = hairCols
+    if (eyeFeatures.length > 0) searchFilter.eye_features = eyeFeatures
         
     let includeWIP = document.getElementById("includewip_simple").checked
-    
+        
     makeOutput(performSearch(searchFilter, "simple", false, includeWIP))
 }
 
@@ -695,6 +840,7 @@ const nameSearchAliases = ["name_ko", "name_en", "name_ja", "aliases"]
 const pseudoCriteria = {"name":1}
 const specialSearchTags = {"birthday_from":1, "birthday_to":1}
 const alwaysExactMatch = {"species_ko":1,"colours":1,"hairs":1}
+const colourMatch = {"colour_combi":1,"hair_colours":1,"eye_colours":1,"eye_features":1}
 function performSearch(searchFilter, referrer, exactMatch, includeWIP) {
     let isSearchTagEmpty = searchFilter === undefined
     let foundFurs = [] // contains object in {id: (int), prop: (object)}
@@ -705,6 +851,27 @@ function performSearch(searchFilter, referrer, exactMatch, includeWIP) {
         birthdayFrom = searchFilter.birthday_from
         birthdayTo = searchFilter.birthday_to
     }
+    
+    if (birthdayFrom != undefined) {
+        // case of 2017 -> 20170000
+        if (birthdayFrom < 10000) birthdayFrom *= 10000
+        // case of 201712 -> 20171200
+        else if (birthdayFrom < 1000000) birthdayFrom *= 100
+    }
+    
+    if (birthdayTo != undefined) {
+        // case of 2017 -> 20170000
+        if (birthdayTo < 10000) {
+            birthdayTo *= 10000
+            birthdayTo += 9999
+        }
+        // case of 201712 -> 20171200
+        else if (birthdayTo < 1000000) {
+            birthdayTo *= 100
+            birthdayTo += 99
+        }
+    }
+    
     
         
     for (const furid in furdb) {
@@ -764,9 +931,9 @@ function performSearch(searchFilter, referrer, exactMatch, includeWIP) {
                                 let tokens = matching.split(' ')
                                 searchMatches &= tokens.map(tok => searchTerm.map(word => (tok === word))).flat().some(it => it)
                             }
-                            else if (searchCriterion == "colours" || searchCriterion == "hairs") {
-                                let rainbow = searchTerm.reduce((acc,it) => { acc += (it=="적색"||it=="주황색"||it=="황색"||it=="연두색"||it=="초록색"||it=="파란색"||it=="남색")*1 }, 0) >= 4 // if there are  4 or more maching colours, it's rainbow
-                                
+                            else if (searchCriterion in colourMatch) {
+                                let rainbow = searchTerm.reduce((acc,it) => acc + (it=="적색"||it=="주황색"||it=="황색"||it=="연두색"||it=="초록색"||it=="파란색"||it=="남색")*1, 0) >= 4 // if there are  4 or more maching colours, it's rainbow
+
                                 if (rainbow && matching.includes("무지개색")) {
                                     searchMatches &= true
                                 }
@@ -777,13 +944,6 @@ function performSearch(searchFilter, referrer, exactMatch, includeWIP) {
                                     })
                                     searchMatches &= partialMatch
                                 }
-                            }
-                            else if (searchCriterion == "eyes") {                                
-                                let partialMatch = true
-                                searchTerm.forEach(it => {
-                                    partialMatch &= matching.includes(it)
-                                })
-                                searchMatches &= partialMatch
                             }
                             else {
                                 throw Error("unknown array search criterion: "+searchCriterion)
