@@ -1,0 +1,6 @@
+roster/*.dsv
+roster/imglist.txt
+roster/html/*
+roster/images/*
+.directory
+roster/makedb.jar
