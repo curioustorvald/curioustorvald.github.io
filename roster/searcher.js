@@ -134,7 +134,9 @@ const i18n = {
         "ShareLink": "공유 주소: ",
         "ClickToCopyLink": "(눌러서 링크 복사)",
         "LinkCopied": "링크가 복사되었습니다",
-        "TagParserError": "태그에 문법 오류가 있습니다:"
+        "TagParserError": "태그에 문법 오류가 있습니다:",
+        "BirthdayValueUnknown": "???",
+        "BirthdayValueStillMaking": "제작중&hellip;"
     },
     "en": {
         "TagSyntaxError": "Entered tag is malformed: ",
@@ -178,7 +180,9 @@ const i18n = {
         "ShareLink": "Share Link: ",
         "ClickToCopyLink": "(Click to Copy the Link)",
         "LinkCopied": "Link Copied",
-        "TagParserError": "Parsing Error on the tags:"
+        "TagParserError": "Parsing Error on the tags:",
+        "BirthdayValueUnknown": "???",
+        "BirthdayValueStillMaking": "Still being made&hellip;"
     }
 }
 
@@ -207,7 +211,7 @@ const tagdoc = {
 <br>
 문자열 = ? 연산자와 충돌하지 않는 적절한 문자의 집합 ? ;<br>
 <br>
-연산자 = "," | "<" | ">" | "<=" | "=<" | ">=" | "=>" | "IS" | "ISNOT" | "ISONEOF" | "ISNONEOF" | "HASALLOF" | "HASSOMEOf" | "HASNONEOF" | "STARTSWITH" | "NOTSTARTSWITH" | "AND" | "OR" ;<br>
+연산자 = "," | "<" | ">" | "<=" | "=<" | ">=" | "=>" | "IS" | "ISNOT" | "ISONEOF" | "ISNONEOF" | "STARTSWITH" | "NOTSTARTSWITH" | "INCLUDES" | "NOTINCLUDES" | "HASALLOF" | "HASSOMEOf" | "HASNONEOF" | "AND" | "OR" ;<br>
 <br>
 수 = 숫자 - "0" , { 숫자 } ;<br>
 <br>
@@ -222,11 +226,13 @@ ${tagdocrow(`IS`,`좌변과 우변이 일치함`)}
 ${tagdocrow(`ISNOT`,`좌변과 우변이 일치하지 않음`)}
 ${tagdocrow(`ISONEOF`,`우변에 좌변의 일부가 포함되어 있음`)}
 ${tagdocrow(`ISNONEOF`,`우변에 좌변의 일부가 포함되어 있지 않음`)}
+${tagdocrow(`STARTSWITH`,`좌변이 우변의 문자열로 시작함`)}
+${tagdocrow(`NOTSTARTSWITH`,`좌변이 우변의 문자열로 시작하지 않음`)}
+${tagdocrow(`INCLUDES`,`좌변이 우변의 문자열을 포함함`)}
+${tagdocrow(`NOTINCLUDES`,`좌변이 우변의 문자열을 포함하지 않음`)}
 ${tagdocrow(`HASALLOF`,`좌변에 우변의 전체가 포함되어 있음`)}
 ${tagdocrow(`HASSOMEOF`,`좌변에 우변의 일부가 포함되어 있음`)}
 ${tagdocrow(`HASNONEOF`,`좌변에 우변의 전체가 포함되어 있지 않음`)}
-${tagdocrow(`STARTSWITH`,`좌변이 우변의 문자열로 시작함`)}
-${tagdocrow(`NOTSTARTSWITH`,`좌변이 우변의 문자열로 시작하지 않음`)}
 ${tagdocrow(`&gt;= &middot; =&gt;`,`좌변이 우변에 비해 크거나 같음`)}
 ${tagdocrow(`&lt;= &middot; =&lt;`,`좌변이 우변에 비해 작거나 같음`)}
 ${tagdocrow(`&gt;`,`좌변이 우변에 비해 더 큼`)}
@@ -345,6 +351,7 @@ function pageinit() {
 
 function checkForDatabaseErrors() {
     let msg = []
+    let outdatedSpeciesFormatWarned = false
     
     forEachFur((prop, id) => {
         prop.colour_combi.forEach(col => {
@@ -368,6 +375,11 @@ function checkForDatabaseErrors() {
             if (twitterFromWorkshops != twitterFromProp) {
                 msg.push(`'${prop.creator_name}' != '${prop.creator_link}' for id ${id}`)
             }
+        }
+        
+        if (!outdatedSpeciesFormatWarned && !Array.isArray(prop.species_ko)) {
+            outdatedSpeciesFormatWarned = true
+            msg.push(`Species_ko is NOT an array; please re-build the database.`)
         }
     })
         
@@ -698,6 +710,9 @@ function showOverlay(id) {
     
     let copyableLinkHtml = `<span class="underline_on_hover" onclick=copySharelink(${id})>${i18n[lang].ClickToCopyLink}</span>` 
     
+    let birthdayOutput = (!prop.is_done) ? i18n[lang].BirthdayValueStillMaking : ((''+prop.birthday).trim().length == 0) ? i18n[lang].BirthdayValueUnknown : prop.birthday
+    let partialnessOutput = prop.is_34partial ? "&frac34;" : !prop.is_partial ? i18n[lang].ConditionYes : i18n[lang].ConditionNo
+    
     output += `</imgbox>`
     
     output += `<parbox>`
@@ -719,8 +734,8 @@ function showOverlay(id) {
         output += tdtemplate(i18n[lang].SimpleSearchStyle, prop.style.replaceAll('?',''))
         output += tdtemplate(i18n[lang].SimpleSearchActor, displayActorName + `&nbsp; ${actorLinkFull}`)
         output += tdtemplate(i18n[lang].SimpleSearchCreator, displayCreatorName + `&nbsp; ${creatorLinkFull}`)
-        output += tdtemplate(i18n[lang].SimpleSearchBirthday2, prop.birthday)
-        output += tdtemplate(i18n[lang].SimpleSearchIsFullSuit, prop.is_34partial ? "&frac34;" : !prop.is_partial ? i18n[lang].ConditionYes : i18n[lang].ConditionNo)
+        output += tdtemplate(i18n[lang].SimpleSearchBirthday2, birthdayOutput)
+        output += tdtemplate(i18n[lang].SimpleSearchIsFullSuit, partialnessOutput)
         
         if (colourCombiPal.length > 0)
         output += tdtemplCol(i18n[lang].SimpleSearchColourCombi, colourCombiPal)
@@ -836,7 +851,12 @@ function makeOutput(searchResults) {
         
         output += `</center>`
         
-        output += `<h5 title="${actorName}">${displayActorName}<br /><a href="${displayActorLinkHref}" target="_blank" rel="noopener noreferrer">${displayActorLinkName}</a></h5>`
+        output += `<h5 title="${actorName}">${displayActorName}<br />`
+        if (displayActorLinkHref != "???")
+            output += `<a href="${displayActorLinkHref}" target="_blank" rel="noopener noreferrer">${displayActorLinkName}</a>`
+        else
+            output += displayActorLinkName
+        output += `</h5>`
         output += `<h5>${i18n[lang].MadeBy + ((displayCreatorLinkHref.length == 0) ? displayCreatorName : `<a href="${displayCreatorLinkHref}" target="_blank" rel="noopener noreferrer">${displayCreatorName}</a>`)}</h5>`
         output += `</infobox></furbox>`
     })
@@ -984,7 +1004,6 @@ exactMatch가 참일 경우 문자열이 정확히 일치하는지를 검사, �
 const nameSearchAliases = ["name_ko", "name_en", "name_ja", "aliases"]
 const pseudoCriteria = {"name":1}
 const specialSearchTags = {"birthday_from":1, "birthday_to":1}
-const alwaysExactMatch = {"species_ko":1,"colours":1,"hairs":1}
 const colourMatch = {"colour_combi":1,"hair_colours":1,"eye_colours":1,"eye_features":1}
 function performSearch(searchFilter, referrer, exactMatch, includeWIP) {
     let isSearchTagEmpty = searchFilter === undefined
@@ -1067,12 +1086,15 @@ function performSearch(searchFilter, referrer, exactMatch, includeWIP) {
                         let matching = prop[searchCriterion]
                                                       
                         if (arraySearchMode) {
-                            // some tags want AND match, not OR
+                            // matching mode: HASSOMEOF
                             if (searchCriterion == "species_ko") {
-                                // tokenise using space, and OR-match each token by checking if (token === one of the searchword)
-                                let tokens = matching.split(' ')
-                                searchMatches &= tokens.map(tok => searchTerm.map(word => (tok === word))).flat().some(it => it)
+                                let partialMatch = false
+                                searchTerm.forEach(it => {
+                                    partialMatch |= matching.includes(it)
+                                })
+                                searchMatches &= partialMatch
                             }
+                            // matching mode: HASALLOF
                             else if (searchCriterion in colourMatch) {
                                 let rainbow = searchTerm.reduce((acc,it) => acc + (it=="적색"||it=="주황색"||it=="황색"||it=="연두색"||it=="초록색"||it=="파란색"||it=="남색")*1, 0) >= 4 // if there are  4 or more maching colours, it's rainbow
 
@@ -1101,7 +1123,7 @@ function performSearch(searchFilter, referrer, exactMatch, includeWIP) {
                                 searchMatches &= partialMatch
                             }
                             else {
-                                searchMatches &= (searchCriterion in alwaysExactMatch || exactMatch) ? (matching.babostr() == searchTerm.babostr()) : matching.babostr().includes(searchTerm.babostr())
+                                searchMatches &= (exactMatch) ? (matching.babostr() == searchTerm.babostr()) : matching.babostr().includes(searchTerm.babostr())
                             }
                         }
                         
