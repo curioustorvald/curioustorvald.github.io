@@ -1,5 +1,1 @@
-### Fursuit Roster Searcher
-
-Fursuit roster searching system using JSON database (database not included)
-
-Searching and crunching numbers are all done on client-side.
+Any webpage that was here has been integrated into [this gent's fine webpage](https://funzinnu.com/furdex)
