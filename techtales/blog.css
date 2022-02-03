@@ -1,0 +1,30 @@
+header {
+    text-align: center;
+}
+
+.site_header {
+    font-family: 'Roboto Slab';
+    font-weight: 900;
+}
+
+footer {
+    padding: 2em 1em 0 1em;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+article_title {
+    display: block;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    font-size: 1.8rem;
+    text-align: center;
+}
+
+panelnavwrapper {
+    display: inline-block;
+    text-align: center;
+    min-width: 300px;
+    width: calc(min(450px, 100% - 2em));
+    height: 64px;
+}
