@@ -6,20 +6,31 @@ panelnavwrapper {
     display: inline-block;
     text-align: center;
     min-width: 300px;
+    max-width: 100%;
     height: 64px;
+    margin-top: 12pt;
 }
-
 
 .site_header {
     font-family: 'Roboto Slab';
     font-weight: 800;
     letter-spacing: 0.1em;
+    line-height: 100%;
 }
 
 footer {
     padding: 2em 1em 0 1em;
     font-size: 0.9rem;
     text-align: center;
+}
+
+article_goback {
+    font-family: 'Roboto Slab';
+}
+
+sym {
+    display: inline;
+    font-family: "Noto Sans Symbols 2";
 }
 
 /* ARTICLE BOXES */
@@ -30,6 +41,7 @@ article_title {
     margin-bottom: 0em;
     font-size: 1.8rem;
     text-align: center;
+    line-height: 120%;
 }
 
 article_timestamp, article_share {
@@ -40,7 +52,8 @@ article_timestamp, article_share {
 }
 
 article_share a, article_share a:visited,
-panelnavwrapper a, panelnavwrapper a:visited {
+panelnavwrapper a, panelnavwrapper a:visited,
+article_goback a, article_goback a:visited {
     color: unset;
 }
 
