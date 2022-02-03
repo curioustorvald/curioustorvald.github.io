@@ -1,6 +1,21 @@
 {
     "index": {
-        "path": "index.html",
-        "label": "HOUSE ICON"
+        "schema": "HOME",
+        "label": "<i class=\"fas fa-home\"></i>"
     },
+    "graphics": {
+        "schema": "LIST",
+        "source": "articles_graphics.json",
+        "label": "Graphics"
+    },
+    "vm": {
+        "schema": "LIST",
+        "source": "articles_vm.json",
+        "label": "Virtual Machine"
+    },
+    "lang": {
+        "schema": "LIST",
+        "source": "articles_lang.json",
+        "label": "Language"
+    }
 }
