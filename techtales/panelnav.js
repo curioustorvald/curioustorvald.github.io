@@ -24,8 +24,12 @@ function populateNav(db) {
     let output = `<div class="sub_content"><ul class="sub_menu">`
     
     Object.keys(db).forEach(id => {
-        let css_class = (currentPage == db[id].path) ? "sub_link selected" : "sub_link"
-        output += `<li class="columngap"><a href="${db[id].path}" class="${css_class}">${db[id].label}</a></li>`
+        let css_class = (pageselection == id) ? "sub_link selected" : "sub_link"
+        let action = db[id].schema
+        let href = ("HREF" == action) ? db[id].source :
+                `javascript:changepage(%22${id}%22)`
+        
+        output += `<li class="columngap"><a href="${href}" class="${css_class}">${db[id].label}</a></li>`
     })
     
     output += "</ul></div>"

@@ -1,21 +1,26 @@
 {
     "index": {
-        "schema": "HOME",
-        "label": "<i class=\"fas fa-home\"></i>"
+        "label": "<i class=\"fas fa-home\"></i>",
+        "schema": "HOME"
     },
     "graphics": {
+        "label": "Graphics",
         "schema": "LIST",
-        "source": "articles_graphics.json",
-        "label": "Graphics"
+        "source": "articles_graphics.json"
     },
     "vm": {
+        "label": "Virtual Machine",
         "schema": "LIST",
-        "source": "articles_vm.json",
-        "label": "Virtual Machine"
+        "source": "articles_vm.json"
     },
     "lang": {
+        "label": "Language",
         "schema": "LIST",
-        "source": "articles_lang.json",
-        "label": "Language"
+        "source": "articles_lang.json"
+    },
+    "about": {
+        "label": "About the Author",
+        "schema": "HREF",
+        "source": "../index.html"
     }
 }

@@ -59,7 +59,7 @@ article_goback a, article_goback a:visited {
 
 article_toolbox {
     display: grid;
-    gap: 1em;
+    gap: 1.5em;
     grid-template-columns: 1fr 1fr;
     margin: 0 auto 2em auto;
     width: fit-content;

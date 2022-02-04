@@ -46,16 +46,22 @@ li.columngap > a {
 }
 
 .columngap {
-    margin: 0 24px;
+    margin: 0 16px;
 }
 
 .sub_link {
     display: inline-block;
     font-size: 1rem;
-    height: 24px;
-    color: #111111;
+    height: 2rem; line-height: 2rem; /* must have the same value to vertically center the text */
     transition: all 200ms;
     border-bottom: 1px solid rgba(0,0,0,0);
+    padding: 0 12px;
+}
+
+.selected {
+    background: #454545;
+    color: #fefefe;
+    font-weight: 500;
 }
 
 .sub_link:hover {
