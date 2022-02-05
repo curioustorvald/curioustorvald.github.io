@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Roboto:400,500,700|Roboto+Slab:400,700,800,900|Noto+Sans+Symbols+2");
+@import url("https://fonts.googleapis.com/css?family=Roboto:400,500,700|Roboto+Slab:400,500,600,700,800,900|Noto+Sans+Symbols+2|Roboto+Condensed:400|Roboto+Mono:400");
 
 
 html {
@@ -11,7 +11,7 @@ body {
  margin:2em auto;
  max-width:800px;
  padding:1em;
- line-height:1.555;
+ line-height:1.444;
  text-align:justify
 }
 h1 {

@@ -1,19 +1,23 @@
 {
     "index": {
         "label": "<i class=\"fas fa-home\"></i>",
-        "schema": "HOME"
+        "schema": "HOME",
+        "source": "index.html"
     },
-    "graphics": {
-        "label": "Graphics",
+    "cg": {
+        "id": "cg",
+        "label": "Computer Graphics",
         "schema": "LIST",
         "source": "articles_graphics.json"
     },
     "vm": {
+        "id": "vm",
         "label": "Virtual Machine",
         "schema": "LIST",
         "source": "articles_vm.json"
     },
     "lang": {
+        "id": "lang",
         "label": "Language",
         "schema": "LIST",
         "source": "articles_lang.json"
