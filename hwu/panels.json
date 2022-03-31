@@ -1,0 +1,31 @@
+{
+    "index": {
+        "label": "<i class=\"fas fa-home\"></i>",
+        "schema": "FRAME",
+        "source": "home"
+    },
+    "abouthwu": {
+        "id": "abouthwu",
+        "label": "한울소개",
+        "schema": "FRAME",
+        "source": "abouthwu"
+    },
+    "enroll": {
+        "id": "enroll",
+        "label": "입학정보",
+        "schema": "FRAME",
+        "source": "enroll"
+    },
+    "lms": {
+        "id": "lms",
+        "label": "학습센터",
+        "schema": "FRAME",
+        "source": "lms"
+    },
+    "open": {
+        "id": "open",
+        "label": "열린한울",
+        "schema": "FRAME",
+        "source": "openhanwool"
+    }
+}

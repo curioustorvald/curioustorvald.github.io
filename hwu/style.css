@@ -1,0 +1,152 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto:400,500,700|Roboto+Slab:400,500,700,800,900|Noto+Sans+Symbols+2");
+@import url("https://hangeul.pstatic.net/hangeul_static/css/nanum-square.css");
+
+* {
+    --hw-azure:#0f3a60;
+    --hw-or:#f2bc51;
+    --hw-argent:#fefefe;
+    --hrulesize: 10px;
+    --read-width: 1000px;
+    --normal-text: #282828;
+}
+html {
+    background-color:var(--hw-azure);
+}
+body {
+    font-family:Roboto;
+    color:var(--hw-argent);
+    font-size:16px;
+/*     margin:2em auto; */
+/*     padding:1em; */
+    line-height:1.555;
+    margin: 0;
+}
+siteheader {
+    display: block;
+    line-height: 1.2;
+}
+header h1 {
+    line-height: 0.75;
+}
+header {
+    margin-top:1em;
+    text-align: center;
+    height: 120px;
+    display: block;
+}
+header,contents {
+    display: block;
+    padding-bottom: 1em;
+    border-bottom: var(--hrulesize) solid var(--hw-or);
+}
+contents {
+    color:var(--normal-text);
+    background-color:var(--hw-argent);
+}
+contents inner div {
+    max-width: var(--read-width);
+}
+footer {
+    padding: 2em 2em;
+    text-align: center;
+}
+footer p {
+    font-size: 0.9em;
+    line-height: 1.2;
+}
+h1 {
+    font-family: 'Roboto Slab';
+    font-weight: 900;
+    font-size: 2.5rem;
+}
+h2 {
+    font-family: 'Roboto Slab';
+    font-weight: 700;
+    font-size: 1.6rem;
+}
+h3 {
+    font-family: 'NanumSquareBold';
+    font-weight: 700;
+    font-size: 1.4rem;
+}
+h4 {
+    font-family: 'NanumSquareBold';
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+h5 {
+    font-family: 'NanumSquareBold';
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+strong {
+    font-weight: 700;
+}
+a {
+    color:#07a
+}
+a:visited {
+    color:#941352
+}
+panelnavwrapper {
+    display: inline-block;
+    text-align: center;
+    min-width: 320px;
+    height: 64px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    background-color:var(--hw-argent);
+    margin-left:auto;
+    margin-right:auto;
+}
+hr {
+    border: 1px solid var(--hw-or);
+    margin: 1em 2em;
+}
+.departments {
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 10px;
+    width: fit-content;
+
+    margin-left:auto;
+    margin-right:auto;
+}
+.departments > div {
+    margin: 0 3em;
+}
+.deptheader {
+    padding-left: 1.2em;
+}
+#shadowBox {
+    background-color: rgb(0, 0, 0);
+    /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.2);
+    /* Black w/opacity/see-through */
+    border: 3px solid;
+}
+.rainbow {
+    text-align: center;
+    text-decoration: underline;
+    font-size: 32px;
+    font-family: monospace;
+    letter-spacing: 5px;
+}
+.rainbow_text_animated {
+    background: linear-gradient(to right, #6666ff, #0099ff , #00ff00, #ff3399, #6666ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: rainbow_animation 6s ease-in-out infinite;
+    background-size: 400% 100%;
+}
+
+@keyframes rainbow_animation {
+    0%,100% {
+        background-position: 0 0;
+    }
+
+    50% {
+        background-position: 100% 0;
+    }
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<meta charset = "UTF-8" />
+<html>
+<head>
+    <meta name="robots" content="all" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="panelnav.css">
+    <link rel="stylesheet" type="text/css" href="fontawesome/css/all.min.css">
+    <title>한울대학교 &mdash; Hanwool for Better Universe</title>
+    <script src="hwu.js"></script>
+</head>
+<body onload="init()">
+    <header>
+        <span style="display: inline-block; max-width: 800px"><siteheader>
+            <div style="display:grid; height:120px; grid-template-columns:96px auto; grid-gap:16px">
+                <img src="images/heraldry.png" height=120px>
+                <div style="display:flex; align-items:center; text-align:left;"><h1>
+                    <span class="header_text">HANWOOL UNIVERSITY</span><br />
+                    <span class="header_text" style="font-size: 0.6em; font-weight: 500">Hanwool for Better Universe</span>
+                </h1></div>
+            </div>
+        </siteheader></span>
+    </header>
+    <contents><inner><div style="margin-left:auto;margin-right:auto;">
+        <center><panelnavwrapper></panelnavwrapper></center>
+        <contentsanchor style="display: block"></contentsanchor>
+    </div></inner></contents>
+    <footer>
+        <img src="images/emblem.png" width=40px>
+        <p>본 웹사이트는 1024x768 이상 해상도에 최적화되었습니다</p>
+        <p>(우)696900 &middot; 퍼리광역시 모피구 한울대로 2길 621 한울대학교</p>
+        <p>Hanwool University is an intellectual property of PHINY<br />Copyright 2022 All Rights Reserved</p>
+    </footer>
+    <clipit style="display:block; height:1px"><div id="clipboard_dummy_container" style="display:none">
+        <input type="text" id="clipboard_dummy" size="1"></input>
+    </div></clipit>
+    <script>
+let qd = {}
+if (location.search) location.search.substr(1).split`&`.forEach(item => {let [k,v] = item.split`=`; v = v && decodeURIComponent(v); (qd[k] = qd[k] || []).push(v)})
+    </script>
+</body>
+</html>
+
