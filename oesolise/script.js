@@ -1,10 +1,10 @@
-const charmap = {r:'ᴊ',s:'ʟ',e:'c',f:'ƨ',a:'ᴅ',q:'ᵾ',t:'ʌ',d:'o',w:'ʌ̅',c:'ƛ',z:'ᴊ̵',x:'ᴇ',v:'z̵',g:'ô',_:'',k:'h',i:'k',j:'q',u:'εլ',h:'⟂',H:'⟂̌',y:'⫫',n:'ᴛ',N:'ᴛ̌',b:'⫪',m:'ᴜ',l:'l',L:'ı'} // Keys: KS X 5002 keyboard layout
+const charmap = {r:'ᴊ',s:'ʟ',e:'c',f:'ƨ',a:'ᴅ',q:'ᵾ',t:'ʌ',d:'o',w:'ʌ̅',c:'ƛ',z:'ᴊ̵',x:'ᴇ',v:'z̵',g:'ô',_:'',k:'h',i:'k',j:'q',u:'εլ',h:'⟂',H:'⟂̌',y:'⫫',n:'ᴛ',N:'ᴛ̌',b:'⫪',m:'ᴜ',M:'ᴜ̌',l:'l',L:'ı'} // Keys: KS X 5002 keyboard layout
 Array.prototype.oesolmap = function() { return this.map(s=>[...s].flatMap(c=>charmap[c]).join('')) }
 
 function oesolise(string, useOrthodoxRule) {
     const choseong1 = ['r','rr','s','e','ee','f','a','q','qq','t','tt','_','w','ww','c','z','x','v','g'].oesolmap()
     const choseong2 = ['r','rr','s','e','ee','f','a','q','qq','t','tt','d','w','ww','c','z','x','v','g'].oesolmap()
-    const jungseong1 = ['k','kL','i','iL','j','jL','u','uL','h','Hk','HkL','HL','y','n','Nj','NjL','NL','b','m','mL','l'].oesolmap()
+    const jungseong1 = ['k','kL','i','iL','j','jL','u','uL','h','Hk','HkL','HL','y','n','Nj','NjL','NL','b','m','ML','l'].oesolmap()
     const jungseong2 = ['k','kl','i','il','j','jl','u','ul','h','hk','hkl','hl','y','n','nj','njl','nl','b','m','ml','l'].oesolmap()
     const jongseong = ['_','r','rr','rt','s','sw','sg','e','f','fr','fa','fq','ft','fx','fq','fg','a','q','qt','t','tt','d','w','c','z','x','v','g'].oesolmap()
     const hangulcompat = ['r','rr','rt','s','sw','sg','e','ee','f','fr','fa','fq','ft','fx','fq','fg','a','q','qq','qt','t','tt','d','w','ww','c','z','x','v','g'].oesolmap().concat(jungseong1)
