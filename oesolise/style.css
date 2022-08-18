@@ -240,7 +240,7 @@ span.visited-maroon {
 }
 
 textarea {
-    width: 100%;
+    width: inherit;
     height: 16rem;
     font-size: 16px;
     font-family: "Noto Sans", sans-serif;
@@ -264,4 +264,16 @@ h4, label {
     font-size: 24px;
     font-weight: 600;
     font-family: "Noto Serif KR", serif;
+}
+
+@media (min-aspect-ratio: 5/3) and (max-width: 999px) {
+    textarea {
+        height: 8rem;
+    }
+}
+
+@media (max-aspect-ratio: 3/5) {
+    textarea {
+        height: 8rem;
+    }
 }
