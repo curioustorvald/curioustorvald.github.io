@@ -4,7 +4,7 @@ Array.prototype.oesolmap = function() { return this.map(s=>[...s].flatMap(c=>cha
 function oesolise(string, useOrthodoxRule) {
     const choseong1 = ['r','rr','s','e','ee','f','a','q','qq','t','tt','_','w','ww','c','z','x','v','g'].oesolmap()
     const choseong2 = ['r','rr','s','e','ee','f','a','q','qq','t','tt','d','w','ww','c','z','x','v','g'].oesolmap()
-    const jungseong1 = ['k','kL','i','iL','j','jL','u','uL','h','Hk','HkL','HL','y','n','Nj','NjL','NL','b','m','mL','L'].oesolmap()
+    const jungseong1 = ['k','kL','i','iL','j','jL','u','uL','h','Hk','HkL','HL','y','n','Nj','NjL','NL','b','m','mL','l'].oesolmap()
     const jungseong2 = ['k','kl','i','il','j','jl','u','ul','h','hk','hkl','hl','y','n','nj','njl','nl','b','m','ml','l'].oesolmap()
     const jongseong = ['_','r','rr','rt','s','sw','sg','e','f','fr','fa','fq','ft','fx','fq','fg','a','q','qt','t','tt','d','w','c','z','x','v','g'].oesolmap()
     const hangulcompat = ['r','rr','rt','s','sw','sg','e','ee','f','fr','fa','fq','ft','fx','fq','fg','a','q','qq','qt','t','tt','d','w','ww','c','z','x','v','g'].oesolmap().concat(jungseong1)
