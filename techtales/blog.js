@@ -202,7 +202,7 @@ function presentList(id) {
     sect.article_timestamp.innerHTML = ''
     sect.article_share.innerHTML = ''
     sect.article_goback.innerHTML = ''
-    sect.article_title.innerHTML = `<h2>Articles with “${catRecord.label}” Topic:</h2>`
+    sect.article_title.innerHTML = `<h2>Articles with ${catRecord.label} Topic:</h2>`
 
     loadJSON(`articles/articles_${catRecord.id}.json`, (jsonText) => {
         let articleListHTML = '<article_list_container>'

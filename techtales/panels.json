@@ -22,6 +22,12 @@
         "schema": "LIST",
         "source": "articles_lang.json"
     },
+    "general": {
+        "id": "general",
+        "label": "General",
+        "schema": "LIST",
+        "source": "articles_general.json"
+    },
     "about": {
         "label": "About the Author",
         "schema": "HREF",

@@ -1,0 +1,99 @@
+<p style="text-decoration: italic">This article tries to explain the relevancy-sorted searching implemented on the <a href="https://funzinnu.com/furdex">Furdex</a>.</p>
+
+<p><em>If you know the thing or two about the search engine, using the Fuzzy Logic for this problem is almost a basic thing; and this article, indeed, is going to explain the basics.</em></p>
+
+<hr />
+
+<h4>Parsing the Search Query</h4>
+
+<p>This is an almost completely different topic, but I’m going to explain the gist of it to make the following sections more sense.</p>
+
+<p>The website runs customised version of the <a href="https://github.com/curioustorvald/TerranBASIC">TerranBASIC</a>. The user-entered search form is examined and the searching conditions are translated into the TerranBASIC syntax and the tiny BASIC interpreter is executed for each records on the website’s database.</p>
+
+<h4>Relevancy Scoring</h4>
+
+<p>Normally, a predicate function (e.g. “does this entry’s colour combination contain <em>x</em> and <em>y</em>?”) returns a boolean value: Yes or No. This is not useful, but we can modify it to return a <em>relevancy</em> between 0% and 100%.</p>
+
+<p>Let’s say you search for the colour combination of [Indigo, Violet] over the following records:</p>
+
+<table>
+<thead>
+<tr><td>Key</td><td>Values</td><td>Relevancy</td></tr>
+</thead>
+<tbody>
+<tr><td>Taimu</td><td>Indigo, Violet, White, Black</td><td>???</td></tr>
+<tr><td>Char</td><td>Blue, Violet, Indigo, White</td><td>???</td></tr>
+<tr><td>Mari</td><td>Blue, Indigo, Violet, White</td><td>???</td></tr>
+<tr><td>Spicy</td><td>Violet, Indigo, White</td><td>???</td></tr>
+</tbody>
+</table>
+
+<p>and the relevancy is defined as following:</p>
+
+<center>
+<table style="border:none"><tbody>
+
+<tr><td style="border:none" rowspan=2>Relevancy = </td><td style="border:none;border-bottom:1px solid #454545;text-align:center">
+<em>MatchedRank</em> + <em>UnmatchedRank</em>
+</td></tr>
+
+<tr><td style="border:none;text-align:center">
+2
+</td></tr>
+</tbody></table>
+</center>
+
+<p>where:</p>
+<table style="border:none">
+<tr><td style="border:none;padding-left:1em;padding-right:0;text-align:right"><em>MatchedRank</em></td><td style="border:none;padding-right:0">=</td><td style="border:none"><table style="border:none"><tbody>
+
+<tr><td style="border:none;padding-left:0" rowspan=2>Sum of </td><td style="border:none;border-bottom:1px solid #454545;text-align:center">
+1
+</td></tr><tr><td style="border:none;text-align:center">
+2 <sup>one-based matched index</sup>
+</td></tr>
+</tbody></table></td></tr>
+<tr><td style="border:none;padding-left:1em;padding-right:0;text-align:right"><em>UnmatchedRank</em></td><td style="border:none;padding-right:0">=</td><td style="border:none">(Count of the unmatched + 1)<sup>-1</sup></td></tr>
+</table>
+
+<p>If we apply the equation to our records, this is the outcome:</p>
+
+<table>
+<thead>
+<tr><td>Key</td><td>Values</td><td>Matched</td><td>Unmatched</td><td>Relevancy</td></tr>
+</thead>
+<tbody>
+<tr><td>Taimu</td><td>Indigo, Violet, White, Black</td><td>[1,2]→0.75</td><td>2→0.333</td><td>0.5417</td></tr>
+<tr><td>Char</td><td>Blue, Violet, Indigo, White</td><td>[3,2]→0.375</td><td>2→0.333</td><td>0.3542</td></tr>
+<tr><td>Mari</td><td>Blue, Indigo, Violet, White</td><td>[2,3]→0.375</td><td>2→0.333</td><td>0.3542</td></tr>
+<tr><td>Spicy</td><td>Violet, Indigo, White</td><td>[1,2]→0.75</td><td>1→0.5</td><td>0.625</td></tr>
+</tbody>
+</table>
+
+<p>and thus, our search result will be sorted as either <strong>[Spicy, Taimu, Char, Mari]</strong>, or <strong>[Spicy, Taimu, Mari, Char]</strong>. </p>
+
+<p>Notes:</p>
+<ul>
+<li>The order of the Matched Index (in our case [Indigo, Violet]) doesn’t matter as out search query is itself is unordered</li>
+<li>When two or more records get the same relevancy, their order of the sorting will be determined by the <em>daily randomiser</em> so that the search results are ordered differently every day</li>
+</ul>
+
+
+<h4>Fuzzifying the Boolean Logic</h4>
+
+<p>But the relevancy scoring only solves the half of our problem: the boolean logic runs over boolean values, not real numbers; and this is where the Fuzzy Logic comes in: we are going to expand the boolean functions over a domain of real numbers.</p>
+
+<p>The AND, OR, and NOT will be redefined as such:<p>
+
+<table>
+<thead>
+<tr><td>Function</td><td>Expression</td><td>Remarks</td></tr>
+</thead>
+<tbody>
+<tr><td>AND <em>p</em> <em>q</em></td><td><em>p</em> &times; <em>q</em></td><td></td></tr>
+<tr><td>NOT <em>p</em></td><td>1 - <em>p</em></td><td></td></tr>
+<tr><td>OR <em>p</em> <em>q</em> &hellip;</td><td>1 - (1 - <em>p</em>)(1 - <em>q</em>)(1 - &hellip;)</td><td>derived from NOT(AND(NOT(<em>p</em>), NOT(<em>q</em>)))</td></tr>
+</tbody>
+</table>
+
+<p>And if you put 1 or 0 over the <em>p</em> and <em>q</em>, the functions work identical to their boolean counterparts.</p>

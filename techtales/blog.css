@@ -79,7 +79,16 @@ imgbox {
 }
 
 th, td {
-    border: 1px solid #c9c9c9;
+    border: 1px solid #e6e6e6;
+}
+
+thead td {
+    border-bottom: 1px solid #555;
+    color: #393943;
+}
+
+thead td:not(:last-child) {
+    border-right: 1px solid #e6e6e6;
 }
 
 table {
@@ -87,6 +96,10 @@ table {
     overflow-x: auto;
     border-spacing: 0;
     border-radius: 3px;
+}
+
+thead {
+    font-weight: 700;
 }
 
 tbody {
@@ -97,6 +110,7 @@ th, td {
     padding: 5px 10px;
     border-top-width: 0;
     border-left-width: 0;
+    text-align: left;
 }
 
 /* ARTICLE BOXES */
