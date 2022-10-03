@@ -1,6 +1,6 @@
 <p style="text-decoration: italic">This article tries to explain the relevancy-sorted searching implemented on the <a href="https://funzinnu.com/furdex">Furdex</a>.</p>
 
-<p><em>If you know the thing or two about the search engine, using the Fuzzy Logic for this problem is almost a basic thing; and this article, indeed, is going to explain the basics.</em></p>
+<p><em>If you know a thing or two about the search engine, using the Fuzzy Logic for this problem is almost a basic thing; and this article, indeed, is going to explain the basics.</em></p>
 
 <hr />
 
@@ -10,9 +10,11 @@
 
 <p>The website runs customised version of the <a href="https://github.com/curioustorvald/TerranBASIC">TerranBASIC</a>. The user-entered search form is examined and the searching conditions are translated into the TerranBASIC syntax and the tiny BASIC interpreter is executed for each records on the website’s database.</p>
 
+<p>Each operator of the TerranBASIC is a Javascript function that takes the given condition and a record on the database to check if the condition is met, then returns the result.</p>
+
 <h4>Relevancy Scoring</h4>
 
-<p>Normally, a predicate function (e.g. “does this entry’s colour combination contain <em>x</em> and <em>y</em>?”) returns a boolean value: Yes or No. This is not useful, but we can modify it to return a <em>relevancy</em> between 0% and 100%.</p>
+<p>Normally, a predicate function (e.g. “does this entry’s colour combination contain <em>x</em> and <em>y</em>?”) returns a boolean value: Yes or No. This is not useful when we need to know how closely the condition was matched, but we can modify it to return a <em>relevancy</em> between 0% and 100%.</p>
 
 <p>Let’s say you search for the colour combination of [Indigo, Violet] over the following records:</p>
 
@@ -75,6 +77,7 @@
 <p>Notes:</p>
 <ul>
 <li>The order of the Matched Index (in our case [Indigo, Violet]) doesn’t matter as out search query is itself is unordered</li>
+<li>The sum of <em>MatchedRank</em> and <em>UnmatchedRank</em> are divided by two because both variables can have theoretical maximum value of one: MatchedRank will converge into 1, and the UnmatchedRank will also be 1 if nothing is unmatched.</li>
 <li>When two or more records get the same relevancy, their order of the sorting will be determined by the <em>daily randomiser</em> so that the search results are ordered differently every day</li>
 </ul>
 
