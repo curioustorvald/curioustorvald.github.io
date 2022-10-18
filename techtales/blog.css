@@ -178,3 +178,62 @@ article_list a:hover {
     transition: all 100ms;
     border-bottom: 1px solid #111111
 }
+
+frac {
+    display: grid;
+    grid-template-rows: auto auto;
+    padding: 0.333em 0.666ex;
+    width: fit-content;
+}
+
+frac > fn, frac > fd {
+    text-align: center;
+    display: inline-block;
+    padding: 0.1em 0.5em;
+}
+
+frac > fd {
+    border-top: 1px solid #454545;
+}
+
+equation {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+}
+
+equation[index]::after {
+    content: "(" attr(index) ")";
+    margin-left: 1em;
+}
+
+inlineeq {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+sigma {
+    display: grid;
+    text-align: center;
+}
+
+sigma > ssym {
+    font-weight: 700;
+    font-size: 1.5rem;
+    display: inline-block;
+    text-align: center;
+    line-height: 1.1;
+}
+
+sigma > sup, sigma > sdn {
+    font-size: 0.9rem;
+    text-align: center;
+    display: inline-block;
+    line-height: 1.1;
+}
