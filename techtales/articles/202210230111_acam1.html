@@ -1,0 +1,79 @@
+<p>It is a common tip in the art community that when you use HSV colour model for your colour picker, vary the H-slider as you darken the colour to make it look more vibrant. The <em>ACAM</em> (pronounced /'æɪ.kæm/) generalises the idea using the single parameter Variance over the <a href="https://bottosson.github.io/posts/oklab/">OKLab</a> colour space.</p>
+
+<p>But why OKLab? The traditional HSV, being defined over the RGB colour space, has an issue: the colour space is not <em>uniform</em>. What does the uniformity mean in the colour space? In HSV, two colours <span style="color:#ffff00">█</span> <inlinecode>H:80, S:100, V:100</inlinecode> and <span style="color:#0000ff">█</span> <inlinecode>H:240, S:100, V:100</inlinecode> are indicated that they have the same brightness (V=100 for both), but in your eyes, they absolutely don’t have the same brightness, and this is the non-uniformity. OKLab, being the perceptually uniform colour space that is built using the most recent data from CIE (International Commission on Illumination; Commission Internationale de l'Éclairage), have solved the issue for us.</p>
+
+<p>The ACAM implements the idea of hue-shifting over the LCh (a cylindrical transformation of the Lab colour space) with a single user-adjustable variable: the Variance.</p>
+
+<h3>Features of the ACAM</h3>
+
+<p>ACAM can be defined as a five-argument function (Eigencolour, Highlight Colour, Variance, Highlight Mix, Highlight Blending Function) that returns a colour.</p>
+
+<h4>Hue Variance</h4>
+
+<p>How much variance is a good variance? Rather, but more importantly, what’s the best hue-shifting function that allows both natural-looking gradient and the artistic exaggeration without distortion?</p>
+
+<p>There is no definitive answer to this question, but I’ve come up with the following curve:</p>
+
+<img class="gallery_autoresize" src="articles/acam_hue_variance.png" width="512" height="512"/>
+
+<p>where:</p>
+
+<table style="border:none">
+
+<tr><td style="border:none;padding-left:1em;padding-right:0;text-align:right"><em>ƒ</em><sub>p</sub></td><td style="border:none;padding-right:0">=</td><td style="border:none">
+<inlineeq><span>1 - (1 - (1 - Lʹ*)<sup>p</sup>)<sup>1/p</sup></span></inlineeq>
+</td></tr>
+
+<tr><td style="border:none;padding-left:1em;padding-right:0;text-align:right"><em>p</em></td><td style="border:none;padding-right:0">=</td><td style="border:none">
+<inlineeq>
+<frac>
+<fn>1</fn>
+<fd><em>Variance</em> + <em>ɛ</em></fd>
+</frac>
+</inlineeq>
+</td></tr>
+
+<tr><td style="border:none;padding-left:1em;padding-right:0;text-align:right"><em>ɛ</em></td><td style="border:none;padding-right:0">=</td><td style="border:none">a miniscule number to avoid division by zero</td></tr>
+
+<tr><td style="border:none;padding-left:1em;padding-right:0;text-align:right">Lʹ*</td><td style="border:none;padding-right:0">=</td><td style="border:none">decreasing Lightness</td></tr>
+
+</table>
+
+<h4>Constant Saturation on the Gradient</h4>
+
+<p>Creating a colour gradient that decreases the lightness should take care of the saturation of the darkened colour (i.e. decrease the Chrominance parameter as the Lightness parameter changes), otherwise we could be in the situation where the gradient is asking for the dim and highly saturated yellow, which is impossible.</p>
+
+<p>My solution for this problem is rather simple: linearly decrease the Chrominance parameter proportionally to the decreasing Lightness. (the best solution would be making the dot of the selected colour “glide over” the edge of the mass of visible colours, but such data was unable to find at the time of making the webapp)</p>
+
+<h4>Highlight Blending</h4>
+
+<p>The Highlight Colours are blended using the chosen blending function (click on the Advanced Options bar on the webapp if you don’t know what’s being talked about) over the Eigencolour and the Highlight Colour.</p>
+
+<p>Except, the percentage of the blending is not linear: I’ve chosen to tweak the gradient curve so that the gradient is the orthographic projection of the cylinder.</p>
+
+<p>If the x-coord of the selected point over the colour selection view falls between <em>t</em> = [0 .. 1], the actually selected <em>t</em><sub>sel</sub> is given as:</p>
+
+<inlineeq>
+<span><em>t</em><sub>sel</sub> = </span>
+<frac>
+<fn>arcsin(<em>t</em> )</fn>
+<fd>0.5·π</fd>
+</frac>
+</inlineeq>
+
+<h3>Conclusion</h3>
+
+<p>Using the model just described, pleasing colour gradients of desired Variance can be obtained, which hopefully be able to aid the colour selection of a digital artist.</p>
+
+<p>&nbsp;</p>
+
+<table style="background:#707070;border-color:#202020;">
+<tr><td style="border-color:#555"><img class="gallery_autoresize" src="articles/acam_demo_1.png" /></td><td style="border-color:#555"><img class="gallery_autoresize" src="articles/acam_demo_2.png" /></td></tr>
+<tr><td style="border-color:#555"><img class="gallery_autoresize" src="articles/acam_demo_3.png" /></td><td style="border-color:#555"><img class="gallery_autoresize" src="articles/acam_demo_4.png" /></td></tr>
+</table>
+
+<h3>Bibliography</h3>
+
+<ul>
+<li>Björn Ottoson (2020), <em>A perceptual color space for image processing</em>, published 2020-12-23, accessed 2022-10-22. <a href="https://bottosson.github.io/posts/oklab/">https://bottosson.github.io/posts/oklab/</a></li>
+</ul>
