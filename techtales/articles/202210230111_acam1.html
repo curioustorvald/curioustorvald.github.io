@@ -1,6 +1,6 @@
 <p>It is a standard in the art community that when you use the HSV colour model for your colour picker, you adjust the H-slider as you darken the colour to make it look more vibrant. The <em>ACAM</em> (pronounced /'æɪ.kæm/) generalises the idea using the single parameter <em>Variance</em> over the <a href="https://bottosson.github.io/posts/oklab/">OKLab</a> colour space.</p>
 
-<p>But why OKLab? The traditional HSV, being defined over the RGB colour space, has an issue; the colour space is not <em>uniform</em>. What’s the uniformity in the colour space? In HSV, two colours&mdash;<span style="color:#ffff00">█</span> <inlinecode>H:80, S:100, V:100</inlinecode> and <span style="color:#0000ff">█</span> <inlinecode>H:240, S:100, V:100</inlinecode> are indicated that they have the same brightness (V=100 for both), but in your eyes, they absolutely don’t have the same brightness, and this is the non-uniformity. OKLab, being the perceptually uniform colour space that is built using the most recent data from CIE (International Commission on Illumination; Commission Internationale de l'Éclairage), have solved the issue for us.</p>
+<p>But why OKLab? The traditional HSV, being defined over the RGB colour space, has an issue; the colour space is not <em>uniform</em>. What is the uniformity in the colour space? In HSV, two colours&mdash;<span style="color:#ffff00">█</span> <inlinecode>H:80, S:100, V:100</inlinecode> and <span style="color:#0000ff">█</span> <inlinecode>H:240, S:100, V:100</inlinecode> are indicated that they have the same brightness (V=100 for both), but in your eyes, they absolutely do not have the same brightness, and this is the non-uniformity. OKLab, being the perceptually uniform colour space that is built using the most recent data from CIE (International Commission on Illumination; Commission Internationale de l'Éclairage), have solved the issue for us.</p>
 
 <p>The ACAM implements the idea of hue-shifting over the LCh (a cylindrical transformation of the Lab colour space) with a single user-adjustable variable: the Variance.</p>
 
@@ -10,9 +10,9 @@
 
 <h4>Hue Variance</h4>
 
-<p>How much variance is a good variance? Rather, but more importantly, what’s the best hue-shifting function that allows both natural-looking gradient and the artistic exaggeration without distortion?</p>
+<p>How much variance is a good variance? Rather, but more importantly, what is the best hue-shifting function that allows both natural-looking gradient and the artistic exaggeration without distortion?</p>
 
-<p>There is no definitive answer to this question, but I’ve come up with the following curve:</p>
+<p>There is no definitive answer to this question, but I have come up with the following curve:</p>
 
 <img class="gallery_autoresize" src="articles/acam_hue_variance.png" width="512" height="512"/>
 
@@ -47,9 +47,9 @@
 
 <h4>Highlight Blending</h4>
 
-<p>The Highlight Colours are blended using the chosen blending function (click on the Advanced Options bar on the webapp if you don’t know what’s being talked about) over the Eigencolour and the Highlight Colour.</p>
+<p>The Highlight Colours are blended using the chosen blending function (click on the Advanced Options bar on the webapp if you do not know what is being talked about) over the Eigencolour and the Highlight Colour.</p>
 
-<p>Except, the percentage of the blending is not linear: I’ve chosen to tweak the gradient curve so that the gradient is the orthographic projection of the cylinder.</p>
+<p>Except, the percentage of the blending is not linear: I have chosen to tweak the gradient curve so that the gradient is the orthographic projection of the cylinder.</p>
 
 <p>If the x-coord of the selected point over the colour selection view falls between <em>t</em> = [0 .. 1], the actually selected <em>t</em><sub>sel</sub> is given as:</p>
 
