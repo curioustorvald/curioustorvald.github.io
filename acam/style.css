@@ -1,0 +1,172 @@
+* {
+    --cpicker-edge: 36px;
+    --cpicker-size: 300px;
+    --cpicker-margin: 36px;
+    --cpicker-sizewmargin: 372px;
+    --grid-gap: 10px;
+}
+
+html {
+    background: #707070;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #000;
+}
+
+colourpanel {
+    display: grid;
+    grid-template-columns: var(--cpicker-edge) var(--cpicker-sizewmargin) var(--cpicker-edge);
+    grid-template-rows: var(--cpicker-edge) var(--cpicker-sizewmargin) var(--cpicker-edge);
+    width: calc(2 * var(--cpicker-edge) + var(--cpicker-sizewmargin));
+    height: calc(2 * var(--cpicker-edge) + var(--cpicker-sizewmargin));
+}
+
+rightpanel {
+    display: grid;
+    height: var(--cpicker-size);
+    padding: var(--cpicker-edge) 0;
+    grid-template-columns: auto auto auto;
+    grid-gap: var(--grid-gap);
+}
+
+mainsliderpanel {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto auto;
+    height: var(--cpicker-sizewmargin);
+}
+
+selectedcol {
+    display: block;
+}
+
+.cpicker_input {
+    width: var(--cpicker-edge);
+    height: var(--cpicker-edge);
+    border: none;
+}
+
+.cpicker_label {
+    padding: 0 0.5em;
+    line-height: var(--cpicker-edge);
+}
+
+.sliders {
+    display: grid;
+    grid-template-columns: auto;
+    width: max-content;
+}
+
+#gradview {
+    position: absolute;
+    border: none !important; /* the border messes with the pointer event coord */
+}
+
+#gradviewsvg {
+    position: relative;
+    z-index: 100;
+    right: var(--cpicker-margin);
+    bottom: var(--cpicker-margin);
+}
+
+accordion > label {
+    writing-mode: vertical-lr;
+    text-align: center;
+    background: #808080;
+}
+
+.hidecontent {
+    display: none;
+}
+
+/* define accordion */
+accordion {
+    display: flex;
+    flex-direction: column;
+    gap: var(--grid-gap);
+}
+accordion[vertical] {
+    flex-direction: row;
+}
+
+/* add arrows to the accordion */
+accordion input:not(checked) + label:before {
+    content: "▼ ";
+}
+accordion input:checked + label:before {
+    content: "▲ ";
+}
+accordion[vertical] input:not(checked) + label:before {
+    content: "▶ ";
+}
+accordion[vertical] input:checked + label:before {
+    content: "◀ ";
+}
+/* make accordions actually work */
+accordion input:checked + label + .content {
+    display: block;
+    webkit-animation: fadeIn 0.5s ease-out;
+    -moz-animation: fadeIn 0.5s ease-out;
+    -o-animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.5s ease-out;
+}
+@keyframes fadeIn {
+    0% {
+        display: none;
+        opacity: 0;
+    }
+    1% {
+        display: block;
+        opacity: 1;
+    }
+    100% {
+        display: block;
+        opacity: 1;
+    }
+}
+
+
+apppanel {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-column-gap: 1em;
+    width: fit-content;
+}
+
+docpanel, pagetitle {
+    display: block;
+}
+
+pagetitle {
+    padding: 1em calc(var(--cpicker-edge) * 1.5);
+    font-weight: 700;
+    font-size: 2rem;
+}
+
+docpanel {
+    padding: 1em calc(var(--cpicker-edge) * 0.7);
+    margin: 4em calc(var(--cpicker-edge) * 0.3);
+    background: #eee;
+    border: 1px solid #334;
+    border-radius: 0.5em;
+    box-shadow: 0px 6px 24px rgba(0,0,0,0.5);
+}
+
+footer {
+    padding: 0 1em 0 1em;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.gradwrapper {
+    padding: calc(var(--cpicker-margin));
+}
+
+.gradwrapperwrapper {
+    background: #808080;
+}
+
+#outcol_swatch {
+/*     border: 3px solid #eeeeee; */
+}
