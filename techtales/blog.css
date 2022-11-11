@@ -72,6 +72,7 @@ imgbox {
 
 .gallery_autoresize {
     max-width: 100%;
+    height: auto;
 }
 
 .table_gallery {
