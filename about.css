@@ -63,11 +63,11 @@ chwithicon {
     height: var(--chead-height);
     display: grid;
     grid-template-columns: var(--chead-height) auto;
-    gap: 10px;
+    gap: 0;
 }
 chwithicon, chead {
     background: #e4e5e6;
-    padding: 10px 2em;
+    padding: 10px 12px;
 }
 chead {
     height: var(--chead-height-alt);
@@ -107,7 +107,7 @@ projtitle, pubtitle {
 }
 
 pubtitle {
-    height: 42px;
+    height: var(--chead-height-alt);
 }
 
 projtitle span, pubtitle span {
@@ -115,7 +115,7 @@ projtitle span, pubtitle span {
     display: -webkit-box;
 }
 
-pubtitle span:nth-child(2) {
+projtitle span:nth-child(2) {
     font-size: 1.11rem;
 }
 
