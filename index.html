@@ -4,32 +4,106 @@
   <head>
     <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
     <link rel="stylesheet" href="style.css">
-    <title>CuriousTorvald: A dabbling fox</title>
+    <link rel="stylesheet" href="about.css">
+    <title>CuriousTorvald</title>
   </head>
   <body>
+
     <h3>About Me</h3>
-    <em>I make things not because they’re easy and sensible, but because they’re difficult and ridiculous.</em>
+    <walloftext>
+    <center><blockquote>I make things not because they’re easy and sensible, but because they’re difficult and ridiculous.</blockquote></center>
+    <p>Hi! My name is Minjae Song, also known as CuriousTorvald on the interweb.</p>
+    </walloftext>
+
     <h3>Selected Works</h3>
-    <ul>
-    <li><a href="https://github.com/curioustorvald/TerranBASIC"><strong>Terran BASIC</strong></a> &mdash; BASIC with functional programming extension: <em>BASIC and Haskell living together, mass hysteria!</em></li>
-    <li><a href="https://github.com/curioustorvald/Terrarum-sans-bitmap"><strong>Terrarum Sans Bitmap</strong></a> &mdash; The real multilingual bitmap font for video games that is totally not ugly</li>
-    <li><a href="https://github.com/curioustorvald/Terrarum"><strong>Terrarum</strong></a> &mdash; The never-ending adventure of creating a modular game engine and the actual game runs on top of it</li>
-    <li>Main developer of the <a href="https://funzinnu.com/furdex"><strong>FurDEX</strong></a>, a roster-type searcher for costumed characters and workshops that can manufacture them, which is being serviced on top of <a href="https://github.com/curioustorvald/roster-searcher-thingamajig"><strong>my other project</strong></a>.</li>
-    </ul>
-    <h3><a href="./techtales" style="color:unset">Tech Blog Thingie &ndash; Click to Enter</a></h3>
-    <h3>Webapps</h3>
-    <h4>Demos</h4>
-      <ul>
-        <li><a href="https://curioustorvald.github.io/acam/">Lazy Artist’s Colour Picker</a> &mdash; Pick two colours, adjust the Variance, and the app takes care of the rest!</li>
-        <li><a href="https://curioustorvald.github.io/oklch_book_of_colour/">OKLCh Book of Visible Colours</a> &mdash; Explore the cool and weird aspects of the visible colours, more detailed and less costly than the <em>Munsell Book of Color</em>.</li>
-      </ul>
-    <h4>Just For Fun</h4>
-      <ul>
-        <li><a href="https://curioustorvald.github.io/oesolise/">Oesolise</a> &mdash; 최현배식 푸러쓰기를 유니코드로</li>
-      </ul>
+
+    <cards>
+      <card>
+        <chwithicon>
+          <a target="_blank" rel="noopener noreferrer" href="https://github.com/curioustorvald/Terrarum"><img src="terrarum.png" /></a>
+          <projtitle><a target="_blank" rel="noopener noreferrer" href="https://github.com/curioustorvald/Terrarum"><span>Terrarum</span></a></projtitle>
+        </chwithicon>
+        <p>Modular game engine for a side-scrolling tilemap platformer and a game that runs on top of it</p>
+      </card>
+      <card>
+        <chwithicon>
+          <a target="_blank" rel="noopener noreferrer" href="https://github.com/curioustorvald/tsvm"><img src="tsvm.png" /></a>
+          <projtitle><a target="_blank" rel="noopener noreferrer" href="https://github.com/curioustorvald/tsvm"><span>tsvm</span></a></projtitle>
+        </chwithicon>
+        <p>A virtual retro-like computer with virtual hardwares, OS, filesystem, networking and VM management</p>
+      </card>
+      <card>
+        <chwithicon>
+          <a target="_blank" rel="noopener noreferrer" href="https://github.com/curioustorvald/TerranBASIC"><img src="tbas.png" /></a>
+          <projtitle><a target="_blank" rel="noopener noreferrer" href="https://github.com/curioustorvald/TerranBASIC"><span>TerranBASIC</span></a></projtitle>
+        </chwithicon>
+        <p>Traditional line-numbered BASIC with Functional Programming elements and Monads</p>
+      </card>
+      <card>
+        <chwithicon>
+          <a target="_blank" rel="noopener noreferrer" href="https://github.com/curioustorvald/Terrarum-sans-bitmap"><img src="tsb.png" /></a>
+          <projtitle><a target="_blank" rel="noopener noreferrer" href="https://github.com/curioustorvald/Terrarum-sans-bitmap"><span>Terrarum Sans Bitmap</span></a></projtitle>
+        </chwithicon>
+        <p>Multilingual bitmap font for video games focused on legibility and unified asethetics</p>
+      </card>
+    </cards>
+
+    <h3>Been Responsible For</h3>
+
+    <cards>
+      <card>
+        <chwithicon>
+          <a target="_blank" rel="noopener noreferrer" href="https://funzinnu.com/furdex/index.html"><img src="furdex_icon.png" /></a>
+          <projtitle><a target="_blank" rel="noopener noreferrer" href="https://funzinnu.com/furdex/index.html"><span>Furdex</span></a><span>Developer</span></projtitle>
+        </chwithicon>
+        <p>A solution for database management and searcher front-end of fursuit characters, without having any DBMS on the server-side</p>
+      </card>
+      <card>
+        <chwithicon>
+          <a target="_blank" rel="noopener noreferrer" href="https://starlightsvn.com/"><img src="starlights.png" /></a>
+          <projtitle><a target="_blank" rel="noopener noreferrer" href="https://starlightsvn.com/"><span>Starlights</span></a><span>Programmer</span></projtitle>
+        </chwithicon>
+        <p>A visual novel video game focused on its main protagonist, written in Ren’Py and avaliable for Win/Mac/Linux</p>
+      </card>
+    </cards>
+
+    <h3>Publications</h3>
+
+    <cards>
+      <card>
+        <chead><pubtitle><a target="_blank" rel="noopener noreferrer" href="https://curioustorvald.github.io/techtales/?a=cg_202210230111_acam1"><span>The&nbsp;Artistic Colour Appearance&nbsp;Model</span></a></pubtitle></chead>
+        <p>A colour model for tasteful shading</p>
+      </card>
+      <card>
+        <chead><pubtitle><a target="_blank" rel="noopener noreferrer" href="https://curioustorvald.github.io/acam/"><span>Lazy Artist’s Colour&nbspPicker</span></a></pubtitle></chead>
+        <p>The implementation of the <em>ACAM</em></p>
+      </card>
+      <card>
+        <chead><pubtitle><a target="_blank" rel="noopener noreferrer" href="https://curioustorvald.github.io/oklch_book_of_colour/"><span>Book of Visible&nbspColours</span></a></pubtitle></chead>
+        <p>Explore the quirkiness of the visible colours</p>
+      </card>
+      <card>
+        <chead><pubtitle><a target="_blank" rel="noopener noreferrer" href="https://curioustorvald.github.io/techtales/?a=cg_202202041337_terrarum_lighting1"><span>Efficient Dynamic Lighting with Transmittance Simulation&hellip;</span></a></pubtitle></chead>
+        <p>Lighting simulation on two-dimensional tilemap</p>
+      </card>
+      <card>
+        <chead><pubtitle><a target="_blank" rel="noopener noreferrer" href="https://curioustorvald.github.io/oesolise/"><span>Oesolise</span></a></pubtitle></chead>
+        <p>Korean text converter. ƛ⟂̌ıōεլʟᵾhıʌlᴊ z̵ᴛƨqʌʌᴜᴊlƨᴜƨ ⫪ʟlᴊ̵⟂cᴜƨ⟂</p>
+      </card>
+    </cards>
+
     <h3>Contact Me</h3>
-        <ul>
-            <li>Twitter&ensp;<a href="https://twitter.com/CuriousTorvald">@CuriousTorvald</a></li>
-        </ul>
+
+    <contactbox>
+      <cardflex>
+        <card scheme="contacts"><a target="_blank" rel="noopener noreferrer" href="mailto:curioustorvald@gmail.com"><img src="email.svg" /></a></card>
+        <card scheme="contacts"><a target="_blank" rel="noopener noreferrer" href="https://github.com/curioustorvald"><img src="github.svg" /></a></card>
+        <card scheme="contacts"><a target="_blank" rel="noopener noreferrer" href="https://twitter.com/CuriousTorvald"><img src="twitter.svg" /></a></card>
+      </cardflex>
+    </contactbox>
+
+    <footer>
+        <p>Copyright © 2022&ndash;2023 CuriousTorvald</p>
+    </footer>
   </body>
 </html>

@@ -1,0 +1,149 @@
+* {
+    --chead-height: 52px;
+    --chead-height-alt: 38px;
+}
+
+walloftext {
+    display: block;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+body {
+    max-width: 1200px;
+}
+
+contactbox {
+    display: block;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.9em;
+}
+cardflex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+card {
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 0;
+
+    border: 1px solid #999;
+    border-radius: 4px;
+    box-shadow: 0px 2px 4px 0px #ddd;
+}
+
+card[scheme="contacts"] {
+    width: var(--chead-height);
+    height: var(--chead-height);
+    margin-left: 28px;
+    margin-right: 28px;
+}
+
+card p {
+    margin: 1.2em 1em 1.4em 1em;
+    text-align: left;
+}
+
+card img {
+    width: var(--chead-height);
+    height: var(--chead-height);
+}
+
+chwithicon {
+    height: var(--chead-height);
+    display: grid;
+    grid-template-columns: var(--chead-height) auto;
+    gap: 10px;
+}
+chwithicon, chead {
+    background: #e4e5e6;
+    padding: 10px 2em;
+}
+chead {
+    height: var(--chead-height-alt);
+}
+
+h1, h2, h3, h4, h5 {
+    text-align: center;
+}
+
+h3 {
+    margin: 2.6rem auto 1.4rem auto;
+}
+
+card a {
+    text-decoration: underline;
+    color: #1d1d1f;
+}
+
+card a:visited {
+    color: #1d1d1f;
+}
+
+
+projtitle, pubtitle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    font-family: 'Roboto Slab';
+    font-weight: 700;
+    font-size: 1.3rem;
+    text-align: center;
+    height: var(--chead-height);
+    margin: 0;
+    padding: 0;
+}
+
+pubtitle {
+    height: 42px;
+}
+
+projtitle span, pubtitle span {
+    line-height: 133%;
+    display: -webkit-box;
+}
+
+pubtitle span:nth-child(2) {
+    font-size: 1.11rem;
+}
+
+blockquote {
+    width: fit-content;
+}
+
+footer {
+    margin: 2.6rem auto 1.4rem auto;
+    font-size: 0.9rem;
+    text-align: center;
+}
+footer p {
+    text-align: center;
+}
+
+
+@media (max-width:899px) {
+    cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width:599px) {
+    cards {
+        grid-template-columns: repeat(1, 1fr);
+    }
+    p {
+        text-align: left;
+    }
+}
