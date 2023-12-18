@@ -248,3 +248,8 @@ sigma > sup, sigma > sdn {
     display: inline-block;
     line-height: 1.1;
 }
+
+math {
+    font-size: 1.3rem;
+    font-weight: 500;
+}

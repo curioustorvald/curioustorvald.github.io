@@ -32,32 +32,36 @@
 
 <p>and the relevancy is defined as following:</p>
 
-<equation>
-Relevancy =
-<frac>
-<fn><em>MatchedRank</em> + <em>UnmatchedRank</em></fn>
-<fd>2</fd>
-</frac>
-</equation>
+<math display="block">
+<mi>Relevancy</mi><mo>=</mo>
+<mfrac>
+<mrow><mi>MatchedRank</mi><mo>+</mo><mi>UnmatchedRank</mi></mrow>
+<mn>2</mn>
+</mfrac>
+</math>
+
 
 <p>where:</p>
 <table style="border:none">
-<tr><td style="border:none;padding-left:1em;padding-right:0;text-align:right"><em>MatchedRank</em></td><td style="border:none;padding-right:0">=</td><td style="border:none">
-<inlineeq>
-<sigma><ssym>∑</ssym></sigma>
-<frac>
-<fn>1</fn>
-<fd>2<sup>one-based matched index</sup></fd>
-</frac>
-</inlineeq>
+<tr><td style="border:none;padding-left:1em;padding-right:0;text-align:right"><math><mi>MatchedRank</mi></math></td><td style="border:none;padding-right:0"><math><mo>=</mo></math></td><td style="border:none">
+
+<math>
+<mo>∑</mo>
+<mfrac>
+<mn>1</mn>
+<mrow><msup><mn>2</mn><mi>one-based matched index</mi></msup></mrow>
+</mfrac>
+</math>
+
 </td></tr>
-<tr><td style="border:none;padding-left:1em;padding-right:0;text-align:right"><em>UnmatchedRank</em></td><td style="border:none;padding-right:0">=</td><td style="border:none">
-<inlineeq>
-<frac>
-<fn>1</fn>
-<fd>Count of the unmatched + 1</fd>
-</frac>
-</inlineeq>
+<tr><td style="border:none;padding-left:1em;padding-right:0;text-align:right"><math><mi>UnmatchedRank</mi></math><td style="border:none;padding-right:0"><math><mo>=</mo></math></td><td style="border:none">
+
+<math>
+<mfrac>
+<mn>1</mn>
+<mrow><mi>Count of the unmatched</mi><mo>+</mo><mn>1</mn></mrow>
+</mfrac>
+</math>
 </td></tr>
 </table>
 
