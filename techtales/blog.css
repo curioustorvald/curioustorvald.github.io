@@ -250,6 +250,8 @@ sigma > sup, sigma > sdn {
 }
 
 math {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 500;
+    margin-top: 6pt;
+    margin-bottom: 6pt;
 }

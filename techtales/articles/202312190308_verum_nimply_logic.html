@@ -31,66 +31,65 @@
 
 <p>Falsum is a signal that is always low, or “absence of the power”. The game also allows the “No-Connect” input, so the construction of this circuit is rarely necessary.</p>
 
-<math display="block">⊥ = (⊤ ↛ ⊤)</math>
+<math display="block"><mi>⊥</mi><mo>=</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>⊤</mi><mo stretchy="false">)</mo></math>
 
-<h3>NOT (¬)</h3>
+<h3>NOT (<mo>¬</mo>)</h3>
 
 <p>Inverter, also known as NOT gate, negates the input.</p>
 
-<math display="block">¬p = (⊤ ↛ p)</math>
+<math display="block"><mo>¬</mo><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>p</mi><mo stretchy="false">)</mo></math>
 
 <h3>Buffer</h3>
 
 <p>Buffer, colloquially known as <emph>diode</emph>, passes the input as-is.</p>
 
-<math display="block">p = (p ↛ ⊥)</math>
-<math display="block">
-p = ¬¬p = (⊤ ↛ (⊤ ↛ p))</math>
+<math display="block"><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>p</mi><mo>↛</mo><mi>⊥</mi><mo stretchy="false">)</mo></math>
+<math display="block"><mi>p</mi><mo>=</mo><mo>¬</mo><mo>¬</mo><mi>p</mi><mo>=</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>p</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></math>
 
 <h3>AND (·)</h3>
 
 <p>Conjunction, also known as AND gate, outputs a signal when all of its inputs are high.</p>
 
-<math display="block">p · q = (p ↛ ¬q)</math>
-<math display="block">= (p ↛ (⊤ ↛ q))</math>
+<math display="block"><mi>p</mi><mo>·</mo><mi>q</mi><mo>=</mo><mo stretchy="false">(</mo><mi>p</mi><mo>↛</mo><mo>¬</mo><mi>q</mi><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo stretchy="false">(</mo><mi>p</mi><mo>↛</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></math>
 
 <h3>NAND (↑)</h3>
 
 <p>NAND gate is an AND gate followed by a NOT gate.</p>
 
-<math display="block">p ↑ q = ¬(p · q)</math>
-<math display="block">= ¬(p ↛ (¬q))</math>
-<math display="block">= ¬(p ↛ (⊤ ↛ q))</math>
-<math display="block">= (⊤ ↛ (p ↛ (⊤ ↛ q)))</math>
+<math display="block"><mi>p</mi><mo>↑</mo><mi>q</mi><mo>=</mo><mo>¬</mo><mo stretchy="false">(</mo><mi>p</mi><mo>·</mo><mi>q</mi><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo>¬</mo><mo stretchy="false">(</mo><mi>p</mi><mo>↛</mo><mo stretchy="false">(</mo><mo>¬</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo>¬</mo><mo stretchy="false">(</mo><mi>p</mi><mo>↛</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mo stretchy="false">(</mo><mi>p</mi><mo>↛</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo stretchy="false">)</mo></math>
 
 <h3>OR (+)</h3>
 
 <p>Disjunction, also known as OR gate, outputs a signal when one or more of its inputs are high.</p>
 
-<math display="block">p + q = ¬(¬p · ¬q)</math>
-<math display="block">= ¬((⊤ ↛ p) · (⊤ ↛ q))</math>
-<math display="block">= ¬((⊤ ↛ p) ↛ (⊤ ↛ (⊤ ↛ q)))</math>
-<math display="block">= ¬((⊤ ↛ p) ↛ q)</math>
-<math display="block">= (⊤ ↛ ((⊤ ↛ p) ↛ q))</math>
+<math display="block"><mi>p</mi><mo>+</mo><mi>q</mi><mo>=</mo><mo>¬</mo><mo stretchy="false">(</mo><mo>¬</mo><mi>p</mi><mo>·</mo><mo>¬</mo><mi>q</mi><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo>¬</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>p</mi><mo stretchy="false">)</mo><mo>·</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo>¬</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>p</mi><mo stretchy="false">)</mo><mo>↛</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo>¬</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>p</mi><mo stretchy="false">)</mo><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>p</mi><mo stretchy="false">)</mo><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></math>
 
 <h3>NOR (↓)</h3>
 
 <p>NOR gate is an OR gate followed by a NOT gate.</p>
 
-<math display="block">p ↓ q = ¬(p + q)</math>
-<math display="block">= ¬p · ¬q</math>
-<math display="block">= ((⊤ ↛ p) ↛ (⊤ ↛ (⊤ ↛ q)))</math>
-<math display="block">= ((⊤ ↛ p) ↛ q)</math>
+<math display="block"><mi>p</mi><mo>↓</mo><mi>q</mi><mo>=</mo><mo>¬</mo><mo stretchy="false">(</mo><mi>p</mi><mo>+</mo><mi>q</mi><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo>¬</mo><mi>p</mi><mo>·</mo><mo>¬</mo><mi>q</mi></math>
+<math display="block"><mo>=</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>p</mi><mo stretchy="false">)</mo><mo>↛</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>p</mi><mo stretchy="false">)</mo><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo></math>
 
 <h3>XOR (↮)</h3>
 
 <p>XOR output a signal when then number of high inputs is odd.</p>
 
-<math display="block">p ↮ q = (p + q) · ¬(p · q)</math>
-<math display="block">= (p + q) · (p ↑ q)</math>
-<math display="block">= (⊤ ↛ ((⊤ ↛ p) ↛ q)) · (⊤ ↛ (p ↛ (⊤ ↛ q)))</math>
-<math display="block">= ((⊤ ↛ ((⊤ ↛ p) ↛ q)) ↛ (⊤ ↛ (⊤ ↛ (p ↛ (⊤ ↛ q)))))</math>
-<math display="block">= ((⊤ ↛ ((⊤ ↛ p) ↛ q)) ↛ (p ↛ (⊤ ↛ q)))</math>
+<math display="block"><mi>p</mi><mo>↮</mo><mi>q</mi><mo>=</mo><mo stretchy="false">(</mo><mi>p</mi><mo>+</mo><mi>q</mi><mo stretchy="false">)</mo><mo>·</mo><mo>¬</mo><mo stretchy="false">(</mo><mi>p</mi><mo>·</mo><mi>q</mi><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo stretchy="false">(</mo><mi>p</mi><mo>+</mo><mi>q</mi><mo stretchy="false">)</mo><mo>·</mo><mo stretchy="false">(</mo><mi>p</mi><mo>↑</mo><mi>q</mi><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>p</mi><mo stretchy="false">)</mo><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo>·</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mo stretchy="false">(</mo><mi>p</mi><mo>↛</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>p</mi><mo stretchy="false">)</mo><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo>↛</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mo stretchy="false">(</mo><mi>p</mi><mo>↛</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo stretchy="false">)</mo></math>
+<math display="block"><mo>=</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>p</mi><mo stretchy="false">)</mo><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo>↛</mo><mo stretchy="false">(</mo><mi>p</mi><mo>↛</mo><mo stretchy="false">(</mo><mi>⊤</mi><mo>↛</mo><mi>q</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo stretchy="false">)</mo></math>
 
 <h3>Proof-by-Simulation</h3>
 
