@@ -1,13 +1,13 @@
-@import url("https://fonts.googleapis.com/css?family=Roboto:400,500,700|Roboto+Slab:400,500,600,700,800,900|Noto+Sans+Symbols+2|Roboto+Condensed:400|Roboto+Mono:400");
+@import url("https://fonts.googleapis.com/css?family=Roboto:400,500,700|Roboto+Slab:400,500,600,700,800,900|Noto+Sans+Symbols+2|Roboto+Condensed:400|Roboto+Mono:400|PT+Serif:400,700");
 
 
 html {
  background-color:#fefefe
 }
 body {
- font-family:Roboto;
+ font-family:'PT Serif';
  color:#1d1d1f;
- font-size:16px;
+ font-size:16.5px;
  margin:2em auto;
  max-width:800px;
  padding:1em;
