@@ -37,7 +37,7 @@ card {
     grid-template-rows: auto auto;
     gap: 0;
 
-    border: 1px solid #999;
+    border: 1px solid #99999b;
     border-radius: 4px;
     box-shadow: 0px 2px 4px 0px #ddd;
 }
@@ -66,7 +66,7 @@ chwithicon {
     gap: 0;
 }
 chwithicon, chead {
-    background: #e4e5e6;
+    background: #e4e6e6;
     padding: 10px 12px;
 }
 chead {
@@ -97,7 +97,7 @@ projtitle, pubtitle {
     align-items: center;
     flex-direction: column;
 
-    font-family: 'Roboto Slab';
+    font-family: 'PT Sans';
     font-weight: 700;
     font-size: 1.3rem;
     text-align: center;

@@ -12,8 +12,8 @@ panelnavwrapper {
 }
 
 .site_header {
-    font-family: 'Roboto Slab';
-    font-weight: 800;
+    font-family: 'PT Sans Caption';
+    font-weight: 700;
     letter-spacing: 0.1em;
     line-height: 100%;
 }
@@ -25,7 +25,7 @@ footer {
 }
 
 article_goback {
-    font-family: 'Roboto Slab';
+    font-family: 'PT Sans';
 }
 
 sym {
@@ -34,34 +34,34 @@ sym {
 }
 
 inlinecode {
-    font-family: "Roboto Mono";
-    background-color: #f6f6f6;
-    color: #111;
+    font-family: "PT Mono";
+    background-color: #f6f6f7;
+    color: #111113;
     padding: 2px 4px;
     margin: 0 0.15em;
-    border: 1px solid #999;
+    border: 1px solid #99999b;
     border-radius: 3px;
     font-size: 96%;
 }
 
 pre {
-    font-family: "Roboto Mono";
-    background-color: #f6f6f6;
-    color: #111;
+    font-family: "PT Mono";
+    background-color: #f6f6f7;
+    color: #111113;
     padding: 3px 6px;
-    border: 1px solid #999;
+    border: 1px solid #99999b;
     border-radius: 3px;
     overflow: auto;
-    scrollbar-color: #999 #f6f6f6;
+    scrollbar-color: #99999b #f6f6f7;
     font-size: 96%;
 }
 
 pre::-webkit-scrollbar-thumb {
-    background-color: #999;
+    background-color: #99999b;
 }
 
 pre::-webkit-scrollbar-track {
-    background-color: #f6f6f6;
+    background-color: #f6f6f7;
 }
 
 imgbox {
@@ -80,27 +80,33 @@ imgbox {
 }
 
 th, td {
-    border: 1px solid #e6e6e6;
+    border: 1px solid #e6e6e7;
 }
 
-thead td {
-    border-bottom: 1px solid #555;
+thead td, td.head, td.foot {
+    background: #f2f2f3;
+    font-weight: 700;
     color: #393943;
 }
 
-thead td:not(:last-child) {
-    border-right: 1px solid #e6e6e6;
+thead td, td.head {
+    border-bottom: 1px solid #555558;
+}
+td.foot {
+    border-top: 1px solid #555558;
+}
+thead td:not(:last-child), td.head:not(:last-child), td.foot:not(:last-child) {
+    border-right: 1px solid #ceced0;
 }
 
 table {
-    border: 1px solid #999;
+    border: 1px solid #99999b;
     overflow-x: auto;
     border-spacing: 0;
     border-radius: 3px;
 }
 
 thead {
-    font-weight: 700;
 }
 
 tbody {
@@ -131,7 +137,7 @@ article_body, article_goback {
 }
 
 article_timestamp, article_share {
-    font-family: 'Roboto Slab';
+    font-family: 'PT Sans';
     display: inline-block;
     font-size: 0.9rem;
     text-align: center;
@@ -139,7 +145,7 @@ article_timestamp, article_share {
 
 .nothing_here {
     font-style: italic;
-    color: #999;
+    color: #99999b;
 }
 
 article_share a, article_share a:visited,
@@ -169,15 +175,15 @@ article_list {
 
 article_list a {
     display: inline;
-    font-family: 'Roboto Slab';
-    font-weight: 500;
+    font-family: 'PT Sans';
+    font-weight: 700;
     font-size: 1.1rem;
     text-decoration: unset;
 }
 
 article_list a:hover {
     transition: all 100ms;
-    border-bottom: 1px solid #111111
+    border-bottom: 1px solid #111113;
 }
 
 frac {
@@ -194,7 +200,7 @@ frac > fn, frac > fd {
 }
 
 frac > fd {
-    border-top: 1px solid #454545;
+    border-top: 1px solid #454549;
 }
 
 equation {
@@ -251,7 +257,7 @@ sigma > sup, sigma > sdn {
 
 math {
     font-size: 1.2rem;
-    font-weight: 500;
+    font-weight: 400;
     margin-top: 6pt;
     margin-bottom: 6pt;
 }
