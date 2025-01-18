@@ -26,6 +26,11 @@ cards {
     grid-template-columns: repeat(3, 1fr);
     gap: 0.9em;
 }
+cardstwo {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.9em;
+}
 cardflex {
     display: flex;
     justify-content: center;
@@ -54,6 +59,13 @@ card p {
     text-align: left;
 }
 
+card imgcontainer img {
+    display: block;
+    max-width:100%;
+    width: auto;
+    height: auto;
+}
+
 card img {
     width: var(--chead-height);
     height: var(--chead-height);
@@ -71,6 +83,21 @@ chwithicon, chead {
 }
 chead {
     height: var(--chead-height-alt);
+}
+cfootover {
+    padding: 10px 0;
+    height: var(--chead-height-alt);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fefefe;
+}
+
+imgcontainer {
+    position: relative;
+    width: inherit;
 }
 
 h1, h2, h3, h4, h5 {
@@ -134,16 +161,22 @@ footer p {
 
 
 @media (max-width:899px) {
-    cards {
+    cards, cardstwo {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width:599px) {
-    cards {
+    cards, cardstwo {
         grid-template-columns: repeat(1, 1fr);
     }
     p {
         text-align: left;
+    }
+    card imgcontainer img {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        object-position: top;
     }
 }
