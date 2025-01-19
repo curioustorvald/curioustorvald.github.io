@@ -1,0 +1,48 @@
+.banner-container {
+    width: 100%;
+    position: relative;
+}
+
+.banner-content {
+    max-width: 800px; /* Maximum width of the content */
+    margin: 0 auto;
+    padding: 20px 0 0 0;
+    position: relative;
+    display: block;
+}
+
+.banner-content img {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.horizontal-bar {
+    height: 4px;
+    width: 100%;
+    background: rgb(0,0,0);
+    background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.25) 35%, rgba(0,0,0,0) 100%);
+}
+
+.banner-wide {
+    width: 90%;
+    display: block;
+}
+
+.banner-narrow {
+    width: 60%;
+    display: none;
+    min-width: 250px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 599px) {
+    .banner-wide {
+        width: 90%;
+        display: none;
+    }
+
+    .banner-narrow {
+        width: 60%;
+        display: block;
+    }
+}
