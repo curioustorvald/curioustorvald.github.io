@@ -4,7 +4,7 @@
 }
 
 .banner-content {
-    max-width: 800px; /* Maximum width of the content */
+    max-width: 600px; /* Maximum width of the content */
     margin: 0 auto;
     padding: 20px 0 0 0;
     position: relative;
@@ -42,7 +42,7 @@
     }
 
     .banner-narrow {
-        width: 60%;
+        width: 55%;
         display: block;
     }
 }
