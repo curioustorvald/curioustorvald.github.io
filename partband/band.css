@@ -1,0 +1,49 @@
+* {
+  --gaps: 12px;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+gallery {
+  display: grid;
+  padding: var(--gaps);
+  width: 100vw;
+
+  gap: var(--gaps);
+}
+band {
+  display: flex;
+  gap: var(--gaps);
+  width: 100%;
+  flex-direction: row;
+  height: 480px; /* temporary. should be dynamic */
+}
+band[dir="v"] {
+  grid-row: span 2;
+  flex-direction: column;
+  height: 800px; /* temporary. should be dynamic */
+}
+.panel {
+  background-size: cover;
+  background-position: center;
+  border-radius: 4px;
+}
+bandpanel {
+  display: grid;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  gap: var(--gaps);
+}
+
+bandpanel.leaf {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+/*   background: rgba(255, 255, 255, 0.55); */
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
