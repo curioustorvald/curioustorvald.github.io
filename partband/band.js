@@ -72,7 +72,7 @@ function mustBeFlipped(x) {
 }
 
 class PartitionedBand {
-  DEBUG = 1
+  DEBUG = 0
 
   ord = undefined
   prefix = ''
@@ -713,6 +713,7 @@ class PartitionedBand {
         let isImageNSFW = (10 < ord && ord % 10 != 0) || (10000 <= ord && ord < 100000) || (200000 <= ord && ord <= 400000)
 
         panel.setAttribute("nsfw", isImageNSFW|0)
+        panel.setAttribute("onclick", `viewImage(${ord})`)
       }
     })
 
@@ -1407,15 +1408,36 @@ function clipLastVertPanel(gallery, bands, imgObjs) {
     const last = bands[bands.length - 1]
     const penult = bands[bands.length - 2]
 
+    // if the last panel is V
     if (last.getAttribute('dir') == 'v') {
-      const lastHeight = parseInt(last.style.height)
-      const penultHeight = parseInt(penult.style.height)
+      // if the panel is not the first in the band, clip it
+      if ((last.getAttribute('ord')|0) % COLUMNS > 0) {
+        const lastHeight = parseInt(last.style.height)
+        const penultHeight = parseInt(penult.style.height)
 
-      // console.log("last", last, "penult", penult)
-      // console.log("lastHgt", lastHeight, "penultHgt", penultHeight)
+        // console.log("last", last, "penult", penult)
+        // console.log("lastHgt", lastHeight, "penultHgt", penultHeight)
 
-      if (lastHeight > penultHeight) {
-        last.style.height = `${penultHeight}px`
+        if (lastHeight > penultHeight) {
+          last.style.height = `${penultHeight}px`
+        }
+      }
+      // if it is the first, expand it
+      else {
+        let imgOrd = getImageOrdFromURL(last.children[0].style.backgroundImage)
+        let imgObj = IMG_OBJS[ordToIndex(imgOrd)]
+        let imgRatio = imgObj.ratio
+
+        // convert it to H
+        last.setAttribute('dir', 'h')
+
+        // calculate new width
+        let newWidth = parseFloat(getComputedStyle(last).width)
+        let newHeight = Math.round(newWidth / imgRatio)|0
+        last.setAttribute('style', `height: ${newHeight}px`)
+        last.children[0].style.width = '100%'
+
+
       }
     }
   }
@@ -1483,6 +1505,7 @@ function updatePictureInPlace(prefix, imgObjs, nsfw) {
       let altImg = imgObjs.filter(it => it.ord == altOrd)[0]
       if (altImg) {
         panel.style.backgroundImage = `url(${toImageURL(prefix, altOrd)})`
+        panel.setAttribute("onclick", `viewImage(${altOrd})`)
       }
     }
   })
@@ -1492,12 +1515,14 @@ function unlockNSFW() {
   showNSFW = true
   updatePictureInPlace(prefix, IMG_OBJS, showNSFW)
   document.documentElement.style.setProperty('--nsfw-blur-enabled', '0')
+  setStatusLine(document.getElementById(ELEM_ID))
 }
 
 function lockNSFW() {
   showNSFW = false
   updatePictureInPlace(prefix, IMG_OBJS, showNSFW)
   document.documentElement.style.setProperty('--nsfw-blur-enabled', '1')
+  setStatusLine(document.getElementById(ELEM_ID))
 }
 
 function geomean(numbers) {
@@ -1599,7 +1624,6 @@ function pack(elemID, prefix0, disableNSFWprocessing) {
     VERT_INDICES_BY_ROW = vertLUT.map(it => rndToColIdx(it))
 
     _pack()
-
     attachResizeEvent()
   })
 }
@@ -1649,6 +1673,10 @@ function refreshColumnCount() {
 
 function toImageURL(prefix, ord) {
   return `https://cdn.taimuworld.com/${prefix}_thumbs/${ord}.webp`
+}
+
+function viewImage(ord) {
+
 }
 
 let prefixToUnits = {
