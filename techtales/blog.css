@@ -2,6 +2,10 @@ header {
     text-align: center;
 }
 
+h1, h2, h3, h4, h5 {
+    font-family: 'PT Serif';
+}
+
 panelnavwrapper {
     display: inline-block;
     text-align: center;

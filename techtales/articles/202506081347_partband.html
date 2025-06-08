@@ -1,0 +1,1460 @@
+<h1><strong>Abstract</strong></h1>
+<p>Creating web galleries for art collections presents formidable challenges: collection of artworks exhibit highly variable aspect ratios, often comprising hundreds or thousands of images, rendering manual arrangement impractical; and achieving responsive design across devices while preserving visual balance introduces an additional layer of complexity. The Partitioned Container Bands system addresses this challenge by dividing pages into intelligent bands that can be partitioned according to compositional rules; the system automatically selects and positions images based on aspect ratio compatibility. A subsequent optimisation phase further refines partition dimensions to minimise distortion, supporting both horizontal and vertical band orientations, thereby ensuring efficient space utilisation across all device sizes. The outcome is an automated layout engine that transforms chaotic image collections into harmonious and responsive galleries.</p>
+<a href="https://curioustorvald.com/partband/"><p>Play with the Interactive Demo on this link</p></a>
+<h1><strong>1. Introduction</strong></h1>
+<h2><strong>1.1 The Challenge of Mixed Aspect Ratio Galleries</strong></h2>
+<p>Traditional grid layouts represent the most straightforward approach to organizing image galleries, but their simplicity comes at a significant cost: fixed-size cells force images into predetermined dimensions, resulting in aggressive cropping that can destroy composition, remove critical visual elements, or distort the intended framing of the artist. What should be a showcase becomes a Bed of Procrustes, where artworks are mutilated to fit arbitrary constraints.</p>
+<p>The masonry layout, popularised by Pinterest, attempts to address these limitations by allowing variable heights within columnar structures. While this preserves aspect ratios, it introduces new problems: the inherent vertical bias creates a waterfall effect where images flow exclusively downward. This architecture particularly disadvantages landscape-oriented artworks—panoramic photographs, wide paintings, and horizontal compositions are compressed into narrow columns, diminishing their visual impact and violating their natural proportions.</p>
+<p>Furthermore, both approaches fail to create meaningful visual relationships between adjacent images. They treat each artwork as an isolated unit rather than part of a cohesive gallery experience. What is needed is a layout system that respects both the individual integrity of each image and the collective harmony of the gallery—one that can accommodate diverse aspect ratios while maintaining visual flow in multiple directions and creating deliberate compositional relationships between neighbouring artworks.</p>
+<h2><strong>1.2 Design Goals</strong></h2>
+<p>The Partitioned Container Band system is built on four foundational principles:</p>
+<ol type="1" class="numbered-list" start="1"><li><strong>Aspect Ratio Preservation with Intelligent Boundaries</strong><p>Unlike traditional layouts that force arbitrary crops, the system respects natural proportions of each image while applying mathematical soft-clipping to extreme ratios. This approach prevents both excessive pan-and-scanning of ultra-wide panoramas and dominating vertical scrolls from tall images, achieving visual balance without destroying compositional integrity.</p>
+</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Hierarchical Visual Composition</strong><p>The system implements an importance-based allocation strategy. High-priority images (scored ≥10) receive prominent placement in main panels with optimal sizing, while lower-scored images intelligently fill complementary spaces. This creates deliberate focal points and supporting elements, mimicking the thoughtful arrangement of a curated gallery rather than a mechanical grid.</p>
+</li>
+</ol>
+<ol type="1" class="numbered-list" start="3"><li><strong>True Responsive Architecture</strong><p>Beyond simple breakpoints, the system employs a virtual column mechanism that fundamentally restructures layouts across devices. A 4-column desktop gallery does not merely compress to mobile—it regenerates with entirely different band arrangements, orientations, and partitioning rules optimised for each screen dimension.</p>
+</li>
+</ol>
+<ol type="1" class="numbered-list" start="4"><li><strong>Seamless Dynamic Reconstruction</strong><p>When viewport changes occur—whether from device rotation, window resizing, or split-screen activation—the system performs complete layout regeneration rather than naive scaling. Bands are re-evaluated, images are re-selected for optimal fit, and partitioning rules are reapplied, ensuring every state maintains the same level of visual sophistication as the initial render.</p>
+</li>
+</ol>
+<h2><strong>1.3 Overview of the Solution</strong></h2>
+<p>The Partitioned Container Band system introduces a fundamentally new approach to gallery layout through four interconnected mechanisms that work in concert to create harmonious, responsive image arrangements.</p>
+<h3><strong>Container Bands: The Foundation</strong></h3>
+<p>At its core, the system divides the gallery into discrete horizontal or vertical bands—think of them as intelligent rows that can adapt their internal structure. Each band maintains a consistent height (or width when vertical) and can host multiple images through internal partitioning. Unlike rigid grid rows, these bands are living containers that understand their content and can optimise their dimensions accordingly. A single gallery might contain dozens of bands, each potentially following different organisational rules while maintaining overall cohesion.</p>
+<h3><strong>Rule-Based Partitioning Architecture</strong></h3>
+<p>Within each band, a sophisticated rule system governs how space is divided. Nine primary rules (labeled A through I, plus O for single images) define patterns ranging from simple two-panel splits to complex five-panel arrangements. Rule A might divide a band into main and subsidiary panels, while Rule E1 creates a 2×2 grid within the band&#x27;s subpanel. The system intelligently selects rules based on available images and their characteristics—a highly important panoramic photo might trigger Rule O for full-width display, while a collection of portraits could invoke Rule G&#x27;s L-shaped arrangement. This rule-based approach ensures visual variety while maintaining structural logic.</p>
+<h3><strong>Intelligent Aspect Ratio Matching</strong></h3>
+<p>Rather than forcing images into predetermined slots, the system actively selects images whose aspect ratios best match the spaces created by partitioning. Using tolerance bands (±20%, ±33%, and ±50% ratio matching), the algorithm searches for optimal image-to-space partnerships. A 16:9 partition seeks landscape images, while a 9:16 space pulls from portrait-oriented content. This bidirectional matching—spaces finding images and images finding spaces—ensures minimal  distortion and maximum visual impact. When perfect matches aren&#x27;t available, the system gracefully degrades to the best available option.</p>
+<h3><strong>Multi-Phase Layout Optimisation</strong></h3>
+<p>After initial placement, a sophisticated post-processing pipeline refines the layout through several optimisation passes. Underfilled bands are merged or repositioned, empty panels are eliminated with their siblings expanding to compensate, and resize handles between panels are fine-tuned using hill-climbing algorithms to minimise aspect ratio distortion. The system even reorders certain band configurations for better visual flow—moving single-image bands to create breathing room or combining sparse arrangements into denser, more engaging compositions. This isn&#x27;t mere cleanup; it&#x27;s an intelligent refinement process that elevates a mechanical layout into an aesthetically considered gallery.</p>
+<p>Together, these four systems create a layout engine that thinks like a curator—understanding not just the technical requirements of responsive design, but the artistic demands of presenting visual content in its best light.</p>
+<h1><strong>2. Core Concepts</strong></h1>
+<h2><strong>2.1 Container Bands</strong></h2>
+<p>Container Bands form the fundamental building blocks of the layout system—flexible strips that can orient either horizontally or vertically to contain one or more images. Each band operates as an independent layout unit with three core properties: height, orientation, and a governing partitioning rule.</p>
+<h3><strong>Dual-Panel Architecture</strong></h3>
+<p>Every Container Band follows a hierarchical two-panel structure:</p>
+<p>The <strong>Main Panel</strong> serves as the primary focal area, exclusively reserved for high-importance images (epic score ≥ 10). This panel remains unpartitioned, ensuring the featured image receives maximum visual impact without subdivision. In the DOM, it carries the class <inlinecode>main leaf</inlinecode> and always occupies the ‘A’ position in the panel hierarchy.</p>
+<p>The <strong>Sub-Panel</strong> acts as a flexible companion space designed for filler images. Unlike the main panel, it can be subdivided according to the partitioning rule of the band—split into two, three, or even four sections. When Rule O is applied, the sub-panel merges entirely with the main panel, creating a single, undivided space for showcasing a particularly important image.</p>
+<h3><strong>Dynamic Orientation</strong></h3>
+<p>Bands intelligently switch between horizontal and vertical orientations based on their position in the column layout. The <inlinecode>mustBeVertical()</inlinecode> function uses an arithmetic sequence to determine when vertical orientation is optimal, typically affecting every <em>n</em>th band where <em>n</em> equals the column count. This dynamic reorientation maximises space efficiency and creates visual rhythm across the gallery.</p>
+<h3><strong>Dimensional Flexibility</strong></h3>
+<p>Band dimensions are not fixed—they adapt based on their collective aspect ratios of the content. A band containing a panoramic main image naturally expands its height, while one featuring a tall portrait may compress. This breathing behavior ensures each band provides appropriate space for its contents while maintaining harmony with neighbouring bands.</p>
+<h3><strong>Adaptive Height Calculation</strong></h3>
+<p>While bands maintain a fixed width spanning two columns (or one column when vertical), their height adapts dynamically based on the aspect ratio of the main image. The <inlinecode>heightfun()</inlinecode> function calculates optimal band height using the formula <inlinecode>height = INTERNAL_WIDTH / (2 × mainImageRatio)</inlinecode>, with constraints between 0.5 and 2.0 times the base dimension. This ensures that a band containing a wide panoramic image receives less height to maintain proportions, while a band featuring square or portrait images expands vertically. The result is a gallery where each band provides exactly the vertical space needed for its contents to display without distortion.</p>
+<h2><strong>2.2 Partitioning Rules</strong></h2>
+<p>The system employs nine distinct partitioning rules that determine how space within each band is divided. Each rule creates a specific geometric pattern optimised for different combinations of image aspect ratios and importance levels.</p>
+<h3><strong>Rule O: Singular Display</strong></h3>
+<p>The simplest yet most impactful rule, Rule O eliminates all partitioning to create a single, uninterrupted space. Reserved for images with exceptional importance scores (≥80) or extreme landscape orientations (aspect ratio ≥1.5), this rule allows marquee pieces to command full band width. The resulting showcase panel is ideal for panoramic photographs, cinematic stills, or artwork demanding undivided attention.</p>
+<h3><strong>Rule A: Binary Split</strong></h3>
+<p>The foundational partitioning rule splits a band into two equal-priority panels: main (A) and sub (B). This creates a simple side-by-side arrangement where both images receive substantial space. The split ratio dynamically adjusts based on the main image&#x27;s aspect ratio—a 16:9 main image might claim 60% of the band width, leaving 40% for the sub panel. This rule serves as both a primary layout option and a fallback when complex rules cannot find suitable filler images.</p>
+<h3><strong>Rule B: Vertical Triptych</strong></h3>
+<p>These rules maintain the main panel while dividing the sub-panel into two vertical sections. The vertical split creates a natural hierarchy: one prominent image paired with two supporting images in a tower formation. This arrangement excels when the main image is landscape-oriented and the fillers are portraits or squares.</p>
+<h3><strong>Rule E1: Columnar Quad Grid</strong></h3>
+<p>Divides the sub-panel into a 2×2 grid by first creating two columns, then splitting each column horizontally. The resulting four panels (B, C, D, E) can accommodate diverse aspect ratios—vertical images in each column work particularly well. The resize handles allow fine-tuning: the column ratio (BD:CE) and individual row ratios within each column (B:D and C:E) can be adjusted independently, creating layouts like 60-40 column split with 70-30 row divisions.</p>
+<h3><strong>Rule E2: Row-Based Quad Grid</strong></h3>
+<p>The inverse of E1, this rule creates two rows first, then divides each row into two panels. This produces a more horizontally-oriented 2×2 grid where landscape images naturally fit. The hierarchy differs from E1—images flow left-to-right, top-to-bottom rather than in columns. Like E1, three resize handles control the overall row ratio (BC:DE) and column ratios within each row.</p>
+<h3><strong>Rule F1: Top-Heavy L-Shape</strong></h3>
+<p>Creates an asymmetric four-panel arrangement with panel B occupying the entire top row while C and D share the bottom row. This top-heavy composition works excellently when the main image pairs with one important landscape filler (B) and two smaller square or portrait images below. The resize system allows adjusting both the row height ratio (B:CD) and the bottom row&#x27;s internal division (C:D).</p>
+<h3><strong>Rule F2: Bottom-Heavy L-Shape</strong></h3>
+<p>Inverts F1&#x27;s structure—panels B and C share the top row while D commands the entire bottom row. This arrangement suits situations where the main image works best with two smaller companions above and one substantial landscape image below. The three-way resize control maintains flexibility in both row heights and top-row column distribution.</p>
+<h3><strong>Rule G: Offset Columns</strong></h3>
+<p>A sophisticated three-panel arrangement where B and D stack vertically in one column while C occupies the full height of the other column. The <inlinecode>mustBeFlipped()</inlinecode> function can reverse the column order based on band position. This creates a natural triptych with one tall image (C) balanced against two shorter images. Perfect for showcasing a portrait-oriented filler alongside square images.</p>
+<h3><strong>Rule I: Horizontal Trinity</strong></h3>
+<p>The simplest three-panel layout arranges B and C side-by-side in the sub-panel area, creating three images in a clean horizontal row. Unlike other rules, this maintains equal heights across all panels, making it ideal for collections of images with similar aspect ratios. The single resize handle adjusts the B:C ratio, allowing fine-tuning of the relative emphasis between the two filler images.</p>
+<p>Each rule includes intelligent fallback logic—if the system cannot find appropriate filler images for a complex rule, it gracefully downgrades to simpler arrangements, ensuring every band receives optimal treatment regardless of available image inventory.</p>
+<h2><strong>2.3 Image Classification</strong></h2>
+<p>The Partitioned Container Band system employs a sophisticated classification scheme that considers both image importance and geometric properties to orchestrate optimal placements throughout the gallery.</p>
+<h3><strong>Epic Images: The Gallery Anchors</strong></h3>
+<p>Images designated as “epic” (importance score ≥ 10) form the structural backbone of the gallery layout. These high-priority images exclusively occupy main panels, ensuring they receive prominent placement and maximum visual impact. The system processes epic images first, treating each as a seed around which an entire band is constructed.</p>
+<p>For ultra-epic images (score ≥ 80), the system applies special handling: these marquee pieces preferentially receive Rule O (full-band display) or rules that minimise subdivision (A, I). The algorithm even modifies its rule selection based on epic status—a score-90 panoramic image might bypass complex rules entirely in favor of an uninterrupted showcase, while a score-50 image could anchor a more intricate five-panel arrangement.</p>
+<h3><strong>Lesser Images: The Supporting Cast</strong></h3>
+<p>Images scoring below 10 serve as intelligent filler content, but “lesser” doesn&#x27;t mean unimportant—these images provide visual rhythm, context, and breathing room that make the epic images shine. The system maintains these images in a separate pool, drawing from them based on geometric compatibility rather than display order.</p>
+<p>When epic images run low, the system promotes lesser images dynamically: <inlinecode>let img = lesser.randomPop(); important.push(img)</inlinecode>. This ensures the gallery maintains visual density even with imbalanced image sets. Lesser images can occupy any sub-panel position (B, C, D, E) and are selected purely based on aspect ratio compatibility with available spaces.</p>
+<h3><strong>Aspect Ratio Intelligence</strong></h3>
+<p>Beyond simple wide/tall classifications, the system employs nuanced aspect ratio analysis for placement decisions:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Ratio Clipping</strong>: The <inlinecode>clippedImageDim()</inlinecode> function applies soft boundaries to extreme ratios, preventing ultra-wide (32:9) or ultra-tall (9:32) images from dominating layouts</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Compatibility Matching</strong>: For each sub-panel, the system calculates ideal aspect ratios then searches for images within tolerance bands:<ul class="bulleted-list"><li style="list-style-type:circle">First pass: ±20% ratio match (4:5 to 5:4)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:circle">Second pass: ±25% ratio match (3:4 to 4:3)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:circle">Final pass: ±50% ratio match (2:3 to 3:2)</li>
+</ul>
+</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Geometric Scoring</strong>: During the <inlinecode>adjustForEvenFit()</inlinecode> phase, the system calculates RMS error between image ratios and panel ratios, iteratively adjusting panel divisions to minimise distortion</li>
+</ul>
+<h3><strong>Special Handling for Edge Cases</strong></h3>
+<p>The classification system includes special logic for problematic scenarios:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Square Images</strong> (0.9 ≤ ratio ≤ 1.1): These versatile images can fit almost anywhere, so the system reserves them for filling awkward spaces that might reject more extreme ratios</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Panoramic Images</strong> (ratio ≥ 1.5): Preferentially placed in horizontal-oriented panels or promoted to Rule O display</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Portrait Towers</strong> (ratio ≤ 0.67): Ideal for vertical band placements or Rule G&#x27;s full-height panel C</li>
+</ul>
+<h1><strong>3. Deep Dive into the Implementation</strong></h1>
+<p>The Partitioned Container Band system relies on a JavaScript implementation that translates the conceptual partitioning rules into tangible gallery layouts. This section examines the core classes, algorithms, and data structures that manage the arrangement of images according to the rules described in previous sections.</p>
+<p>The implementation balances several competing demands: maintaining clean separation between layout logic and DOM manipulation, providing programmatic control over panel proportions during layout generation, and supporting flexible rule-based partitioning combined with the resize handle system. The following sections detail how these capabilities are implemented through the system&#x27;s class structure and algorithms.</p>
+<h2><strong>3.1 The </strong><inlinecode><strong>PartitionedBand</strong></inlinecode><strong> Class</strong></h2>
+<p>The <inlinecode>PartitionedBand</inlinecode> class manages individual bands within the gallery, handling the creation, partitioning, image assignment, and optimisation for each container band.</p>
+<pre class="language-JavaScript">class PartitionedBand {
+  // Core properties
+  ord = undefined                    // Band ordinal (position in gallery)
+  mainPanel = document.createElement(&#x27;bandpanel&#x27;)  // Primary image container
+  subPanel = document.createElement(&#x27;bandpanel&#x27;)   // Partitionable filler space
+  #images = []                       // Private array of assigned images
+  picturePanels = []                 // All panels that can hold images
+  panelLetters = []                  // Panel identifiers (A, B, C, D, E)
+  
+  // Resize system
+  resizeHandles = {}                 // Handle ID -&gt; handle object mapping
+  resizeFactors = {}                 // Handle ID -&gt; split ratio (0.0-1.0)
+  
+  // Calculated dimensions
+  mainPanelWidthPerc = 0            // Main panel width as percentage
+  mainPanelWidth = 0                // Main panel width in pixels
+  height = 0                        // Band height in pixels
+  subPanelWidthPerc = {}            // Letter -&gt; width percentage mapping
+  subPanelHeightPerc = {}           // Letter -&gt; height percentage mapping
+  
+  rule = &#x27;&#x27;                         // Active partitioning rule (A-I, O)
+  #isThreeCol = false               // Three-column layout indicator
+}</pre><h3><strong>Panel Hierarchy and DOM Structure</strong></h3>
+<p>The class constructs a nested DOM hierarchy that mirrors the logical panel structure. At the root, each band contains either one panel (Rule O) or two panels (main + sub). The sub-panel may contain additional intermediate containers that themselves hold leaf panels:</p>
+<pre class="language-JavaScript">#createLeafPanel(panel) {
+  let r = document.createElement(&#x27;bandpanel&#x27;)
+  r.className = &#x27;leaf&#x27;
+  r.setAttribute(&#x27;panel&#x27;, panel)  // Panel letter identifier
+  return r
+}
+
+#createIntermediatePanel() {
+  let r = document.createElement(&#x27;bandpanel&#x27;)
+  return r  // No &#x27;leaf&#x27; class - this will contain other panels
+}</pre><p>For complex rules like E1, the DOM structure becomes deeply nested. The band contains main and sub panels, the sub panel contains two intermediate column containers, and each column contains two leaf panels—creating a precise 2×2 grid while maintaining logical groupings.</p>
+<h3><strong>Dynamic Panel Creation Based on Rules</strong></h3>
+<p>The constructor&#x27;s switch statement dynamically builds the appropriate panel structure for each rule. Here&#x27;s how Rule E1 constructs its 2×2 grid:</p>
+<pre class="language-JavaScript">case &#x27;E1&#x27;:
+  // Create four leaf panels
+  panelB = this.#createLeafPanel(&#x27;B&#x27;)
+  panelC = this.#createLeafPanel(&#x27;C&#x27;)
+  panelD = this.#createLeafPanel(&#x27;D&#x27;)
+  panelE = this.#createLeafPanel(&#x27;E&#x27;)
+  
+  // Create intermediate containers for columns
+  panelBD = this.#createIntermediatePanel()
+  panelCE = this.#createIntermediatePanel()
+  setColRow(panelBD, 1, 2)  // 1 column, 2 rows
+  setColRow(panelCE, 1, 2)  // 1 column, 2 rows
+  
+  // Build the hierarchy
+  setColRow(this.subPanel, 2, 1)  // 2 columns, 1 row
+  panelBD.appendChild(panelB)
+  panelBD.appendChild(panelD)
+  panelCE.appendChild(panelC)
+  panelCE.appendChild(panelE)
+  this.subPanel.appendChild(panelBD)
+  this.subPanel.appendChild(panelCE)
+  
+  // Register panels for image assignment
+  this.#addPicturePanel(panelB, &#x27;B&#x27;)
+  this.#addPicturePanel(panelD, &#x27;D&#x27;)
+  this.#addPicturePanel(panelC, &#x27;C&#x27;)
+  this.#addPicturePanel(panelE, &#x27;E&#x27;)</pre><h3><strong>Resize Handle System</strong></h3>
+<p>Perhaps the most sophisticated aspect of the class is the resize handle system, which enables fine-tuning of panel proportions after initial calculation:</p>
+<pre class="language-JavaScript">#createResizeHandle(panelA, panelB) {
+  const handleId = `${panelA.getAttribute(&#x27;panel&#x27;)}-${panelB.getAttribute(&#x27;panel&#x27;)}`
+  this.resizeFactors[handleId] = 0.5  // Initial 50-50 split
+  
+  return {
+    setRatio: (ratio) =&gt; {
+      this.resizeFactors[handleId] = coerceIn(ratio, 0.05, 0.95)
+      this.#updatePanelSizes(panelA, panelB, handleId)
+    },
+    
+    getRatio: () =&gt; this.resizeFactors[handleId],
+    
+    adjustRatio: (delta) =&gt; {
+      const currentRatio = this.resizeFactors[handleId]
+      const newRatio = coerceIn(currentRatio + delta, 0.05, 0.95)
+      this.resizeFactors[handleId] = newRatio
+      this.#updatePanelSizes(panelA, panelB, handleId)
+      return newRatio
+    }
+  }
+}</pre><p>Each handle maintains a ratio between 0.05 and 0.95, preventing complete panel collapse while allowing significant adjustment. The <inlinecode>#updatePanelSizes</inlinecode> method translates these ratios into CSS Grid fractional units (<inlinecode>fr</inlinecode>), enabling smooth, proportional resizing:</p>
+<pre class="language-JavaScript">if (isHorizontal) {
+  const cols = parentGrid.style.gridTemplateColumns.split(&#x27; &#x27;)
+  cols[indexA] = `${ratio}fr`
+  cols[indexB] = `${1 - ratio}fr`
+  parentGrid.style.gridTemplateColumns = cols.join(&#x27; &#x27;)
+}</pre><p>This architecture enables the optimisation phase to programmatically adjust hundreds of panel boundaries, iteratively reducing aspect ratio distortion across the entire gallery.</p>
+<h2><strong>3.2 Image Ratio Processing</strong></h2>
+<p>The system employs sophisticated mathematical transformations to handle the wide spectrum of aspect ratios found in real-world image collections. From extreme panoramas to towering vertical shots, these functions ensure that no single image can dominate or disrupt the gallery&#x27;s visual balance.</p>
+<h3><strong>The </strong><inlinecode><strong>clipfun</strong></inlinecode><strong>: Soft Boundary Mathematics</strong></h3>
+<p>At the core of ratio processing lies <inlinecode>clipfun</inlinecode>, a carefully tuned mathematical function that applies soft clipping to normalised aspect ratios:</p>
+<pre class="language-JavaScript">function clipfun(x0) {
+  const clip_p = 0.444
+  const clip_p1 = Math.sqrt(1.0 - 2.0 * clip_p)
+  const clip_lim = 1.0 / (1.0 + clip_p1)
+
+  let x = x0 * (1.0 + clip_p1) / 2.0
+  let t = 0.5 * clip_p1
+
+  if (Math.abs(x0) &gt;= clip_lim) return 0.5 * Math.sign(x0)
+
+  let y0 = (x &lt; -t) ?
+    ((x*x + x + 0.25) / clip_p - 0.5) :
+  (x &gt; t) ?
+    (-(x*x - x + 0.25) / clip_p + 0.5) :
+    (x * 2.0 * clip_lim)
+
+  return y0  // returns -0.5 .. 0.5
+}</pre><p>The magic number <inlinecode>clip_p = 0.444</inlinecode> determines the transition smoothness. This value, derived through empirical testing, creates a pleasant visual boundary where extreme ratios are gently compressed rather than harshly cut off.</p>
+<p>For the mathematical structure of the function, please refer to section 7.2.</p>
+<h3><inlinecode><strong>clippedImageDim</strong></inlinecode><strong>: Ratio Space Transformation</strong></h3>
+<p>The <inlinecode>clippedImageDim</inlinecode> function applies the clipping transformation to actual image aspect ratios:</p>
+<pre class="language-JavaScript">function clippedImageDim(rawRatio) {
+  let workDim = (rawRatio &lt; 1.0) ? (1/rawRatio) : rawRatio
+  let clippedDim = clipfun(workDim / 4)
+  
+  return (rawRatio &lt; 1.0) ? (0.25/clippedDim) : (4*clippedDim)
+}</pre><p>This function performs a crucial three-step transformation:</p>
+<ol type="1" class="numbered-list" start="1"><li><strong>Normalisation</strong>: Ratios are converted to always be ≥ 1.0 (landscape orientation) for consistent processing</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Scaling and Clipping</strong>: The ratio is divided by 4 to fit the ratio into the expected input of the <inlinecode>clipfun</inlinecode> then processed through the function</li>
+</ol>
+<ol type="1" class="numbered-list" start="3"><li><strong>Reconstruction</strong>: The clipped value is scaled back and orientation is restored</li>
+</ol>
+<p>The division by 4 establishes that a 1:1 aspect ratio represents the “normal” maximum—anything beyond this gets increasingly compressed. For example:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">A 1.0:1 image (0.25 after division) remains largely unaffected</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">A 1.2:1 image (0.3 after division) sits at the transition point</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">A 4.0:1 extreme panorama gets compressed toward the maximum effective ratio</li>
+</ul>
+<h3><strong>Mathematical Basis for Optimisation</strong></h3>
+<p>This preprocessing serves multiple optimisation goals:</p>
+<ol type="1" class="numbered-list" start="1"><li><strong>Visual Weight Balancing</strong>: Without clipping, a single 32:9 ultrawide image would demand excessive horizontal space, forcing the entire band to shrink vertically to maintain the image&#x27;s proportions. This would create an awkwardly thin strip that disrupts the gallery&#x27;s visual flow. The clipping ensures no image monopolises gallery real estate at the expense of its neighbours.</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Algorithm Stability</strong>: By bounding ratios to a reasonable range, the band height calculation <inlinecode>height = INTERNAL_WIDTH / (2 × ratio)</inlinecode> avoids extreme values that could break layout logic or create degenerate cases.</li>
+</ol>
+<ol type="1" class="numbered-list" start="3"><li><strong>Aspect Ratio Error Minimisation</strong>: During the RMS error calculation phase, clipped ratios prevent outliers from dominating the optimisation. A single unclipped 100:1 ratio could skew the entire error metric, causing the algorithm to optimise for an edge case rather than the majority of images.</li>
+</ol>
+<ol type="1" class="numbered-list" start="4"><li><strong>Perceptual Uniformity</strong>: The quadratic transitions in <inlinecode>clipfun</inlinecode> mirror human perception—the visual difference between 2:1 and 3:1 feels larger than between 10:1 and 11:1. The function compresses ratios in a way that maintains perceptual spacing.</li>
+</ol>
+<p>This mathematical foundation ensures that whether a gallery contains standard 3:2 photographs or experimental 21:9 artistic pieces, the layout algorithm can accommodate them all while maintaining visual coherence and mathematical stability.</p>
+<h2><strong>3.3 Band Height Calculation</strong></h2>
+<p>The system&#x27;s ability to create visually balanced galleries hinges on intelligent band height calculation. Each band must provide enough vertical space for its images while maintaining harmony with neighbouring bands—too tall and it wastes space, too short and images become cramped.</p>
+<h3><strong>The </strong><inlinecode><strong>heightfun</strong></inlinecode><strong> Formula: Adaptive Height Generation</strong></h3>
+<p>The core height calculation employs a deceptively simple formula that produces sophisticated results:</p>
+<pre class="language-JavaScript">#heightfun(imgRatio) {
+  const MAX = 0.5 * (4/3) * INTERNAL_WIDTH
+  const MIN = 0.5 / (4/3) * INTERNAL_WIDTH
+  return coerceIn(1 / (2*imgRatio) * INTERNAL_WIDTH, MIN, MAX)
+}</pre><p>Breaking down the formula <inlinecode>height = INTERNAL_WIDTH / (2 × imgRatio)</inlinecode>:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">For a square image (ratio = 1.0): height = 384 pixels (half of 768—the default <inlinecode>INTERNAL_WIDTH</inlinecode>)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">For a 2:1 landscape: height = 192 pixels</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">For a 1:2 portrait: height = 768 pixels</li>
+</ul>
+<p>The factor of 2 ensures that the main panel, which typically occupies 40-60% of the band width, displays its image without distortion. This creates a balanced starting point that the sub-panels can work with.</p>
+<h3><strong>Constraint Boundaries: Preventing Extremes</strong></h3>
+<p>The MIN and MAX constants establish critical boundaries:</p>
+<pre class="language-JavaScript">const MAX = 0.5 * (4/3) * INTERNAL_WIDTH  // 512 pixels
+const MIN = 0.5 / (4/3) * INTERNAL_WIDTH  // 288 pixels</pre><p>These constraints, based on the classic 4:3 aspect ratio, serve multiple purposes:</p>
+<ol type="1" class="numbered-list" start="1"><li><strong>Maximum Height (512px)</strong>: Prevents portrait-oriented main images from creating excessively tall bands that would dominate the viewport and create scrolling dead zones</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Minimum Height (288px)</strong>: Ensures even extreme panoramas maintain enough height for sub-panel images to remain visible and clickable</li>
+</ol>
+<ol type="1" class="numbered-list" start="3"><li><strong>Golden Range</strong>: The 288-512 pixel range represents approximately 37-67% of the standard band width, maintaining pleasant proportions</li>
+</ol>
+<h3><strong>Dynamic Relationship with Main Image Aspect Ratio</strong></h3>
+<p>The height calculation creates an inverse relationship with the main image&#x27;s aspect ratio, producing intuitive results:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Wide Panoramas</strong> (ratio &gt; 1.67): Hit the minimum bound, creating compact horizontal strips that emphasise the panoramic nature</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Standard Landscapes</strong> (1.0 &lt; ratio &lt; 1.67): Scale smoothly between bounds, creating well-proportioned bands</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Square Images</strong> (ratio ≈ 1.0): Produce medium-height bands that work well with various sub-panel configurations</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Portrait Images</strong> (ratio &lt; 0.75): Reach the maximum bound, providing vertical space that respects the image&#x27;s orientation</li>
+</ul>
+<h3><strong>Special Case: Rule O Handling</strong></h3>
+<p>For Rule O (single image display), the height calculation abandons the standard formula entirely:</p>
+<pre class="language-JavaScript">if (&#x27;O&#x27; == this.rule) {
+  this.height = Math.round(INTERNAL_WIDTH / mainImageRatio)|0
+}</pre><p>This allows showcase images to display at their natural aspect ratio without any height constraints, creating full-width presentations that can span vertically as needed.</p>
+<h3><strong>Interaction with Vertical Bands</strong></h3>
+<p>When <inlinecode>mustBeVertical()</inlinecode> returns true, the height calculation adapts to work with vertical orientation. The system reinterprets the “height” as the horizontal span, using <inlinecode>INT_WIDTH_VERT</inlinecode> (384 pixels) as the base dimension. This ensures vertical bands maintain proportional relationships with their horizontal counterparts while respecting the different spatial constraints of column-based layouts.</p>
+<p>The beauty of this system lies in its simplicity—a single formula with two constraints produces band heights that feel natural across an enormous range of image types, from ultra-wide cinematics to towering phone screenshots, while maintaining the visual coherence essential for professional gallery presentation.</p>
+<h2><strong>3.4 Dynamic Panel Sizing</strong></h2>
+<p>After establishing the overall height of the band, the system must determine how to divide the internal space between main and sub-panels, then further partition sub-panels according to their rules. This multi-stage sizing process ensures each image receives appropriate space while maintaining the structural integrity of the band.</p>
+<h3><inlinecode><strong>adjustBandPartitioning</strong></inlinecode><strong>: The Master Orchestrator</strong></h3>
+<p>The <inlinecode>adjustBandPartitioning</inlinecode> method serves as the central hub for all dimension calculations:</p>
+<pre class="language-JavaScript">adjustBandPartitioning() {
+  let mainImageRatio = this.#images[0].ratio
+  
+  // Calculate band height based on main image
+  if (&#x27;O&#x27; == this.rule) {
+    this.height = Math.round(INTERNAL_WIDTH / mainImageRatio)|0
+  } else {
+    this.height = Math.round(this.#heightfun(mainImageRatio))|0
+  }
+  
+  // Calculate main panel width
+  let widthPx = (&#x27;O&#x27; == this.rule) ? INTERNAL_WIDTH : this.height * mainImageRatio
+  this.mainPanelWidth = widthPx
+  
+  // Determine panel percentages based on orientation
+  if (!this.isVertical()) {
+    this.mainPanelWidthPerc = widthPx / INTERNAL_WIDTH * 100
+    // Calculate sub-panel dimensions...
+  } else {
+    // Vertical orientation uses width percentages as heights
+    let heightPx = (&#x27;O&#x27; == this.rule) ? INTERNAL_WIDTH : INT_WIDTH_VERT / mainImageRatio
+    this.mainPanelWidthPerc = heightPx / INTERNAL_WIDTH * 100
+    // Calculate sub-panel dimensions...
+  }
+}</pre><p>This method executes a careful dance: first determining the band&#x27;s overall dimensions, then calculating how much space the main panel requires, and finally distributing the remaining space among sub-panels.</p>
+<h3><strong>Sub-Panel Percentage Calculations</strong></h3>
+<p>The percentage distribution follows rule-specific patterns. For horizontal bands:</p>
+<pre class="language-JavaScript">// Rule A, B: Simple split
+this.subPanelWidthPerc.B = 1.0 - (widthPx / INTERNAL_WIDTH)
+this.subPanelWidthPerc.C = this.subPanelWidthPerc.B
+
+// Rule E1, E2: Half-width columns
+this.subPanelWidthPerc.B = (1.0 - (widthPx / INTERNAL_WIDTH)) / 2
+this.subPanelWidthPerc.C = this.subPanelWidthPerc.B
+this.subPanelWidthPerc.D = this.subPanelWidthPerc.B
+this.subPanelWidthPerc.E = this.subPanelWidthPerc.B
+
+// Rule F1: Full width B, half widths C and D
+this.subPanelWidthPerc.B = 1.0 - (widthPx / INTERNAL_WIDTH)
+this.subPanelWidthPerc.C = this.subPanelWidthPerc.B / 2
+this.subPanelWidthPerc.D = this.subPanelWidthPerc.B / 2</pre><p>Each rule implements a specific space distribution philosophy:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Equal distribution</strong> (Rules A, B): All sub-panels share the available space equally</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Grid formation</strong> (Rules E1, E2): Creates uniform cells for balanced compositions</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Hierarchical distribution</strong> (Rules F1, F2): One panel dominates while others share the remainder</li>
+</ul>
+<h3><strong>Vertical Orientation Transformations</strong></h3>
+<p>When <inlinecode>isVertical()</inlinecode> returns true, the system performs a conceptual 90-degree rotation of its calculations:</p>
+<pre class="language-JavaScript">if (this.isVertical()) {
+  // Width percentages actually control heights
+  let heightPx = INT_WIDTH_VERT / mainImageRatio
+  this.mainPanelWidthPerc = heightPx / INTERNAL_WIDTH * 100
+  
+  // Sub-panel &quot;heights&quot; (stored in width percentages)
+  this.subPanelHeightPerc.B = 1.0 - (heightPx / INTERNAL_WIDTH)
+  
+  // Fixed widths for vertical bands
+  this.subPanelWidthPerc.B = INT_WIDTH_VERT  // 384 pixels
+}</pre><p>This orientation swap maintains conceptual clarity—the <inlinecode>mainPanelWidthPerc</inlinecode> property controls the primary dimension whether horizontal (width) or vertical (height). The system uses <inlinecode>INTERNAL_WIDTH</inlinecode> as the reference dimension in both cases, ensuring consistent calculations.</p>
+<h3><strong>Multi-Level Percentage Tracking</strong></h3>
+<p>For complex rules, the system maintains percentages at multiple levels:</p>
+<pre class="language-JavaScript">// Rule E1 in horizontal mode
+// First level: How much of band width goes to sub-panel
+let subPanelTotalWidth = 1.0 - (widthPx / INTERNAL_WIDTH)
+
+// Second level: How sub-panel width divides between columns
+this.subPanelWidthPerc.B = subPanelTotalWidth / 2  // Left column
+this.subPanelWidthPerc.D = subPanelTotalWidth / 2  // Left column
+this.subPanelWidthPerc.C = subPanelTotalWidth / 2  // Right column
+this.subPanelWidthPerc.E = subPanelTotalWidth / 2  // Right column
+
+// Third level: How each column divides vertically (handled by resize system)
+this.subPanelHeightPerc.B = 0.5  // Top of left column
+this.subPanelHeightPerc.D = 0.5  // Bottom of left column</pre><h3><strong>Preparing for Optimisation</strong></h3>
+<p>The initial calculations from <inlinecode>adjustBandPartitioning</inlinecode> establish baseline dimensions that respect the main image&#x27;s needs while providing reasonable space for fillers. These serve as starting points for the resize handle system, which fine-tunes the proportions during the optimisation phase.</p>
+<p>By separating the initial calculation from later optimisation, the system ensures every band starts with sensible proportions even if optimisation is skipped or fails. This layered approach creates robust layouts that degrade gracefully under adverse conditions while enabling sophisticated improvements when conditions allow.</p>
+<h1><strong>4. The Rendering Algorithm</strong></h1>
+<p>The rendering algorithm transforms a collection of classified images into a complete gallery layout through a sophisticated multi-pass process. Unlike traditional gallery systems that simply flow images into a grid, this algorithm thinks compositionally—considering each band as a designed unit while maintaining overall gallery coherence. The process balances randomness for visual variety with deterministic rules for structural integrity.</p>
+<h2><strong>4.1 Main Rendering Function</strong></h2>
+<p>The <inlinecode>renderGallery</inlinecode> function orchestrates the entire layout generation process, processing images in importance order while maintaining pools of available content:</p>
+<pre class="language-JavaScript" style="white-space:pre-wrap;word-break:break-all">function renderGallery(images) {
+  const gallery = document.getElementById(ELEM_ID)
+  const shuffled = shuffle([...images])
+  const important = shuffled.filter(img =&gt; (img.epic|0) &gt;= 10)
+  let lesser = shuffled.filter(img =&gt; (img.epic|0) &lt; 10)
+
+  while (important.length &gt; 0) {
+    let vert = mustBeVertical(BAND_COUNT)
+    let fillers = []
+    let rule = &#x27;&#x27;
+    
+    // Process main images, with endgame scenarios handling
+    let main
+    if (lesser.length == 0 &amp;&amp; important.length &gt; 1) {
+      // Ran out of lesser images, putting important images starting from narrowest
+      important.sort((a, b) =&gt; a.ratio - b.ratio)
+      main = important.shift()
+    } else {
+      // Ordinary case: just select one from the important
+      main = important.pop()
+    }
+    
+    // ... rule selection and band creation ...
+    
+    BAND_COUNT++
+  }
+}</pre><h3><strong>Image Pool Management</strong></h3>
+<p>The algorithm maintains two dynamic pools throughout execution:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Important pool</strong>: Epic images (score ≥ 10) that drive band creation</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Lesser pool</strong>: Filler images that complete compositions</li>
+</ul>
+<p>The shuffling ensures visual variety—the same image set produces different layouts on each render while maintaining quality standards. When the lesser pool depletes, the algorithm adapts by sorting remaining important images by aspect ratio, processing narrow images first to leave wide images for simpler layouts at the end.</p>
+<h3><strong>The Band Creation Cycle</strong></h3>
+<p>Each iteration follows a structured process:</p>
+<ol type="1" class="numbered-list" start="1"><li><strong>Main Image Selection</strong>: Pop an important image to anchor the new band</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Orientation Detection</strong>: Check if this band position requires vertical orientation</li>
+</ol>
+<ol type="1" class="numbered-list" start="3"><li><strong>Rule Selection</strong>: Generate candidate rules based on available images and ratios</li>
+</ol>
+<ol type="1" class="numbered-list" start="4"><li><strong>Filler Matching</strong>: Attempt to find compatible lesser images for the chosen rule</li>
+</ol>
+<ol type="1" class="numbered-list" start="5"><li><strong>Band Construction</strong>: Create and configure the <inlinecode>PartitionedBand</inlinecode> instance</li>
+</ol>
+<ol type="1" class="numbered-list" start="6"><li><strong>Fallback Handling</strong>: Gracefully degrade to simpler rules if needed</li>
+</ol>
+<h3><strong>Rule Candidate Generation</strong></h3>
+<p>The algorithm generates rule candidates based on the aspect ratio of the main image:</p>
+<pre class="language-JavaScript">// For highly epic images (≥ 80)
+let ruleSet
+if (isHighlyEpic) {
+  let checkRatio = (vert) ? (1.0 / main.ratio) : main.ratio
+  
+  if (checkRatio &gt;= 1.5)
+    ruleSet = [&#x27;O&#x27;];  // Ultra-wide images get full display
+  else if (checkRatio &gt;= 1.3)
+    ruleSet = shuffle([&#x27;A&#x27;, &#x27;I&#x27;]);  // Wide images get simple splits
+  else if (checkRatio &lt;= 0.75)
+    ruleSet = shuffle([&#x27;F1&#x27;, &#x27;F2&#x27;]);  // Tall images get L-shapes
+  else
+    ruleSet = shuffle([&#x27;F1&#x27;, &#x27;F2&#x27;, &#x27;I&#x27;]);  // Moderate ratios get options
+    
+  // Append E1 and E2 at the last, if the main image is squarish
+  if (9/10 &lt;= main.ratio &amp;&amp; main.ratio &lt;= 10/9) {
+    if (rnd() &gt;= 0.5) { ruleSet.push(&#x27;E2&#x27;); ruleSet.push(&#x27;E1&#x27;) }
+    else { ruleSet.push(&#x27;E1&#x27;); ruleSet.push(&#x27;E2&#x27;) }
+  }
+}</pre><p>This importance-based routing ensures marquee pieces receive appropriate presentation:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Ultra-wide epics</strong> (ratio ≥ 1.5): Guaranteed Rule O for uninterrupted display</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Wide epics</strong> (ratio ≥ 1.3): Simple binary or ternary splits that don&#x27;t compete</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Tall epics</strong> (ratio ≤ 0.75): L-shaped layouts that respect vertical emphasis</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Moderate epics</strong>: Controlled complexity with 3-4 panel maximum</li>
+</ul>
+<p>The E1/E2 rules receive special treatment in the selection order. By appending these complex rules last, the system tries simpler arrangements first, only falling back to 5-panel layouts when simpler rules fail to find suitable images. Square main images specifically trigger E1/E2 consideration because their neutral aspect ratio works well with grid-based subdivisions.</p>
+<h3><strong>Vertical Orientation Constraints</strong></h3>
+<p>Vertical bands operate under modified rule sets:</p>
+<pre class="language-JavaScript">if (vert) {
+  // Exclude rules that don&#x27;t work vertically
+  ruleSet = shuffle([&#x27;A&#x27;, &#x27;F1&#x27;, &#x27;F2&#x27;, &#x27;G&#x27;]);  // No &#x27;B&#x27; or &#x27;I&#x27;
+}</pre><p>Rules B and I, which create side-by-side arrangements, are excluded from vertical bands where stacked arrangements make more visual sense.</p>
+<h3><strong>The &quot;Safety Valve&quot; Mechanism</strong></h3>
+<p>When all rule attempts fail, the algorithm employs a final safety valve:</p>
+><pre class="language-JavaScript">if (!ruleFound) {
+  rule = &#x27;A&#x27;
+  band = makeBandClass(rule)
+  
+  // Attempt to find any compatible image for panel B
+  let sub = subs.filter(it =&gt; (4/5) &lt;= it.ratio &amp;&amp; it.ratio &lt;= (5/4)).randomPick();
+  if (!sub) sub = subs.filter(it =&gt; (3/4) &lt;= it.ratio &amp;&amp; it.ratio &lt;= (4/3)).randomPick();
+  if (!sub) sub = subs.filter(it =&gt; (2/3) &lt;= it.ratio &amp;&amp; it.ratio &lt;= (3/2)).randomPick();
+  
+  band.putImages(sub ? [main, sub] : [main])
+}</pre><p>This ensures every important image receives some placement, even if it means creating an underfilled band that will be cleaned up during post-processing.</p>
+<h3><strong>Filler Image Selection</strong></h3>
+<p>For each rule attempt, the algorithm searches for compatible filler images:</p>
+<pre class="language-JavaScript">for (let i = 0; i &lt; needed; i++) {
+  let panelIndex = i + 1;
+  let panel = band.panelLetters[panelIndex];
+  
+  // Calculate target aspect ratio for this panel
+  let panelW = INTERNAL_WIDTH * band.subPanelWidthPerc[panel]
+  let panelH = band.height * band.subPanelHeightPerc[panel]
+  let panelRatio = panelW / panelH
+  
+  // Search for matching images in tolerance bands
+  let imgBin = (lesser.length &gt; 0) ? lesser : important
+  let chosen = imgBin.filter(it =&gt; 
+    (4/5) &lt; (it.ratio / panelRatio) &amp;&amp; (it.ratio / panelRatio) &lt; (5/4)
+  ).randomPick();
+  if (!chosen) chosen = imgBin.filter(it =&gt; 
+    (3/4) &lt; (it.ratio / panelRatio) &amp;&amp; (it.ratio / panelRatio) &lt; (4/3)
+  ).randomPick();
+  if (!chosen) chosen = imgBin.filter(it =&gt; 
+    (2/3) &lt; (it.ratio / panelRatio) &amp;&amp; (it.ratio / panelRatio) &lt; (3/2)
+  ).randomPick();
+  
+  if (!chosen) break;  // Abort this rule attempt
+  
+  fillers.push(chosen)
+  imgBin.removeElem(chosen)
+}</pre><p>Searching for filler images that matches aspect ratio of the panel ensures minimal distortion after the images are being placed.</p>
+<h3><strong>Band Finalisation</strong></h3>
+<p>Once a valid rule and image combination is found, layout optimisation is performed before the final HTML element is made:</p>
+<pre class="language-JavaScript">const allImages = [main, ...fillers]
+band.putImages(allImages)
+band.adjustBandPartitioning()  // Recalculate with actual images
+band.adjustForEvenFit()        // Optimise panel proportions
+gallery.appendChild(band.makeHTMLelement())</pre><h3><strong>Dynamic Pool Replenishment</strong></h3>
+<p>The algorithm includes a crucial sustainability mechanism:</p>
+<pre class="language-JavaScript">if (important.length == 0 &amp;&amp; lesser.length &gt; 0) {
+  let img = lesser.randomPop()
+  important.push(img)  // Promote a lesser image to continue
+}</pre><p>This ensures the gallery utilises all available images rather than leaving a pool of unused lesser images, maintaining visual density throughout the layout.</p>
+<p>The elegance of the main rendering function lies in its adaptability—it handles collections ranging from 10 carefully curated images to 1000+ mixed archives, producing coherent layouts that respect both individual image characteristics and collective visual flow.</p>
+<h2><strong>4.2 Error Minimisation</strong></h2>
+<p>After initial band construction, the system employs mathematical optimisation to refine panel proportions, minimising the visual distortion that occurs when images don&#x27;t perfectly match their allocated spaces. This phase transforms adequate layouts into polished compositions through iterative refinement.</p>
+<h3><strong>RMS Error Calculation for Aspect Ratio Mismatch</strong></h3>
+<p>The system quantifies layout quality using Root Mean Square (RMS) error, which measures the aggregate distortion across all panels in a band:</p>
+<pre class="language-JavaScript">calculateRMSError() {
+  let totalSquaredError = 0
+  let panelCount = 0
+
+  // Calculate error for main panel (A)
+  const mainPanelWidth = this.mainPanelWidth
+  const mainPanelHeight = this.height
+  totalSquaredError += this.#calculatePanelError(0, mainPanelWidth, mainPanelHeight)
+  panelCount++
+
+  // Calculate error for sub panels
+  for (let i = 1; i &lt; this.picturePanels.length; i++) {
+    const panelLetter = this.panelLetters[i]
+    const panelWidth = INTERNAL_WIDTH * this.subPanelWidthPerc[panelLetter]
+    const panelHeight = this.height * this.subPanelHeightPerc[panelLetter]
+
+    totalSquaredError += this.#calculatePanelError(i, panelWidth, panelHeight)
+    panelCount++
+  }
+
+  return Math.sqrt(totalSquaredError / panelCount)
+}</pre><p>The individual panel error calculation squares the difference between image and panel aspect ratios:</p>
+<pre class="language-JavaScript">#calculatePanelError(panelIndex, panelWidth, panelHeight) {
+  if (!this.#images[panelIndex]) return 0
+
+  const imageRatio = this.#images[panelIndex].ratio
+  const panelRatio = panelWidth / panelHeight
+  const error = Math.abs(imageRatio - panelRatio)
+  return error * error  // Squared error for RMS calculation
+}</pre><p>Squaring the errors serves two purposes: it penalises large mismatches more severely than small ones, and it ensures all errors contribute positively to the total regardless of whether panels are too wide or too tall.</p>
+<h3><inlinecode><strong>adjustForEvenFit</strong></inlinecode><strong>: Hill-Climbing Optimisation</strong></h3>
+<p>The <inlinecode>adjustForEvenFit</inlinecode> method implements a local search algorithm that iteratively adjusts resize handles to minimise RMS error:</p>
+<pre class="language-JavaScript">adjustForEvenFit() {
+  const MAX_ITERATIONS = 50
+  const STEP_SIZE = 0.02  // 2% adjustment per step
+  const MIN_IMPROVEMENT = 0.001  // Stop if improvement is less than this
+
+  let currentError = this.calculateRMSError()
+  let bestError = currentError
+
+  for (let iteration = 0; iteration &lt; MAX_ITERATIONS; iteration++) {
+    let improved = false
+
+    // Try adjusting each resize handle
+    for (const handleId in this.resizeHandles) {
+      const handle = this.resizeHandles[handleId]
+      const originalRatio = handle.getRatio()
+
+      // Try increasing the ratio
+      handle.setRatio(originalRatio + STEP_SIZE)
+      let newError = this.calculateRMSError()
+
+      if (newError &lt; bestError - MIN_IMPROVEMENT) {
+        bestError = newError
+        improved = true
+      } else {
+        // Try decreasing the ratio
+        handle.setRatio(originalRatio - STEP_SIZE)
+        newError = this.calculateRMSError()
+
+        if (newError &lt; bestError - MIN_IMPROVEMENT) {
+          bestError = newError
+          improved = true
+        } else {
+          // No improvement, revert to original
+          handle.setRatio(originalRatio)
+        }
+      }
+    }
+
+    if (!improved) break;
+  }
+
+  return bestError
+}</pre><h3><strong>Iterative Handle Adjustment Algorithm</strong></h3>
+<p>The optimisation follows a systematic exploration pattern:</p>
+<ol type="1" class="numbered-list" start="1"><li><strong>Baseline Measurement</strong>: Calculate initial RMS error with default 50-50 splits</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Handle Iteration</strong>: For each resize handle in the band:<ul class="bulleted-list"><li style="list-style-type:disc">Try increasing the ratio by 2%</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Measure resulting error</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">If improved, keep the change</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Otherwise, try decreasing by 2%</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">If still no improvement, revert</li>
+</ul>
+</li>
+</ol>
+<ol type="1" class="numbered-list" start="3"><li><strong>Convergence Detection</strong>: Stop when no handle adjustment improves error by MIN_IMPROVEMENT</li>
+</ol>
+<ol type="1" class="numbered-list" start="4"><li><strong>Early Termination</strong>: Exit after <inlinecode>MAX_ITERATIONS</inlinecode> to prevent infinite optimisation</li>
+</ol>
+<h3><strong>Multi-Level Optimisation Complexity</strong></h3>
+<p>For complex rules with multiple resize handles, the optimisation navigates a multi-dimensional search space. Rule E1, for instance, has three handles:</p>
+<pre class="language-JavaScript">// E1 resize handles
+this.resizeHandles[&#x27;B-D&#x27;]    // Vertical split in left column
+this.resizeHandles[&#x27;C-E&#x27;]    // Vertical split in right column  
+this.resizeHandles[&#x27;BD-CE&#x27;]  // Horizontal split between columns</pre><p>The algorithm must balance competing demands—improving the B:D ratio might worsen the overall column balance. The hill-climbing approach finds local optima where all panels achieve reasonable aspect ratio matches.</p>
+<h3><strong>Practical Impact</strong></h3>
+<p>Consider a band with a 16:9 main image and three 1:1 filler images using Rule F1:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">Initial layout: 50-50 splits create 16:9 and 8:9 panels for square images</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">After optimisation: Handles adjust to ~44-56 splits, creating near-square panels</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">RMS error reduction: From 0.125 to 0.023 (81% improvement)</li>
+</ul>
+<p>The 2% step size prevents drastic changes that might create new problems while allowing meaningful improvements. The <inlinecode>MIN_IMPROVEMENT</inlinecode> threshold prevents micro-adjustments that wouldn&#x27;t be visually perceptible.</p>
+<p>This optimisation phase exemplifies the system&#x27;s attention to detail—not content with merely functional layouts, it pursues mathematical perfection within the constraints of each band&#x27;s structure.</p>
+<h1><strong>5. Post-Processing Optimisations</strong></h1>
+<p>While the main rendering loop creates structurally sound layouts, real-world image collections often produce edge cases—underfilled bands, awkward endings, or height mismatches. The post-processing phase addresses these imperfections through a series of targeted transformations that elevate a mechanical layout into a refined gallery presentation.</p>
+<h2><strong>5.1 Layout Refinements</strong></h2>
+<p>The system applies three primary refinement strategies to improve visual flow and eliminate sparse arrangements:</p>
+<h3><inlinecode><strong>putUnderfilledAtoLast</strong></inlinecode><strong>: Reorganizing for Density</strong></h3>
+<p>This function identifies all underfilled Rule A bands throughout the gallery and moves them to the end:</p>
+<pre class="language-JavaScript">function putUnderfilledAtoLast(gallery, bands) {
+  let underfilled = Array.from(bands).slice(0, -1).filter(it =&gt; {
+    return (it.getAttribute(&#x27;rule&#x27;) === &#x27;A&#x27; &amp;&amp; 
+            panelsWithImage.length === 1)
+  })
+  
+  underfilled.forEach(it =&gt; {
+    gallery.appendChild(it)  // Move to end
+  })
+}</pre><p>This reorganisation clusters sparse bands where they can be subsequently merged or refined, maintaining visual density in the main gallery body.</p>
+<h3><inlinecode><strong>mergeTwoUnderfilledAs</strong></inlinecode><strong>: Consolidating Sparse Bands</strong></h3>
+<p>When consecutive Rule A bands each contain only their main image, this function merges them into a single, properly filled band:</p>
+<pre class="language-JavaScript">function mergeTwoUnderfilledAs(gallery, bands, imgObjs) {
+  if (penultIsA &amp;&amp; lastIsA &amp;&amp; 
+      lastPanelsWithImage.length === 1 &amp;&amp; 
+      penultPanelsWithImage.length === 1) {
+    
+    // Copy last band&#x27;s image to penult&#x27;s empty panel
+    penultEmptyPanel.style.backgroundImage = lastPicturePanel.style.backgroundImage
+    
+    // Recalculate panel proportions based on aspect ratios
+    let img1Ratio = img1RatioRaw / (img1RatioRaw + img2RatioRaw)
+    let img2Ratio = img2RatioRaw / (img1RatioRaw + img2RatioRaw)
+    penultMainPanel.style.width = `${img1Ratio * 100}%`
+    penultEmptyPanel.style.width = `${img2Ratio * 100}%`
+    
+    // Remove the now-empty last band
+    gallery.removeChild(last)
+  }
+}</pre><p>This consolidation reduces vertical scrolling while creating more visually satisfying two-image compositions.</p>
+<h3><inlinecode><strong>swapPenultAwithLastO</strong></inlinecode><strong>: Creating Breathing Room</strong></h3>
+<p>This function addresses a common pattern where a full-width showcase image (Rule O) appears as the final band, potentially creating an abrupt ending:</p>
+<pre class="language-JavaScript">function swapPenultAwithLastO(gallery, bands) {
+  if (bands.length &gt;= 2) {
+    const [last, penult] = [bands[bands.length - 1], bands[bands.length - 2]]
+    
+    const lastIsO = last.getAttribute(&#x27;rule&#x27;) === &#x27;O&#x27;
+    const penultHasOneChild = Array.from(penult.children).filter(child =&gt;
+      child.style.backgroundImage &amp;&amp; child.style.backgroundImage !== &#x27;&#x27;
+    ).length === 1
+    
+    if (lastIsO &amp;&amp; penultIsNotO &amp;&amp; penultHasOneChild) {
+      last.after(penult)  // Move penultimate after last
+      return true
+    }
+  }
+  return false
+}</pre><p>By moving the underfilled penultimate band after the showcase image, the gallery gains visual breathing room before its conclusion, creating a more graceful transition to the page end.</p>
+<h2><strong>5.2 Edge Case Handling</strong></h2>
+<p>Beyond reorganisation, the system includes functions that fundamentally transform problematic bands:</p>
+<h3><inlinecode><strong>turnTrailingAintoO</strong></inlinecode><strong>: Elevating Final Images</strong></h3>
+<p>When the last band is an underfilled Rule A, this function converts it to Rule O for a stronger conclusion:</p>
+<pre class="language-JavaScript">function turnTrailingAintoO(gallery, bands, imgObjs) {
+  const last = bands[bands.length - 1]
+  
+  if (lastRule === &#x27;A&#x27; &amp;&amp; lastPanelWithImage.length == 1) {
+    // Convert A-panel to O-panel
+    last.setAttribute(&#x27;rule&#x27;, &#x27;O&#x27;)
+    mainLeaf.style.width = &#x27;100%&#x27;
+    last.querySelector(&#x27;.sub.leaf&#x27;).remove()  // Remove empty sub-panel
+  }
+}</pre><p>This transformation ensures the gallery ends with a full-width image rather than a half-empty band.</p>
+<h3><inlinecode><strong>nukeUnderfilledPanel</strong></inlinecode><strong>: Removing Empty Spaces</strong></h3>
+<p>This aggressive cleanup function eliminates any panels that failed to receive images:</p>
+<pre class="language-JavaScript">function nukeUnderfilledPanel(gallery, bands, imgObjs) {
+  let noImgPanels = Array.from(document.getElementsByTagName(&#x27;bandpanel&#x27;))
+    .filter(it =&gt; it.className.endsWith(&#x27;leaf&#x27;) &amp;&amp; 
+                   it.style.backgroundImage.length &lt; 1)
+  
+  noImgPanels.forEach(panel =&gt; {
+    let previousSibling = panel.previousSibling || panel.nextSibling
+    
+    // Expand sibling to fill space
+    if (previousSibling.style.width != &#x27;&#x27;) previousSibling.style.width = &#x27;100%&#x27;
+    if (previousSibling.style.height != &#x27;&#x27;) previousSibling.style.height = &#x27;100%&#x27;
+    
+    // For vertical bands, adjust height based on image ratio
+    if (parentNode.getAttribute(&#x27;dir&#x27;) == &#x27;v&#x27;) {
+      let imageRatio = imgObjs.filter(it =&gt; it.ord == imageOrd)[0].ratio
+      let panelHeight = coerceIn(
+        Math.round(INT_WIDTH_VERT / imageRatio)|0, 
+        INT_WIDTH_VERT, 
+        clampMax
+      )
+      parentNode.style.height = `${panelHeight}px`
+    }
+    
+    panel.remove()
+  })
+}</pre><h3><inlinecode><strong>clipLastVertPanel</strong></inlinecode><strong>: Vertical Band Height Normalisation</strong></h3>
+<p>This function handles edge cases where vertical bands can create visual inconsistencies at the end of the gallery, particularly in multi-column layouts:</p>
+<pre class="language-JavaScript">function clipLastVertPanel(gallery, bands, imgObjs) {
+  if (bands.length &gt;= 2 &amp;&amp; COLUMNS &gt; 1) {
+    const last = bands[bands.length - 1]
+    
+    if (last.getAttribute(&#x27;dir&#x27;) == &#x27;v&#x27;) {
+      // Check if this vertical band starts a new row
+      if ((last.getAttribute(&#x27;ord&#x27;)|0) % COLUMNS &gt; 0) {
+        // Mid-row vertical band: clip to predecessor&#x27;s height
+        const penultHeight = parseInt(penult.style.height)
+        if (lastHeight &gt; penultHeight) {
+          last.style.height = `${penultHeight}px`
+        }
+      } else {
+        // Row-starting vertical band: convert to horizontal
+        let imgRatio = imgObj.ratio
+        
+        // Transform from vertical to horizontal orientation
+        last.setAttribute(&#x27;dir&#x27;, &#x27;h&#x27;)
+        let newWidth = parseFloat(getComputedStyle(last).width)
+        let newHeight = Math.round(newWidth / imgRatio)|0
+        last.setAttribute(&#x27;style&#x27;, `height: ${newHeight}px`)
+        last.children[0].style.width = &#x27;100%&#x27;
+      }
+    }
+  }
+}</pre><p>The function implements two distinct strategies based on the vertical band&#x27;s position:</p>
+<ol type="1" class="numbered-list" start="1"><li><strong>Mid-row vertical bands</strong>: When a vertical band appears within a row (ordinal % columns &gt; 0), it clips the height to match its predecessor, preventing awkward height mismatches that break visual flow.</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Row-starting vertical bands</strong>: When a vertical band would start a new row (ordinal % columns = 0), the function converts it to horizontal orientation entirely. This prevents scenarios where a lone vertical band creates excessive white space or scrolling. The conversion calculates appropriate dimensions based on the aspect ratio of the image, ensuring the image displays properly in its new horizontal container.</li>
+</ol>
+<p>This dual approach ensures vertical bands integrate smoothly into multi-column layouts regardless of their position, eliminating edge cases that could otherwise create jarring visual breaks at the gallery&#x27;s conclusion.</p>
+<h2><strong>5.3 Multi-Column Layouts</strong></h2>
+<p>When galleries span multiple columns, band heights must coordinate across rows to maintain visual alignment:</p>
+<h3><strong>Even Column Handling</strong></h3>
+<p>For two, four, or six column layouts, the system groups bands into rows and normalises heights:</p>
+<pre class="language-JavaScript">function adjustBandHeightMultiColumn(imgObjs, columns0) {
+  if (columns0 % 2 == 0) {
+    let columns = columns0 / 2
+    
+    for (let i = 0; i &lt; bands.length; i += columns) {
+      let sameRowBands = [...Array(columns).keys()]
+        .map(it =&gt; bands[i + it])
+        .filter(it =&gt; it !== undefined)
+      
+      let bandHeights = sameRowBands.map(it =&gt; parseInt(it.style.height))
+      let bandGeomean = Math.round(geomean(bandHeights))|0
+      sameRowBands.forEach(it =&gt; it.style.height = `${bandGeomean}px`)
+    }
+  }
+}</pre><p>Using geometric mean rather than arithmetic mean prevents extreme heights from skewing the average while maintaining proportional relationships.</p>
+<h3><strong>Odd Column Handling</strong></h3>
+<p>Three, five, and seven column layouts require special treatment due to vertical bands:</p>
+<pre class="language-JavaScript">// Pattern: h1 h1 v h2 h2 (except v can be anywhere)
+for (let i = 0; i &lt; bands.length; i += columns) {
+  // Process upper horizontal bands
+  let bandGeomeanHi = Math.round(geomean(bandHeightsHi))|0
+  sameRowBandsHi.forEach(it =&gt; it.style.height = `${bandGeomeanHi}px`)
+  
+  // Process lower horizontal bands
+  let bandGeomeanLo = Math.round(geomean(bandHeightsLo))|0
+  sameRowBandsLo.forEach(it =&gt; it.style.height = `${bandGeomeanLo}px`)
+  
+  // Set vertical band height to span both rows plus gap
+  if (bands[i + hcols] !== undefined)
+    bands[i + hcols].style.height = `${bandGeomeanHi + bandGeomeanLo + gap}px`
+}</pre><h3><strong>Geometric Mean Rationale</strong></h3>
+<p>The geometric mean preserves proportional relationships better than arithmetic mean. For heights [200, 400, 800]:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">Arithmetic mean: 467 (distorts proportions)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Geometric mean: 400 (maintains 1:2:4 ratio feel)</li>
+</ul>
+<p>This mathematical choice ensures that intentionally varied band heights remain visually distinct while achieving overall alignment.</p>
+<p>The post-processing phase exemplifies the system&#x27;s philosophy: mathematical rigor in service of aesthetic excellence. Each optimisation targets specific visual problems, transforming technically correct layouts into galleries that feel curated rather than generated.</p>
+<h1><strong>6. Responsive Design</strong></h1>
+<p>The Partitioned Container Band system achieves true responsive design not through media queries or breakpoints, but through mathematical relationships that dynamically reconstruct the entire gallery based on available space. This approach ensures optimal layouts at any viewport width, from mobile phones to ultra-wide displays.</p>
+<h2><strong>6.1 Column Count Calculation</strong></h2>
+<p>The system determines column count through a simple yet effective formula that scales with viewport width:</p>
+<pre class="language-JavaScript">function refreshColumnCount() {
+  let gallery = document.getElementById(ELEM_ID)
+  let oldColumnCount = COLUMNS
+  COLUMNS = Math.round(gallery.clientWidth / 384) // 384 is an half of the INTERNAL_WIDTH
+  
+  if (oldColumnCount != COLUMNS) {
+    _pack()  // Complete gallery regeneration
+  }
+}</pre><h3><strong>Dynamic Column Detection</strong></h3>
+<p>The formula <inlinecode>gallery.clientWidth / 384</inlinecode> creates natural breakpoints:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">&lt; 576px: 1 column (mobile portrait)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">576-960px: 2 columns (mobile landscape/tablet)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">960-1344px: 3 columns (tablet/small desktop)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">1344-1728px: 4 columns (desktop)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">1728px+: 5+ columns (wide displays)</li>
+</ul>
+<p>Each band spans two logical columns in even-column layouts or varies in odd-column configurations, ensuring bands maintain reasonable proportions across all screen sizes.</p>
+<h3><strong>Breakpoint-Free Philosophy</strong></h3>
+<p>Unlike traditional responsive systems that define specific breakpoints via media query, this approach scales continuously:</p>
+<pre class="language-JavaScript">// Traditional approach (not used):
+if (width &lt; 960) columns = 2
+else if (width &lt; 1344) columns = 3
+else columns = 4
+
+// This system&#x27;s approach:
+COLUMNS = Math.round(gallery.clientWidth / 384)</pre><p>This mathematical relationship eliminates jarring layout shifts at arbitrary pixel values, creating smooth transitions as viewports resize.</p>
+<h3><strong>Real-Time Reflow Architecture</strong></h3>
+<p>The system monitors multiple resize triggers:</p>
+<pre class="language-JavaScript">function attachResizeEvent() {
+  window.addEventListener(&#x27;pageshow&#x27;, refreshColumnCount)
+  window.addEventListener(&#x27;load&#x27;, refreshColumnCount)
+  window.addEventListener(&#x27;resize&#x27;, refreshColumnCount)
+}</pre><p>When column count changes, the entire gallery regenerates rather than attempting to reflow existing elements. This complete reconstruction ensures every band receives optimal treatment for the new column configuration.</p>
+<h2><strong>6.2 Vertical Band Handling</strong></h2>
+<p>Vertical bands add visual variety and spatial efficiency, with their placement randomised per row to create organic, non-repetitive layouts:</p>
+<h3><strong>The </strong><inlinecode><strong>mustBeVertical</strong></inlinecode><strong> Function: Randomised Positioning</strong></h3>
+<pre class="language-JavaScript">function mustBeVertical(x) {
+  // Handle edge cases
+  if (x &lt; 0) return false;
+  if (COLUMNS % 2 === 0) return false;
+  
+  // Special case for single column
+  if (COLUMNS === 1) return x &gt;= 0;
+  
+  let modulo = x % COLUMNS
+  let row = (x / COLUMNS)|0
+  let thisRowRnd = VERT_INDICES_BY_ROW[row]  // Random 0 to (COLUMNS/2-1)
+  return modulo == thisRowRnd
+}</pre><p>This function implements randomised vertical band placement:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">Each row gets a random vertical position stored in <inlinecode>VERT_INDICES_BY_ROW</inlinecode></li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">For 3 columns: vertical band can appear at position 0 or 1 (randomly chosen per row)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">For 5 columns: vertical band can appear at positions 0, 1, or 2</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">This creates varied patterns like:</li>
+</ul>
+<pre class="language-Plain Text">Row 1-2: |V| [H] [H]
+         |V| [H] [H]
+Row 3-4: [H] [H] |V|
+         [H] [H] |V|
+Row 5-6: [H] |V| [H]
+         [H] |V| [H]</pre><h3><strong>Dynamic Vertical Band Positioning</strong></h3>
+<p>The randomisation prevents predictable patterns that would make the gallery feel mechanical. Instead of vertical bands always appearing in the same column, they shift positions row by row, creating a more organic visual rhythm. This randomisation is deterministic per session—the same image set produces the same layout until the page reloads.</p>
+<h3><strong>The </strong><inlinecode><strong>mustBeFlipped</strong></inlinecode><strong> Function: Additional Variation</strong></h3>
+<pre class="language-JavaScript">function mustBeFlipped(x) {
+  const base = Math.ceil(COLUMNS / 2)
+  const maxIncrement = Math.floor(COLUMNS / 2)
+  
+  for (let increment = 0; increment &lt; maxIncrement; increment++) {
+    const start = base + increment;
+    if ((x - start) &gt;= 0 &amp;&amp; (x - start) % COLUMNS === 0) {
+      return true
+    }
+  }
+  return false
+}</pre><p>This function adds another layer of variation by flipping internal panel arrangements within certain bands, preventing the vertical bands from creating too strong a visual line down any particular column.</p>
+<h2><strong>6.3 Grid Template Management</strong></h2>
+<p>The CSS Grid integration has been simplified to treat all columns uniformly, with band spanning handled at the element level:</p>
+<h3><strong>Unified Grid Template Approach</strong></h3>
+<pre class="language-JavaScript">function _pack() {
+  let gallery = document.getElementById(ELEM_ID)
+  gallery.style.setProperty(&#x27;grid-template-columns&#x27;, `repeat(${COLUMNS}, 1fr)`)
+}
+
+makeHTMLelement() {
+  const container = document.createElement(&#x27;band&#x27;);
+  
+  if (mustBeVertical(this.ord)) {
+    container.setAttribute(&#x27;dir&#x27;, &#x27;v&#x27;)
+    container.style.gridColumn = &#x27;span 1&#x27;  // Single column
+  }
+  else {
+    container.setAttribute(&#x27;dir&#x27;, &#x27;h&#x27;)
+    container.style.gridColumn = &#x27;span 2&#x27;  // Two columns
+  }
+}</pre><p>Both even and odd column layouts use the same <inlinecode>repeat(${COLUMNS}, 1fr)</inlinecode>, creating a uniform grid where:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">All grid columns have equal width</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Horizontal bands span 2 columns via <inlinecode>gridColumn: &#x27;span 2&#x27;</inlinecode></li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Vertical bands span 1 column via <inlinecode>gridColumn: &#x27;span 1&#x27;</inlinecode></li>
+</ul>
+<p>The spanning logic moves from CSS Grid templates to individual band elements. This approach provides several advantages:</p>
+<ol type="1" class="numbered-list" start="1"><li><strong>Flexibility</strong>: Each band independently determines its span</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Simplicity</strong>: Uniform grid template regardless of column count</li>
+</ol>
+<ol type="1" class="numbered-list" start="3"><li><strong>Clarity</strong>: Visual span is defined where the band is created</li>
+</ol>
+<h3><strong>Gap Consistency Across Layouts</strong></h3>
+<p>The randomised positioning doesn&#x27;t affect gap calculations—vertical bands still account for gaps when spanning rows:</p>
+<pre class="language-JavaScript">// Vertical band height = top row + bottom row + gap
+bands[i + hcols].style.height = 
+  `${bandGeomeanHi + bandGeomeanLo + gap}px`</pre><p>The uniform grid approach with randomised vertical positioning creates galleries that feel both structured and organic—maintaining clear alignment while avoiding the mechanical repetition that makes generated layouts feel artificial.</p>
+<h1><strong>7. Mathematical Foundations</strong></h1>
+<p>The visual success of the Partitioned Container Band system rests on rigorous mathematical principles. From aspect ratio calculations to optimisation algorithms, every aesthetic decision has a quantitative foundation that ensures consistent, pleasing results across diverse image collections.</p>
+<h2><strong>7.1 Aspect Ratio Mathematics</strong></h2>
+<p>The system&#x27;s mathematical core revolves around preserving and optimizing aspect ratios throughout the layout process:</p>
+<h3><strong>Ratio Preservation Through Transformation</strong></h3>
+<p>The fundamental challenge involves mapping images with arbitrary aspect ratios into panels with different proportions. The system quantifies this mapping error:</p>
+<pre class="language-JavaScript">error = |imageRatio - panelRatio|</pre><p>For optimisation purposes, this becomes squared error to penalize large mismatches:</p>
+<pre class="language-JavaScript">squaredError = (imageRatio - panelRatio)²</pre><h3><strong>Root Mean Square Error Metrics</strong></h3>
+<p>The RMS error aggregates individual panel mismatches into a single quality metric:</p>
+<pre class="language-Plain Text">RMS = √(Σ(squaredErrors) / panelCount)</pre><p>This metric serves as the optimisation target, with typical values:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">Excellent fit: RMS &lt; 0.05 (barely perceptible distortion)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Good fit: RMS &lt; 0.15 (minor letterboxing/pillarboxing)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Acceptable fit: RMS &lt; 0.30 (noticeable but not jarring)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Poor fit: RMS &gt; 0.30 (requires layout adjustment)</li>
+</ul>
+<h3><strong>Geometric Mean for Height Normalisation</strong></h3>
+<p>When normalising band heights across rows, the system employs geometric mean rather than arithmetic mean:</p>
+<pre class="language-Plain Text">geomean(heights) = ⁿ√(h₁ × h₂ × ... × hₙ)</pre><p>For heights [300, 400, 533]:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">Arithmetic mean: 411 (loses proportional relationships)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Geometric mean: 400 (preserves 3:4:5.33 ratio feel)</li>
+</ul>
+<p>The geometric mean maintains the visual weight relationships between bands while achieving alignment.</p>
+<h2><strong>7.2 The Clipping Function</strong></h2>
+<p>The <inlinecode>clipfun</inlinecode> function represents a carefully engineered solution to the extreme aspect ratio problem:</p>
+<h3><strong>Mathematical Structure</strong></h3>
+<img style="width:710px" src="articles/clipfun.png"/><pre class="language-Plain Text">clipfun(x₀) = {
+  0.5 × sign(x₀)                    if |x₀| ≥ clip_lim
+  (x² + x + 0.25)/clip_p - 0.5      if x &lt; -t
+  -(x² - x + 0.25)/clip_p + 0.5     if x &gt; t
+  x × 2.0 × clip_lim                if |x| ≤ t
+}</pre><p>(Visualisation is available at the following link: <a href="https://www.desmos.com/calculator/syqd1byzzl">https://www.desmos.com/calculator/syqd1byzzl</a>)</p>
+<p>Where:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc"><inlinecode>clip_p = 0.444</inlinecode> (empirically determined)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><inlinecode>clip_p1 = √(1 - 2 × clip_p) ≈ 0.334</inlinecode></li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><inlinecode>clip_lim = 1/(1 + clip_p1) ≈ 0.749</inlinecode></li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><inlinecode>t = 0.5 × clip_p1 ≈ 0.167</inlinecode></li>
+</ul>
+<h3><strong>Three-Region Design</strong></h3>
+<ol type="1" class="numbered-list" start="1"><li><strong>Linear Region</strong> (|x| ≤ 0.25): Direct scaling preserves small variations</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Quadratic Transition</strong> (0.25 &lt; |x| &lt; 0.75): Smooth deceleration via parabolas</li>
+</ol>
+<ol type="1" class="numbered-list" start="3"><li><strong>Saturation</strong> (|x| ≥ 0.75): Hard limit at ±0.5</li>
+</ol>
+<h3><strong>Continuity and Smoothness</strong></h3>
+<p>The function maintains C¹ continuity (continuous first derivative) at transition points:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">At x = ±t: Linear and quadratic regions meet smoothly</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">At x = ±clip_lim: Quadratic approaches horizontal asymptote</li>
+</ul>
+<h3><strong>Parameter Selection Rationale</strong></h3>
+<p>The magic number <inlinecode>clip_p = 0.444</inlinecode> creates optimal transition characteristics:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">Sufficient linear region for common ratios (1:1 to 2:1)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Gradual compression for moderate extremes (2:1 to 4:1)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Firm boundary preventing pathological cases (&gt;4:1)</li>
+</ul>
+<p>Testing likely revealed that 0.444 creates the most visually pleasing compression curve—neither too aggressive (losing distinction between ratios) nor too permissive (allowing dominant images).</p>
+<h2><strong>7.3 Optimisation Algorithms</strong></h2>
+<p>The system employs multiple optimisation strategies at different stages:</p>
+<h3><strong>Hill-Climbing for Panel Refinement</strong></h3>
+<p>The <inlinecode>adjustForEvenFit</inlinecode> method implements a discrete hill-climbing algorithm:</p>
+<pre class="language-Plain Text">for each iteration (max 50):
+  for each resize handle:
+    current_error = calculateRMS()
+    
+    try_ratio = current + 0.02
+    if (new_error &lt; current_error - 0.001):
+      accept change
+    else:
+      try_ratio = current - 0.02
+      if (new_error &lt; current_error - 0.001):
+        accept change
+      else:
+        revert
+        
+  if no improvements:
+    terminate early</pre><h3><strong>Algorithm Characteristics</strong>:</h3>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Search Space</strong>: Continuous [0.05, 0.95] for each handle</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Step Size</strong>: 2% ensures meaningful visual changes</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Convergence</strong>: MIN_IMPROVEMENT = 0.001 prevents insignificant tweaks</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Complexity</strong>: O(iterations × handles) ≈ O(50 × 3) = O(150) for complex rules</li>
+</ul>
+<h3><strong>Greedy Image Selection</strong></h3>
+<p>The filler selection process uses a tolerance-band greedy approach:</p>
+<pre class="language-Plain Text">for each panel:
+  candidates = images.filter(ratio_match ± 20%)
+  if (candidates.empty):
+    candidates = images.filter(ratio_match ± 33%)
+  if (candidates.empty):
+    candidates = images.filter(ratio_match ± 50%)
+  
+  selected = candidates.randomPick()
+  remove selected from pool</pre><h3><strong>Greedy Properties</strong>:</h3>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Local Optimality</strong>: Best available match for current panel</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>No Backtracking</strong>: Once assigned, images aren&#x27;t reconsidered</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Degrading Tolerance</strong>: Ensures some selection even with poor matches</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Randomisation</strong>: Prevents deterministic patterns</li>
+</ul>
+<h3><strong>Complexity Analysis</strong></h3>
+<p>Overall system complexity for N images:</p>
+<ol type="1" class="numbered-list" start="1"><li><strong>Initial Sorting</strong>: O(N log N) for importance categorisation</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Main Loop</strong>: O(N) iterations (one per important image)</li>
+</ol>
+<ol type="1" class="numbered-list" start="3"><li><strong>Per Band</strong>:<ul class="bulleted-list"><li style="list-style-type:disc">Rule selection: O(R) for R rules ≈ O(9)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Filler selection: O(F × P) for F fillers, P remaining pool</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Optimisation: O(I × H) for I iterations, H handles</li>
+</ul>
+</li>
+</ol>
+<ol type="1" class="numbered-list" start="4"><li><strong>Post-processing</strong>: O(B²) for B bands (worst case)</li>
+</ol>
+<h3><strong>Total Complexity</strong>: O(N log N + N × F × P) ≈ O(N²) worst case</h3>
+<p>In practice, the algorithm performs much better:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">Pool size P decreases with each selection</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Early termination in optimisation</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Most bands use simple rules (2-3 panels)</li>
+</ul>
+<h3><strong>Optimisation Trade-offs</strong></h3>
+<p>The system makes deliberate trade-offs:</p>
+<ol type="1" class="numbered-list" start="1"><li><strong>Speed vs Quality</strong>: Hill-climbing finds local optima, not global</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Simplicity vs Optimality</strong>: Greedy selection enables real-time performance</li>
+</ol>
+<ol type="1" class="numbered-list" start="3"><li><strong>Determinism vs Variety</strong>: Randomisation prevents repetitive layouts</li>
+</ol>
+<p>These mathematical foundations ensure that aesthetic decisions—how wide a panel should be, which image fits where, when to clip extreme ratios—rest on quantifiable principles rather than arbitrary choices.</p>
+<h1><strong>8. Practical Applications</strong></h1>
+<p>The flexibility of the Partitioned Container Band system makes it suitable for diverse real-world applications, from personal portfolios to large-scale commercial deployments. This section explores concrete use cases and implementation strategies.</p>
+<h2><strong>8.1 Use Cases</strong></h2>
+<h3><strong>Photography Portfolios</strong></h3>
+<p>Professional photographers face unique challenges displaying work that spans multiple genres and formats:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Wedding albums</strong>: Mix of portraits (2:3), group shots (3:2), and detail shots (1:1)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Landscape collections</strong>: Panoramas (3:1), standard landscapes (3:2), vertical nature shots (2:3)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Street photography</strong>: Unpredictable mix of orientations and crops</li>
+</ul>
+<p>The band system excels here by respecting each image&#x27;s composition while creating cohesive presentations. High-importance shots receive Rule O treatment, while supporting images create context through multi-panel arrangements.</p>
+<h3><strong>E-commerce Product Galleries</strong></h3>
+<p>Online retailers struggle with inconsistent product photography:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Fashion</strong>: Model shots (2:3), flat lays (1:1), detail views (various)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Electronics</strong>: Product beauty shots (16:9), specification diagrams (1:1), lifestyle contexts (3:2)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Furniture</strong>: Room settings (3:2), dimensional drawings (4:3), detail textures (1:1)</li>
+</ul>
+<p>The system&#x27;s importance scoring naturally promotes hero images while ensuring all product angles remain visible. The NSFW filtering mechanism can be repurposed for showing alternate product views or colorways.</p>
+<h3><strong>Social Media Feeds</strong></h3>
+<p>Modern social platforms must accommodate diverse content types:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Instagram-style</strong>: Square posts (1:1), Stories screenshots (9:16), Reels covers (4:5)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Mixed media</strong>: Photos, video thumbnails, text cards, infographics</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>User-generated content</strong>: Unpredictable quality and dimensions</li>
+</ul>
+<p>The automatic optimisation ensures even poorly-composed user content displays attractively, while the responsive system handles everything from mobile apps to desktop browsers.</p>
+<h3><strong>Digital Art Exhibitions</strong></h3>
+<p>Online galleries and showcase artwork with extreme variety:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Traditional digitised</strong>: Paintings (varies), sculptures (documentation photos), installations (wide shots)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Digital native</strong>: Generative art (often square), 3D renders (cinematic ratios), pixel art (specific grids)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Mixed exhibitions</strong>: Combining multiple artists with different styles</li>
+</ul>
+<p>The mathematical approach of the band system treats all art equally, preventing any single style from dominating while ensuring each piece displays at its best.</p>
+<h2><strong>8.2 Integration Examples</strong></h2>
+<h3><strong>Basic Implementation</strong></h3>
+<pre class="language-HTML">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;styles.css&quot;&gt;
+  &lt;script src=&quot;common.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;band.js&quot;&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body onload=&quot;pack(&#x27;art-gallery&#x27;, &#x27;collection_2024&#x27;)&quot;&gt;
+  &lt;div id=&quot;site-navbar&quot;&gt;&lt;/div&gt;
+  &lt;gallery id=&quot;art-gallery&quot;&gt;&lt;/gallery&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre><h3><strong>Customisation Possibilities</strong></h3>
+<pre class="language-JavaScript">// Custom importance scoring for e.g. social media platform
+function calculateImportance(image) {
+  let score = 0
+  score += image.views * 0.1
+  score += image.likes * 0.5
+  score += image.featured ? 50 : 0
+  score += image.aspectRatio &gt; 2.5 ? 20 : 0  // Boost panoramas
+  return Math.min(100, score)
+}
+
+// Custom rule selection
+function selectCustomRules(mainImage, availableImages) {
+  // Prefer symmetric layouts for square images
+  if (Math.abs(mainImage.ratio - 1.0) &lt; 0.1) {
+    return [&#x27;E1&#x27;, &#x27;E2&#x27;, &#x27;I&#x27;, &#x27;A&#x27;]
+  }
+  // Use simple rules for limited images
+  if (availableImages.length &lt; 5) {
+    return [&#x27;A&#x27;, &#x27;B&#x27;, &#x27;O&#x27;]
+  }
+  return defaultRuleSet
+}</pre><h1><strong>9. Comparisons and Alternatives</strong></h1>
+<p>To fully appreciate innovations of the Partitioned Container Band system, it is instructive to compare it against existing gallery layout approaches. Each alternative has its merits, but also limitations that the band system specifically addresses.</p>
+<h2><strong>9.1 vs Traditional Grid Systems</strong></h2>
+<p>Traditional grid layouts remain the most common gallery solution, using fixed-size cells arranged in rows and columns.</p>
+<h3><strong>Grid System Limitations:</strong></h3>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Forced Cropping</strong>: Images must conform to predetermined cell dimensions</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Wasted Space</strong>: If not cropping, letterboxing/pillarboxing for mismatched ratios</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Visual Monotony</strong>: Uniform cells create repetitive patterns</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Lost Composition</strong>: Cropping can remove critical visual elements</li>
+</ul>
+<h3><strong>Band System Advantages:</strong></h3>
+<ol type="1" class="numbered-list" start="1"><li><strong>Flexible Dimensions</strong>: Each band adapts height to its content</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Aspect Ratio Intelligence</strong>: Images maintain their natural proportions<ul class="bulleted-list"><li style="list-style-type:disc">No forced cropping</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Mathematical optimisation minimises distortion</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Soft clipping for extremes rather than hard boundaries</li>
+</ul>
+</li>
+</ol>
+<ol type="1" class="numbered-list" start="3"><li><strong>Dynamic Composition</strong>: Rules create varied arrangements<ul class="bulleted-list"><li style="list-style-type:disc">Single image showcases (Rule O)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Multi-panel compositions (Rules A-I)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Visual hierarchy through importance scoring</li>
+</ul>
+</li>
+</ol>
+<h3><strong>Practical Comparison:</strong></h3>
+<pre class="language-Plain Text">Traditional Grid:          Band System:
+┌─────┬─────┬─────┐       ┌─────────┬───┬───┐
+│ IMG │ IMG │ IMG │       │  MAIN   │SUB│SUB│ &lt;- Varied heights
+├─────┼─────┼─────┤       ├─────────┴───┴───┤
+│ IMG │ IMG │ IMG │       │      WIDE IMG   │ &lt;- Respects ratio
+├─────┼─────┼─────┤       ├───┬─────────────┤
+│ IMG │ IMG │ IMG │       │VRT│   MAIN IMG  │ &lt;- Multiple layouts
+└─────┴─────┴─────┘       └───┴─────────────┘</pre><h2><strong>9.2 vs Masonry Layouts</strong></h2>
+<p>Masonry layouts, popularised by Pinterest, arrange items in columns with variable heights.</p>
+<h3><strong>Masonry Limitations:</strong></h3>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Vertical-Only Flow</strong>: Content flows exclusively downward</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Column Independence</strong>: No horizontal relationships between images</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Unpredictable Positioning</strong>: Images appear wherever space exists</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Landscape Penalty</strong>: Wide images get compressed into narrow columns</li>
+</ul>
+<h3><strong>Band System Advantages:</strong></h3>
+<ol type="1" class="numbered-list" start="1"><li><strong>Bidirectional Flow</strong>: Both horizontal bands and vertical elements</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Compositional Control</strong>: Deliberate image relationships<ul class="bulleted-list"><li style="list-style-type:disc">Main panel anchors each band</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Filler images selected for compatibility</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Rules ensure aesthetic groupings</li>
+</ul>
+</li>
+</ol>
+<ol type="1" class="numbered-list" start="3"><li><strong>Predictable Heights</strong>: Bands maintain calculable dimensions<ul class="bulleted-list"><li style="list-style-type:disc">Easier scrolling prediction</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Better performance planning</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Consistent visual rhythm</li>
+</ul>
+</li>
+</ol>
+<h3><strong>Visual Comparison:</strong></h3>
+<pre class="language-Plain Text">Masonry (vertical only):   Band System (mixed flow):
+┌───┐┌───┐┌───┐              ┌─────────┬───────┐
+│IMG││IMG││IMG│              │  MAIN   │ SUB   │
+│   │├───┤│   │              ├─────────┴───┬───┤
+│   ││IMG││   │              │    MAIN     │VRT│
+├───┤│   │├───┤              ├───┬───┬─────┤   │
+│IMG│├───┤│IMG│              │SUB│SUB│MAIN │   │
+└───┘│IMG│└───┘              └───┴───┴─────┴───┘
+     └───┘                 Horizontal relationships</pre><h2><strong>9.3 vs Manual Curation</strong></h2>
+<p>Professional galleries often rely on manual curation, where designers hand-place each image.</p>
+<h3><strong>Manual Curation Limitations:</strong></h3>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Labour Intensive</strong>: Hours spent arranging hundreds of images</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Does not Scale</strong>: Impractical for large or dynamic collections</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Inconsistent</strong>: Different curators produce different results</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><strong>Static</strong>: Cannot adapt to viewport changes</li>
+</ul>
+<h3><strong>Band System Advantages:</strong></h3>
+<ol type="1" class="numbered-list" start="1"><li><strong>Automation Benefits</strong>:<ul class="bulleted-list"><li style="list-style-type:disc">Instant gallery generation</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Consistent quality regardless of collection size</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Frees designers for higher-level decisions</li>
+</ul>
+</li>
+</ol>
+<ol type="1" class="numbered-list" start="2"><li><strong>Algorithmic Consistency</strong>:<ul class="bulleted-list"><li style="list-style-type:disc">Same importance scores produce similar prominence</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Mathematical rules ensure predictable outcomes</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Reduces subjective decision fatigue</li>
+</ul>
+</li>
+</ol>
+<ol type="1" class="numbered-list" start="3"><li><strong>Dynamic Adaptability</strong>:<ul class="bulleted-list"><li style="list-style-type:disc">Regenerates for different viewports</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Handles collection changes seamlessly</li>
+</ul>
+</li>
+</ol>
+<h3><strong>In Summary:</strong></h3>
+<table class="simple-table"><thead class="simple-table-header"><tr><th id="qjmQ" class="simple-table-header-color simple-table-header">Criteria</th><th id="z~qG" class="simple-table-header-color simple-table-header">Grid</th><th id="gSvu" class="simple-table-header-color simple-table-header">Masonry</th><th id="MfT|" class="simple-table-header-color simple-table-header">Manual</th><th id="drG=" class="simple-table-header-color simple-table-header">PCB (ours)</th></tr></thead><tbody><tr><th id="qjmQ" class="simple-table-header-color simple-table-header">Aspect Ratio Preservation</th><td id="z~qG" >Poor</td><td id="gSvu" >Good</td><td id="MfT|" >Perfect</td><td id="drG=" >Excellent</td></tr><tr><th id="qjmQ" class="simple-table-header-color simple-table-header">Layout Variety</th><td id="z~qG" >Poor</td><td id="gSvu" >Fair</td><td id="MfT|" >Excellent</td><td id="drG=" >Good</td></tr><tr><th id="qjmQ" class="simple-table-header-color simple-table-header">Scalability</th><td id="z~qG" >Excellent</td><td id="gSvu" >Excellent</td><td id="MfT|" >Poor</td><td id="drG=" >Excellent</td></tr><tr><th id="qjmQ" class="simple-table-header-color simple-table-header">Responsive Adaptation</th><td id="z~qG" >Good</td><td id="gSvu" >Good</td><td id="MfT|" >Poor</td><td id="drG=" >Excellent</td></tr><tr><th id="qjmQ" class="simple-table-header-color simple-table-header">Implementation Complexity</th><td id="z~qG" >Simple</td><td id="gSvu" >Moderate</td><td id="MfT|" >N/A</td><td id="drG=" >Complex</td></tr><tr><th id="qjmQ" class="simple-table-header-color simple-table-header">Computational Cost</th><td id="z~qG" >Minimal</td><td id="gSvu" >Low</td><td id="MfT|" >N/A</td><td id="drG=" >Moderate</td></tr></tbody></table><p>The Partitioned Container Band system occupies a unique position—more intelligent than grids, more controlled than masonry, more scalable than manual curation. It&#x27;s particularly suited for applications requiring both aesthetic quality and practical automation.</p>
+<h1><strong>10. Conclusion</strong></h1>
+<p>The Partitioned Container Band system represents a significant advancement in automated gallery layout generation, demonstrating that mathematical rigour and aesthetic excellence need not be mutually exclusive.</p>
+<h2><strong>10.1 Summary of Achievements</strong></h2>
+<p>Through its innovative approach to image layout, the system has achieved several notable goals:</p>
+<h3><strong>Flexible, Rule-Based Layout System</strong></h3>
+<p>The nine partitioning rules (A through I, plus O) provide a rich vocabulary for visual composition. Each rule serves specific aspect ratio combinations and importance hierarchies, creating layouts that feel designed rather than generated. The system&#x27;s ability to dynamically select appropriate rules based on available content ensures visual variety without chaos.</p>
+<h3><strong>Excellent Aspect Ratio Preservation</strong></h3>
+<p>Unlike traditional approaches that force images into predetermined frames, the band system respects each image&#x27;s inherent proportions. Through soft clipping functions and mathematical optimisation, even extreme aspect ratios find appropriate display contexts. The RMS error minimisation ensures that when compromises must be made, they are distributed evenly rather than concentrated in unfortunate crops.</p>
+<h3><strong>Responsive and Performant</strong></h3>
+<p>The breakpoint-free responsive design adapts fluidly to any viewport width, from mobile phones to ultra-wide displays. By regenerating layouts rather than simply scaling them, the system ensures optimal image presentation at every screen size. The mathematical foundations keep computational complexity manageable, enabling real-time layout generation even for substantial image collections.</p>
+<h2><strong>10.2 Key Takeaways</strong></h2>
+<p>Several broader principles emerge from this implementation:</p>
+<h3><strong>Importance of Mathematical Optimisation in UI</strong></h3>
+<p>The system demonstrates that user interface challenges often have mathematical solutions. The aspect ratio matching, error minimisation, and geometric mean calculations prove that quantitative approaches can solve qualitative problems. What appears as an aesthetic judgment—“this layout looks good”—can be decomposed into measurable criteria and optimised accordingly.</p>
+<h3><strong>Balance Between Automation and Control</strong></h3>
+<p>While fully automated, the system provides numerous control points: importance scoring, rule selection preferences, optimisation parameters, and resize handles. This layered approach allows the algorithm to handle the heavy lifting while preserving artistic direction where it matters most. The post-processing phase exemplifies this philosophy—mathematical optimisation followed by aesthetic refinement.</p>
+<h3><strong>Value of Post-Processing Refinements</strong></h3>
+<p>The difference between a functional layout and a polished gallery lies in the details. The post-processing transformations—merging underfilled bands, reordering for visual flow, normalisation of heights—elevate mechanical output into professional presentation. These refinements acknowledge that mathematical optimisation alone cannot capture every nuance of visual design.</p>
+<h2><strong>10.3 Open Source Availability</strong></h2>
+<p>The complete implementation is <a href="https://github.com/curioustorvald/partband">freely available on GitHub</a> under the terms of the MIT Licence, encouraging both use and contribution from the community. The codebase includes:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">Core band generation engine</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Complete set of partitioning rules</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Optimisation algorithms</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Responsive design system</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Example implementations</li>
+</ul>
+<p>Suggestions and code contributions are warmly welcomed. Whether you are looking to:</p>
+<ul class="bulleted-list"><li style="list-style-type:disc">Improve optimisation algorithms</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Enhance performance for larger datasets</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Implement animation systems</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Adapt the system for specific use cases</li>
+</ul>
+<p>Feel free to fork the repository and submit pull requests. The modular architecture makes it straightforward to extend functionality without disrupting core behavior.</p>
+<p>The Partitioned Container Band system stands as proof that complex visual problems can yield to systematic solutions. By combining mathematical optimisation with aesthetic sensibility, it opens new possibilities for automated layout generation across diverse applications. As image collections continue to grow in size and variety, systems like this become not just useful, but essential tools for managing visual content at scale.</p>
+<p>We look forward to seeing how the community adapts and extends this foundation, creating even more sophisticated solutions to the ever-evolving challenges of digital image presentation.</p>
+<h1><strong>Appendices</strong></h1>
+<h2><strong>A. Complete Rule Visualisations</strong></h2>
+<p>The following diagrams illustrate all partitioning rules with typical aspect ratio assignments and visual arrangements:</p>
+<h3><strong>Rule O: Singular Display</strong></h3>
+<pre class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">┌─────────────────────────────────┐
+│                                 │
+│            Image A              │
+│         (any ratio)             │
+│                                 │
+└─────────────────────────────────┘</pre><ul class="bulleted-list"><li style="list-style-type:disc">Single image spans entire band width</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">No height constraints (natural aspect ratio)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Used for importance ≥ 80 or extreme landscapes</li>
+</ul>
+<h3><strong>Rule A: Binary Split</strong></h3>
+<pre class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">┌─────────────────┬───────────────┐
+│                 │               │
+│     Image A     │    Image B    │
+│   (main panel)  │  (sub panel)  │
+│                 │               │
+└─────────────────┴───────────────┘</pre><ul class="bulleted-list"><li style="list-style-type:disc">Two equal-height panels</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Width ratio adjusts based on image A&#x27;s aspect ratio</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Most versatile rule, works as fallback</li>
+</ul>
+<h3><strong>Rule B: Vertical Triptych</strong></h3>
+<pre class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">┌─────────────────┬───────────────┐
+│                 │    Image B    │
+│                 ├───────────────┤
+│     Image A     │               │
+│   (main panel)  │    Image C    │
+│                 │               │
+└─────────────────┴───────────────┘</pre><ul class="bulleted-list"><li style="list-style-type:disc">Main panel paired with vertically stacked sub-panels</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Ideal when B and C are portraits or squares</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Rule H variant optimized for three-column layouts</li>
+</ul>
+<h3><strong>Rule E1: Columnar Quad Grid</strong></h3>
+<pre class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">┌─────────────────┬───────┬───────┐
+│                 │   B   │   C   │
+│                 ├───────┤       │
+│     Image A     │       ├───────┤
+│                 │   D   │   E   │
+│                 │       │       │
+└─────────────────┴───────┴───────┘</pre><ul class="bulleted-list"><li style="list-style-type:disc">Sub-panel divided into 2×2 grid (column-first)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Three resize handles: B:D, C:E, and BD:CE</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Best for collections with similar aspect ratios</li>
+</ul>
+<h3><strong>Rule E2: Row-Based Quad Grid</strong></h3>
+<pre class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">┌─────────────────┬─────────┬─────┐
+│                 │    B    │  C  │
+│                 │         │     │
+│     Image A     ├─────┬───┴─────┤
+│                 │  D  │    E    │
+│                 │     │         │
+└─────────────────┴─────┴─────────┘</pre><ul class="bulleted-list"><li style="list-style-type:disc">Sub-panel divided into 2×2 grid (row-first)</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Three resize handles: B:C, D:E, and BC:DE</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Emphasizes horizontal relationships</li>
+</ul>
+<h3><strong>Rule F1: Top-Heavy L-Shape</strong></h3>
+<pre class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">┌─────────────────┬───────────────┐
+│                 │               │
+│                 │    Image B    │
+│     Image A     ├───────┬───────┤
+│                 │   C   │   D   │
+│                 │       │       │
+└─────────────────┴───────┴───────┘</pre><ul class="bulleted-list"><li style="list-style-type:disc">B spans full width above C and D</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Ideal when B is landscape, C/D are squares</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Two resize handles: B:CD and C:D</li>
+</ul>
+<h3><strong>Rule F2: Bottom-Heavy L-Shape</strong></h3>
+<pre class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">┌─────────────────┬───────┬───────┐
+│                 │   B   │   C   │
+│                 ├───────┴───────┤
+│     Image A     │               │
+│                 │    Image D    │
+│                 │               │
+└─────────────────┴───────────────┘</pre><ul class="bulleted-list"><li style="list-style-type:disc">D spans full width below B and C</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Complements F1 for different image sets</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Two resize handles: BC:D and B:C</li>
+</ul>
+<h3><strong>Rule G: Offset Columns</strong></h3>
+<pre class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">┌─────────────────┬───────┬───────┐
+│                 │   B   │       │
+│                 ├───────┤   C   │
+│     Image A     │   D   │       │
+│                 │       │       │
+└─────────────────┴───────┴───────┘
+
+Or flipped variant:
+┌───────┬───────┬─────────────────┐
+│       │   B   │                 │
+│   C   ├───────┤                 │
+│       │   D   │     Image A     │
+│       │       │                 │
+└───────┴───────┴─────────────────┘</pre><ul class="bulleted-list"><li style="list-style-type:disc">C spans full height, B/D stack in other column</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc"><inlinecode>mustBeFlipped()</inlinecode> determines column order</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Perfect for one portrait + two squares</li>
+</ul>
+<h3><strong>Rule I: Horizontal Trinity</strong></h3>
+<pre class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">┌─────────────────┬───────┬───────┐
+│                 │       │       │
+│     Image A     │   B   │   C   │
+│                 │       │       │
+└─────────────────┴───────┴───────┘</pre><ul class="bulleted-list"><li style="list-style-type:disc">Three panels in simple horizontal arrangement</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Equal heights maintained</li>
+</ul>
+<ul class="bulleted-list"><li style="list-style-type:disc">Single resize handle for B:C ratio</li>
+</ul>
+<h3><strong>Vertical Band Arrangements</strong></h3>
+<pre class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">In 3-column layout:
+┌─────────┬─────────┬───┐
+│ Band 0  │ Band 1  │ B │
+│   (H)   │   (H)   │ n │
+├─────────┼─────────┤ d │
+│ Band 3  │ Band 4  │ 2 │
+│   (H)   │   (H)   │(V)│
+└─────────┴─────────┴───┘
+┌─────────┬───┬─────────┐
+│ Band 0  │ B │ Band 2  │
+│   (H)   │ n │   (H)   │
+├─────────┤ d ├─────────│
+│ Band 3  │ 1 │ Band 4  │
+│   (H)   │(V)│   (H)   │
+└─────────┴───┴─────────┘
+┌───┬─────────┬─────────┐
+│ B │ Band 1  │ Band 2  │
+│ n │   (H)   │   (H)   │
+│ d ├─────────┼─────────│
+│ 0 │ Band 3  │ Band 4  │
+│(V)│   (H)   │   (H)   │
+└───┴─────────┴─────────┘</pre><h2><strong>B. Configuration Reference</strong></h2>
+<h3>CSS Variables</h3>
+<pre class="language-CSS">:root {
+  --gaps: 12px;   /* Gap between bands and panels */
+}</pre><h3>JavaScript Configuration</h3>
+<pre class="language-JavaScript">const INTERNAL_WIDTH = 768    // Base unit for layout calculations
+const clip_p = 0.444          // Clipping function parameter</pre><h3>Image Collection Structure</h3>
+<pre class="language-JSON">{
+&quot;prefix&quot;:&quot;photos&quot;, /* prefix for this image collection */
+&quot;lastupdate&quot;:&quot;2025-06-08 05:51 UTC&quot;, /* optional last update */
+&quot;arts&quot;:[
+{&quot;ord&quot;:10010, &quot;year&quot;:2022, &quot;dim&quot;:&quot;1800/2400&quot;, &quot;author&quot;:&quot;AuthorName&quot;, &quot;epic&quot;:0},
+{&quot;ord&quot;:10020, &quot;year&quot;:2023, &quot;dim&quot;:&quot;4080/3060&quot;, &quot;author&quot;:&quot;AuthorName&quot;, &quot;epic&quot;:20},
+{&quot;ord&quot;:10030, &quot;year&quot;:2024, &quot;dim&quot;:&quot;[width]/[height]&quot;, &quot;author&quot;:&quot;AuthorName&quot;, &quot;epic&quot;:100}
+]}</pre></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
