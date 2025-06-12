@@ -31,7 +31,7 @@ function generateRandomSeq(seed, size) {
   let ret = []
   let v = seed
   for (let i = 0; i < size; i++) {
-    v = ((v * 69069) + 1) % 65536
+    v = ((v * 69069) + 1) % 16777216
     if (v < 0) v = -v
     ret.push(v)
   }
@@ -41,9 +41,9 @@ function generateRandomSeq(seed, size) {
 let rndVal = thisSessionSeed
 // seed changes every 8 hours
 function rnd() {
-  rndVal = ((rndVal * 69069) + 1) % 65536
+  rndVal = ((rndVal * 69069) + 1) % 16777216
   if (rndVal < 0) rndVal = -rndVal
-  return rndVal / 65536
+  return rndVal / 16777216
 }
 
 function resetRng() {
