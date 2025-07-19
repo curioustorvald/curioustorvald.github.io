@@ -124,6 +124,10 @@ th, td {
     text-align: left;
 }
 
+hr {
+    border: 1px solid rgba(84, 72, 49, 0.15);
+}
+
 /* ARTICLE BOXES */
 
 article_title {

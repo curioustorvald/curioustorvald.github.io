@@ -1,0 +1,100 @@
+<p>I was squinting at Solarized Light again, wondering why <em>the</em> most popular colour theme felt like looking at the world through dirty glasses. After years of bouncing between dark and light themes, due to the blurry vision and involuntary gazing the dark themes were causing, and apparent lack of contrast of the popular light themes, I’d decided to finally embrace the light—except make it better. That afternoon, frustrated and slightly caffeine-buzzed, I made a decision: I will finally do it. What started as a weekend project turned into a months-long journey through colour perception research, monitor specifications, and the surprising realisation that almost everything we believe about light and colour is wrong.</p>
+<h2>Part I: The Light Theme Landscape</h2>
+<p>To actually fix something, I must first understand exactly what’s wrong, so I began to document why those light themes felt amiss.</p>
+<h3>The Problems of Solarized Light</h3>
+<p><em>Solarized Light</em> is a colour theme based on eight accent tones with near-identical <em>lightness</em>, and it’s so famous and “well-received” that almost every code editor bundles one, which naturally was my first light theme choice—it was not “well-received” by my eyes. The issue was apparent: some accent tones looked way too similar, the contrast against yellow paper is inadequate, and the specific yellow and green accent tone chosen by the colour theme was basically unusable: way too similar, way too low contrast, both ranking 2.97:1 exactly by WCAG contrast metrics.</p>
+<h3>The Betrayal of Monokai Pro Light</h3>
+<p><em>Monokai (Classic) and Monokai Pro</em> are also one of the most famous colour theme, bundled in many code editors. <em>Monokai Pro Dark</em> is actually quite well-made dark theme, and their light version uses different accent tones than its dark counterpart, clearly understanding the difference between light and dark. Nevertheless, the light theme felt inadequate against my office-grade (and the professional-grade one I acquired later) monitors; only one accent colour, purple, achieved 5.29:1 contrast ratio, and the remaining five never surpassed even the 4:1, failing WCAG AA requirements. The worst part was the yellow strings: a barely visible 3.18:1 that made finding typos feel like an eye exam—a highly underwhelming result for the updated, “Pro” version.</p>
+<h3>The Hospital Ward Aesthetics of Traditional Light Themes</h3>
+<p>And here lies the fundamental question on the light themes: “Why do all light themes with good contrast look like they were designed for a dental office?” These light themes, while readable, willingly sacrifice the <em>colourfulness</em> of the text, turning every accent tone into a different tint of black. The unspoken rule seemed to be: “Dark themes get to be sexy cyberpunk interfaces, but light themes must dress like they are going to a job interview at a bank in the 1980s; or write their résumé in watercolour—gorgeous artistry that no recruiter can actually read.”</p>
+<p><strong>Conclusion</strong>: we need a light theme that’s functional as well as aesthetic.</p>
+<p>I thought I knew what I was looking for: a theme with good contrast ratios and colours that didn’t look like hospital scrubs. Should be simple enough, right? Just pick some nice, saturated colours that pass WCAG AAA requirements, and call it a day.</p>
+<p>Then I discovered why everyone before me had failed.</p>
+<h2>Part II: Down the Research Rabbit Hole</h2>
+<p>It started innocently enough—I was testing yet another shade of blue, trying to understand why it looked perfect in my colour picker but terrible in my editor. That led me to a Wikipedia article about colour perception. Which led to a research paper. Which led to another paper. Which led to me, at 2 AM, reading about colour appearance models and realising everything I thought I knew about “good contrast” was incomplete at best.</p>
+<p>The rabbit hole had opened, and I was already falling.</p>
+<h3>Measurement vs Perception</h3>
+<p>My first discovery was that <em>lightness</em> (what computers measure) and <em>brightness</em> (what we perceive) are completely different beasts. A hot pink might measure the same lightness as a grey, but our brains scream that the pink is brighter. This phenomenon was another beast named <em>Helmholtz–Kohlrausch Effect</em> in play, and the effect directly alters the <em>brightness</em> of the perceived colour. This gap—between what contrast ratios measure and what we actually see—was the key everyone had been missing.</p>
+<p>This meant I could use more saturated colours than traditional themes dared to try. While they stayed safe with muted tones, I could push saturation higher and let the H–K effect do the heavy lifting for perceived contrast.</p>
+<h3>The Black-on-White Problem Nobody Talks About</h3>
+<p>But then I hit a wall. Even with perfectly chosen colours, text felt… thin. Wispy. Like it was floating above the screen rather than sitting on it.</p>
+<p>After diving through vision research papers, I found the culprit: black text on white backgrounds suffers from what researchers call “irradiation”—the white background literally eats into the dark letters, making them appear thinner than they are. It’s why books have used off-white paper for centuries, and why e-readers never display pure white.</p>
+<p>The research was unanimous: white-on-black text appears bolder and more substantial, while black-on-white needs compensation. This explained why so many light themes felt anaemic—they were fighting a battle against physics and losing.</p>
+<h3>The Monitor Conspiracy</h3>
+<p>Armed with this knowledge, I started experimenting with backgrounds. Pure white (#FFFFFF) was clearly too harsh, but how far could I push it? That’s when I discovered something the colour theory books don’t tell you: monitors lie.</p>
+<p>Here’s what I found: consumer monitors have a dramatic brightness cliff between #FFFFFF and #FEFEFE. That single bit difference—imperceptible in theory—triggers a significant brightness reduction on actual displays. The jump from #FEFEFE to #FDFDFD? Barely noticeable. But #FFFFFF is special, pushed to maximum backlight intensity.</p>
+<p>It’s like monitor manufacturers conspired to make pure white as bright as possible, creating a secret brightness level that only #FFFFFF can access. By choosing #FDFDFD, I wasn’t just reducing brightness by 1%—I was opting out of the “stare into the sun” mode entirely while keeping the “premium paper” look.</p>
+<h3>The Synthesis</h3>
+<p>These three discoveries changed everything:</p>
+<ol>
+<li>I could use rich, saturated colours and trust the H–K effect to maintain readability</li>
+<li>I needed to compensate for the thinning effect of dark-on-light text (hello, bold keywords)</li>
+<li>I could create a calmer background by avoiding the #FFFFFF brightness bomb</li>
+</ol>
+<p>Suddenly, the failures of existing themes made sense. They were either unaware of these effects or too conservative to exploit them. But I had no reputation to protect, no committee to please—just my own eyes demanding better.</p>
+<p>Time to put theory into practice.</p>
+<h2>Part III: Building <em>Syntello</em></h2>
+<p>With three revelations in hand, I opened my colour picker with the confidence of someone who’d just read the manual to a game everyone else was playing blind.</p>
+<p>I was wrong. Theory and practice, it turns out, are different beasts entirely.</p>
+<h3>The Dungeon Map to Brighter Colours</h3>
+<p>My first attempt was embarrassing. I cranked up the saturation on every colour, trusting the Helmholtz–Kohlrausch effect to save me. The result looked like a unicorn had thrown up on my screen. Too much of a good thing, apparently.</p>
+<p>That’s when I discovered <em>MacAdam Limits</em>—essentially a map showing the maximum possible saturation for each hue. And this map revealed something crucial: not all colours are created equal. Yellow tops out early, becoming impossible to saturate without losing contrast. But teal, blue, purple, and red? These colours had room to breathe, space to push into territories that yellow could never reach.</p>
+<p>It was like discovering that my dungeon had secret passages, but only in certain directions. The cyan-blue-purple-red spectrum became my new playground. These weren’t arbitrary choices—they were the colours physics allowed me to make bold.</p>
+<p>The effect was even more pronounced on different displays. On my ancient HP ProBook, the colours finally popped instead of mudding together. On my MacBook’s P3 display, they sang. Same theme, different performances, all good—exactly what I’d hoped for.</p>
+<h3>The Saga of Red Strings</h3>
+<p>In my first iterations, the strings were green. Of course they were—every theme I’d ever used had green strings. It was comfortable, familiar, like a worn pair of coding socks.</p>
+<p>But after adjusting other colours, green became the weak link. It sat there, polite and inadequate, with the contrast of wet cardboard. The MacAdam Limits confirmed what my eyes knew: green just couldn’t compete in the saturation game.</p>
+<p>Of the remaining H–K hues, red immediately caught my eye. But red strings? That felt like heresy. Red meant errors, warnings, danger—not innocent text content.</p>
+<p>I tried it anyway.</p>
+<p>The strings didn’t just stand out—they demanded attention. Every unclosed quote, every string typo became instantly visible. What I’d stumbled onto by accident, research later confirmed: red enhances detail-oriented cognitive processing. My “heretical” choice was actually helping my brain spot mistakes.</p>
+<p>So I refined it, testing shade after shade until I found the sweet spot: #BF0303. Bold enough to command attention, refined enough not to scream “EMERGENCY!” at every string declaration.</p>
+<h3>Dancing with Typography</h3>
+<p>Here’s where I broke another unwritten rule: syntax themes should use colour, period. Bold is for keywords in documentation, not code. Italics are for comments in books, not IDEs.</p>
+<p>But I had a limited palette and big ambitions. If I couldn’t add more colours (physics said no), I could add more dimensions. Bold keywords didn’t just solve the irradiation problem—they created visual hierarchy. Important control structures literally carried more weight.</p>
+<p>Italics for certain constructs added rhythm. Underlines for mutable variables made them unmistakable. The code began to dance on the screen, each font style adding meaning that colour alone couldn’t convey.</p>
+<p>The unexpected benefit? This approach would help colourblind developers too. By varying typography alongside colour, I’d accidentally created multiple ways to distinguish syntax elements. A colourblind developer wouldn’t need to rely solely on distinguishing red from green—they’d have bold keywords, italic constants, and underlined mutable variables as additional cues. It wasn’t planned, but constraints have a way of forcing better solutions.</p>
+<hr>
+<p>Each decision built on the last. Bold keywords enabled ocean-depth blue. Red strings freed green from its misery. Typography added the dynamics that a limited palette couldn’t provide.</p>
+<p><em>Syntello</em> wasn’t just a collection of colours anymore—it was a system, each part reinforcing the others. The theme that started as “let me fix these broken light themes” had become something else entirely: proof that light themes could be both beautiful and functional.</p>
+<p>But would anyone else see it that way?</p>
+<h2>Part IV: The Light at the End of the Tunnel</h2>
+<p>Six months after that caffeine-fueled afternoon, I’m still using <em>Syntello</em> daily. My eyes no longer squint. The involuntary gazing is gone. The code is crisp, clear, and—dare I say it—beautiful.</p>
+<p>But here’s what I didn’t expect: the comments from other developers. “I thought I hated light themes,” they’d say. “Turns out I just hated bad ones.” Or my favourite: “I can finally code past 3 PM without feeling like my retinas are filing a complaint.”</p>
+<h3>The Uncomfortable Truth</h3>
+<p>Let’s be honest: if you&#39;re happy with your dark theme, <em>Syntello</em> probably isn’t for you. And that’s fine. The cyberpunk aesthetic is alluring, and if your eyes don’t protest, why change?</p>
+<p>But if you’re like I was—caught between dark themes that cause focus issues and light themes that look like medical software—then maybe it’s worth trying something different. Your visual system might surprise you.</p>
+<h3>What This Journey Taught Me</h3>
+<p>Building <em>Syntello</em> revealed something beyond colour codes and contrast ratios: most of our “preferences” in development environments are just accumulated habits. We use dark themes because everyone uses dark themes. We accept muddy light themes because we assume that’s the price of readability.</p>
+<p>Sometimes the best solutions come from questioning these assumptions. From diving into research papers at 2 AM. From discovering that monitor manufacturers have been gaslighting us with #FFFFFF. From realising that red strings aren’t heretical—they’re helpful.</p>
+<h3>Your Turn</h3>
+<p><em>Syntello</em> is open source and available for JetBrains IDEs (IntelliJ IDEA, WebStorm, PyCharm, Android Studio, etc.), Kate, Sublime Text, and Visual Studio Code. Try it for a week. Your pupils will constrict, your irradiation problems will vanish, and the Helmholtz–Kohlrausch effect will make those colours sing.</p>
+<p>Will you love it immediately? Probably not. Light themes require adjustment, like walking outside after a movie. But give your visual system time to adapt. You might discover, as I did, that you don’t hate light themes.</p>
+<p>You just hate bad ones.</p>
+<h3>References</h3>
+<ul>
+<li>A. Buchner &amp; N. Baumgartner. (2007). Text–background polarity affects performance irrespective of ambient illumination and colour contrast. <em>Ergonomics</em>, 50(7), 1036-1063. <a href="https://doi.org/10.1080/00140130701306413" target="_blank" rel="noopener noreferrer">doi:10.1080/00140130701306413</a></li>
+<li>C. Piepenbrock, S. Mayr, I. Mund &amp; A. Buchner. (2013). Positive display polarity is advantageous for both younger and older adults, <em>Ergonomics</em>, 56(7), 1116-24. <a href="https://doi.org/10.1080/00140139.2013.790485" target="_blank" rel="noopener noreferrer">doi:10.1080/00140139.2013.790485</a></li>
+<li>C. Piepenbrock, S. Mayr, I. Mund, &amp; A. Buchner. (2014). Positive display polarity is particularly advantageous for small character sizes. <em>Human Factors</em>, 55(6), 1028-1042. <a href="https://doi.org/10.1177/0018720813515509" target="_blank" rel="noopener noreferrer">doi:10.1177/0018720813515509</a></li>
+<li>공용구, 김대민, 손성태, 한준구. (2010). 광삼효과를 이용한 흑백 대비에서의 여러 글자크기에 대한 주관적 평가와 분석 (Subjective Assessments and Analyses of Letter Sizes Under Black and White Contrasts for Various Font Sizes Through the Irradiation-effect), <em>대한인간공학회지</em> (<em>Journal of the Ergonomics Society of Korea)</em>, 29(1), 107-112. <a href="https://doi.org/10.5143/JESK.2010.29.1.107" target="_blank" rel="noopener noreferrer">doi:10.5143/JESK.2010.29.1.107</a></li>
+<li>Nielsen Norman Group. (2020). Dark Mode vs. Light Mode: Which Is Better? <em>NN/g UX Research</em>. <a href="https://www.nngroup.com/articles/dark-mode/">https://www.nngroup.com/articles/dark-mode/</a></li>
+<li>M. Withouck, K. A. G. Smet, W. R. Ryckaert &amp; P. Hanselaer. (2015). Experimental driven modelling of the color appearance of unrelated self-luminous stimuli: CAM15u. <em>Optics Express</em>, 23(9), 12045-12064. <a href="https://doi.org/10.1364/OE.23.012045" target="_blank" rel="noopener noreferrer">doi:10.1364/OE.23.012045</a></li>
+<li>G. High, P. Green, P. Nussbaum. (2023). The Helmholtz–Kohlrausch effect on display-based lightcolors and simulated substrate colors. <em>Color Research &amp; Application</em>, 48(2): 167–177. <a href="https://doi.org/10.1002/col.22839" target="_blank" rel="noopener noreferrer">doi:10.1002/col.22839</a></li>
+<li>R. Mehta &amp; R. J. Zhu. (2009). Blue or red? Exploring the effect of color on cognitive task performances. <em>Science</em>, 323(5918), 1226-1229. <a href="https://doi.org/10.1126/science.1169144" target="_blank" rel="noopener noreferrer">doi:10.1126/science.1169144</a></li>
+<li>T. Gazit, T. Tair, Z. Hua-Xu, P. C. K. Hung &amp; V. Cheung. (2025). The Dark Side of the Interface: Examining the Influence of Different Background Modes on Cognitive Performance. <em>Ergonomics</em>, 1–14. <a href="https://doi.org/10.1080/00140139.2025.2483451" target="_blank" rel="noopener noreferrer">doi:10.1080/00140139.2025.2483451</a></li>
+</ul>
+<h3>Glossary</h3>
+<ul>
+<li><strong>Lightness</strong> is the objective measure of how close a colour is to white (100) or black (0), regardless of how our eyes perceive it</li>
+<li><strong>Brightness</strong> is a concept distinguished from <em>lightness</em>, it defines the “perceived” lightness of a colour; a hot pink can have high <em>brightness</em> but not the high <em>lightness</em>; conversely, a highlighter yellow has high <em>lightness</em>, but its <em>brightness</em> is certainly less than that of the hot pink</li>
+<li><strong>Saturation</strong> is a degree of how “deep/hot” the colour appears, free from whitishness of the colour</li>
+<li><strong>Colourfulness</strong> defines the ‘perceived’ saturation of a colour; how vivid or intense a colour appears in context</li>
+<li><strong>Contrast ratio</strong>, especially used by <em>WCAG</em> is a measurement of how two colours are different in <em>lightness</em>, maximum value is exactly 21:1</li>
+<li><strong>WCAG</strong> is an acronym for <em>Web Content Accessibility Guidelines</em>, which I’ve used as a basis for the good contrast ratio</li>
+<li><strong>Helmholtz–Kohlrausch Effect</strong> make saturated colours appear more <em>bright</em> because the effect touches the <em>brightness</em> directly</li>
+<li><strong>MacAdam Limits</strong> are the upper limits of saturation of all perceivable hue. Deep green, teal, purple, and magenta have greater MacAdam Limits, and yellow gets the least Limits, which is why hot pink often appear <em>bright</em> while yellow can only appear <em>light</em></li>
+</ul>
+<h3>See Also</h3>
+<ul>
+<li><strong><a href="https://github.com/curioustorvald/syntello-color-scheme">GitHub Repository</a></strong>: includes theme files, implementation details, and the main place of communication. If you’ve made a port to the other editors, I’d gladly merge your pull requests</li>
+<li><strong><a href="https://curioustorvald.com/oklch_book_of_colour/">Book of Visible Colours</a></strong>: an interactive demo of the <em>MacAdam Limits</em>—see for yourself why yellow can’t compete with purple (created by me!)</li>
+</ul>
