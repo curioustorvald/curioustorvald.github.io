@@ -12,7 +12,8 @@ body {
  max-width:800px;
  padding:1em;
  line-height:1.550;
- text-align:justify
+ text-align:justify;
+ hyphens: auto;
 }
 h1 {
     font-family: 'PT Sans';
@@ -211,9 +212,6 @@ blockquote:after {
  clear:both
 }
 @media screen and (max-width:500px) {
- body {
-  text-align:left
- }
  div.fancyPositioning div.picture-left,
  div.fancyPositioning div.tleft {
   float:none;
