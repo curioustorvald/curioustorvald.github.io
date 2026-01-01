@@ -22,6 +22,12 @@
         "schema": "LIST",
         "source": "articles_general.json"
     },
+    "general": {
+        "id": "shit",
+        "label": "Shitpost",
+        "schema": "LIST",
+        "source": "articles_shit.json"
+    },
     "about": {
         "label": "About the Author",
         "schema": "HREF",
