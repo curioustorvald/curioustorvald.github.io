@@ -22,7 +22,7 @@
         "schema": "LIST",
         "source": "articles_general.json"
     },
-    "general": {
+    "shit": {
         "id": "shit",
         "label": "Shitpost",
         "schema": "LIST",
