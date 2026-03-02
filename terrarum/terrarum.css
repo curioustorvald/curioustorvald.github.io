@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "TSB";
+  src: url("TerrarumSansBitmap.woff2") format('woff2');
+}
+
 * {
     --col_inventory_cell_border: rgba(255, 255, 255, 0.25);
     --col_cell_fill: #232528C8;
@@ -15,6 +20,11 @@ html, body {
     flex-direction: column;
 }
 
+html, body, p, h1, h2, h3, h4, h5, span {
+    font-family: "TSB" !important;
+    font-weight: 400 !important;
+}
+
 html {
     height: 100%;
     background: url('background.png') center center no-repeat;
@@ -23,6 +33,27 @@ html {
 
 body {
     flex-grow: 1;
+}
+
+h1, h2 {
+    font-size: 48px;
+    text-shadow: 2.4px 2.4px rgba(0, 0, 0, 0.5),
+                 0.0px 2.4px rgba(0, 0, 0, 0.5),
+                 2.4px 0.0px rgba(0, 0, 0, 0.5);
+}
+
+h3, h4 {
+    font-size: 32px;
+    text-shadow: 1.6px 1.6px rgba(0, 0, 0, 0.5),
+                 0.0px 1.6px rgba(0, 0, 0, 0.5),
+                 1.6px 0.0px rgba(0, 0, 0, 0.5);
+}
+
+h5, p, span {
+    font-size: 16px;
+    text-shadow: 0.8px 0.8px rgba(0, 0, 0, 0.5),
+                 0.0px 0.8px rgba(0, 0, 0, 0.5),
+                 0.8px 0.0px rgba(0, 0, 0, 0.5);
 }
 
 header h1 {
@@ -35,9 +66,11 @@ header h1 {
         0px 0px 4px   rgba(0, 0, 0, 0.35);
 }
 
+
 footer {
     margin-top: auto;
     text-align: center;
     padding: 10px;
     color: white;
+    font-size: 16px;
 }
