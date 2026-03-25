@@ -6,6 +6,24 @@ h1, h2, h3, h4, h5 {
     font-family: 'PT Serif';
 }
 
+html[lang="ko"] contents article_title,
+html[lang="ko"] contents article_body {
+    font-family: 'MaruBuri', serif;
+}
+
+html[lang="ko"] contents article_title h1,
+html[lang="ko"] contents article_title h2,
+html[lang="ko"] contents article_title h3,
+html[lang="ko"] contents article_title h4,
+html[lang="ko"] contents article_title h5,
+html[lang="ko"] contents article_body h1,
+html[lang="ko"] contents article_body h2,
+html[lang="ko"] contents article_body h3,
+html[lang="ko"] contents article_body h4,
+html[lang="ko"] contents article_body h5 {
+    font-family: 'MaruBuri', serif;
+}
+
 panelnavwrapper {
     display: inline-block;
     text-align: center;
@@ -147,6 +165,14 @@ article_title {
 article_body, article_goback {
     display: block;
     margin: 2em 1em 0 1em;
+}
+
+article_alts:empty {
+    display: none;
+}
+
+article_alts {
+    grid-column: 1 / -1;
 }
 
 article_timestamp, article_share {

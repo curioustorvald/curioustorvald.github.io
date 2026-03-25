@@ -29,6 +29,8 @@ function loadJSON(jsonPath, callback) {
 
 let pageselection = "index" // what's on the root of the panels.json
 let currentarticle = undefined
+let currentaltfile = undefined
+let altMeta = {} // file -> { lang, title }
 let sect = {}
 let panels = {}
 
@@ -83,8 +85,13 @@ function pageinit() {
                 let index = records.findIndex(r => r.f == article)
                 if (index >= 0)
                     _presentArticleByRecord(records[index])
-                else
-                    showArticleNotFound()
+                else {
+                    let baseIndex = records.findIndex(r => article.startsWith(r.f + '_'))
+                    if (baseIndex >= 0)
+                        _presentArticleByRecord(records[baseIndex], article)
+                    else
+                        showArticleNotFound()
+                }
             }
         })
     }
@@ -143,7 +150,7 @@ function createShareLink(cat, name) {
 }
 
 function copySharelink() {
-    let link = `${pageselection}_${currentarticle}`
+    let link = `${pageselection}_${currentaltfile}`
     clipit(`${window.location.href.split('?')[0]}?a=${link}`)
 }
 
@@ -179,23 +186,36 @@ function createGoback(cat) {
     return (panels[cat] && panels[cat].label) ? `<a href="javascript:presentList()"><sym>🖘</sym>&ensp;Go Back to ${panels[cat].label}</a>` : ``
 }
 
-function _presentArticleByRecord(articleRecord) {
+function _presentArticleByRecord(articleRecord, altFile) {
     let timestampStr = articleRecord.f.split('_',1)[0]
     currentarticle = articleRecord.f
+    currentaltfile = altFile || articleRecord.f
+    document.documentElement.lang = altFile ? altFile.substring(articleRecord.f.length + 1) : 'en'
 
     sect.article_title.innerHTML = `<h2>${articleRecord.t}</h2>`
     sect.article_timestamp.innerHTML = timestampToReadable(timestampStr)
     sect.article_share.innerHTML = createShareLink()
-    sect.article_alts.innerHTML = createListOfAlts()
+    sect.article_alts.innerHTML = ''
+    createListOfAlts(articleRecord.f, articleRecord.t, altFile)
     sect.article_goback.innerHTML = createGoback(pageselection)
 
-    loadArticleFromFileAndShow(articleRecord.f)
+    loadArticleFromFileAndShow(currentaltfile)
 }
 
 function loadArticleFromFileAndShow(filename) {
     loadArticle(`articles/${filename}.html`, (html) => {
         sect.article_body.innerHTML = html
     })
+}
+
+function loadAltAndShow(filename) {
+    currentaltfile = filename
+    let meta = altMeta[filename]
+    if (meta) {
+        document.documentElement.lang = meta.lang
+        sect.article_title.innerHTML = `<h2>${meta.title}</h2>`
+    }
+    loadArticleFromFileAndShow(filename)
 }
 
 function presentList(id) {
@@ -223,8 +243,30 @@ function presentList(id) {
     })
 }
 
-function createListOfAlts() {
-    /* todo */
-    return ''
+function createListOfAlts(filename, baseTitle, activeAltFile) {
+    loadJSON('articles/alts.json', (jsonText) => {
+        if (!jsonText) return
+        let altsArray = JSON.parse(jsonText)
+        let entry = null
+        for (let obj of altsArray) {
+            if (obj[filename]) { entry = obj[filename]; break }
+        }
+        if (!entry) return
+
+        let items = [{ label: entry.default, file: filename, lang: 'en', title: baseTitle }]
+        for (let alt of entry.alts) {
+            items.push({ label: alt.l, file: `${filename}_${alt.s}`, lang: alt.s, title: alt.t || baseTitle })
+        }
+
+        altMeta = {}
+        items.forEach(item => { altMeta[item.file] = { lang: item.lang, title: item.title } })
+
+        if (activeAltFile && altMeta[activeAltFile])
+            sect.article_title.innerHTML = `<h2>${altMeta[activeAltFile].title}</h2>`
+
+        sect.article_alts.innerHTML = items
+            .map(item => `<a href="javascript:loadAltAndShow('${item.file}')">${item.label}</a>`)
+            .join(' &middot; ')
+    })
 }
 
