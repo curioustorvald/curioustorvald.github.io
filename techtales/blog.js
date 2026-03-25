@@ -52,6 +52,7 @@ function init() {
     sect.article_title = document.getElementsByTagName("ARTICLE_TITLE")[0]
     sect.article_timestamp = document.getElementsByTagName("ARTICLE_TIMESTAMP")[0]
     sect.article_share = document.getElementsByTagName("ARTICLE_SHARE")[0]
+    sect.article_alts = document.getElementsByTagName("ARTICLE_ALTS")[0]
     sect.article_body = document.getElementsByTagName("ARTICLE_BODY")[0]
     sect.article_goback = document.getElementsByTagName("ARTICLE_GOBACK")[0]
 
@@ -185,6 +186,7 @@ function _presentArticleByRecord(articleRecord) {
     sect.article_title.innerHTML = `<h2>${articleRecord.t}</h2>`
     sect.article_timestamp.innerHTML = timestampToReadable(timestampStr)
     sect.article_share.innerHTML = createShareLink()
+    sect.article_alts.innerHTML = createListOfAlts()
     sect.article_goback.innerHTML = createGoback(pageselection)
 
     loadArticleFromFileAndShow(articleRecord.f)
@@ -201,6 +203,7 @@ function presentList(id) {
 
     sect.article_timestamp.innerHTML = ''
     sect.article_share.innerHTML = ''
+    sect.article_alts.innerHTML = ''
     sect.article_goback.innerHTML = ''
     sect.article_title.innerHTML = `<h2>Articles with ${catRecord.label} Topic:</h2>`
 
@@ -218,5 +221,10 @@ function presentList(id) {
         articleListHTML += `</article_list_container>`
         sect.article_body.innerHTML = articleListHTML
     })
+}
+
+function createListOfAlts() {
+    /* todo */
+    return ''
 }
 
