@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//srv/www/htdocs/ghpage/**)",
+      "Read(//srv/www/htdocs/**)"
+    ]
+  }
+}
